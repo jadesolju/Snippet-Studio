@@ -1,4 +1,10 @@
 
+function sanitizeRawHtml(html) {
+  if (!html || typeof html !== "string") return "";
+  return html.replace(/^#+\s+[^\n<]+\n+/gm, "").trim();
+}
+
+
 function formatHtml(html) {
   if (!html) return "";
   let formatted = "";
@@ -1041,7 +1047,7 @@ function renderBackgroundControls(snippet) {
 
 function assembleRawHtml(snippet) {
   const state = htmlPartState(snippet);
-  return `${state.prefix}${state.parts.map((part) => part.source).join("")}${state.suffix}`;
+  const combined = `${state.prefix}${state.parts.map((part) => part.source).join("")}${state.suffix}`; return sanitizeRawHtml(combined);
 }
 
 function applyFieldValues(snippet, source) {
