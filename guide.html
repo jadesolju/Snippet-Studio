@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0d1120">
+    <title>คู่มือตั้งค่า Rubii — Snippet Studio</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="app-shell guide-shell">
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="Snippet Studio หน้าหลัก">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 40 40" role="presentation" focusable="false">
+              <defs>
+                <linearGradient id="jelly-bell" x1="9" y1="7" x2="31" y2="27" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#e4d7ff" />
+                  <stop offset=".55" stop-color="#b9a5ff" />
+                  <stop offset="1" stop-color="#87e6e4" />
+                </linearGradient>
+              </defs>
+              <path d="M10 19c0-7.2 4.5-12 10-12s10 4.8 10 12c0 2.7-4.5 4.6-10 4.6S10 21.7 10 19Z" fill="url(#jelly-bell)" />
+              <path d="M11.5 20.3c2.2 1.4 5.1 2.1 8.5 2.1s6.3-.7 8.5-2.1" fill="none" stroke="#f7efff" stroke-linecap="round" stroke-width="1.4" />
+              <path d="M14 24c-.2 3.3 1.5 3.5 1.3 6.2M20 24.1c0 2.7-.9 3.7-.4 6.1M26 24c.2 3.3-1.5 3.5-1.3 6.2" fill="none" stroke="#b9a5ff" stroke-linecap="round" stroke-width="1.7" />
+              <path d="m7.5 12 .6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6.6-1.4ZM32.5 9l.5 1.2 1.2.5-1.2.5-.5 1.2-.5-1.2-1.2-.5 1.2-.5.5-1.2Z" fill="#f4b8df" />
+              <circle cx="31.5" cy="27" r="1.2" fill="#8de8e4" />
+            </svg>
+          </span>
+          <span class="brand-copy">
+            <span class="eyebrow">JELLYFISH COSMIC</span>
+            <span class="brand-name">Snippet Studio</span>
+          </span>
+        </a>
+        <nav class="topbar-links" aria-label="เมนูหลัก">
+          <a href="./">คลังโค้ด</a>
+          <a href="./guide.html" aria-current="page">คู่มือตั้งค่า</a>
+        </nav>
+      </header>
+
+      <main class="guide-main">
+        <section class="guide-hero">
+          <p class="eyebrow intro-eyebrow">RAW HTML → RUBII CONFIG</p>
+          <h1>แปลงโค้ดเป็นชุดตั้งค่า Rubii</h1>
+          <p>เลือกโค้ดจากคลัง แล้ว Studio จะแสดง HTML แม่แบบ, HTML ต้นฉบับ, CSS ส่วนกลาง, Regex, ข้อความทดสอบ และ System Prompt แยกเป็นแท็บ ปรับชื่อแท็กและจุดแทนข้อความได้จากหน้าเดียว</p>
+          <a class="guide-return" href="./">← กลับไปเลือกโค้ดในคลัง</a>
+        </section>
+
+        <div class="guide-grid">
+          <nav class="guide-index" aria-label="หัวข้อในคู่มือ">
+            <p class="eyebrow">IN THIS GUIDE</p>
+              <a href="#raw-html">1. เลือกโค้ด</a>
+              <a href="#style-tag">2. HTML template</a>
+              <a href="#global-css">3. CSS ส่วนกลาง</a>
+              <a href="#regex">4. Regex</a>
+              <a href="#workflow">5. ข้อความทดสอบและ System Prompt</a>
+          </nav>
+
+          <div class="guide-content">
+            <section id="raw-html" class="guide-card">
+              <p class="eyebrow">01 · START FROM YOUR CODE</p>
+              <h2>เลือก Raw HTML แล้วให้ Studio แยกส่วน</h2>
+              <p>เลือกตัวอย่างจาก dropdown หมวดและรายการโค้ด ระบบจะแบ่ง HTML ตาม element หลักให้แก้เป็นส่วน ๆ ได้ ส่วน Quick Edit ใช้เปลี่ยนข้อความและ URL รูป ส่วนตัวเลือกสีมีทั้ง color picker, ช่องโค้ดสี และแถบ opacity พร้อมพรีวิวการ์ดทันที</p>
+              <p>ช่อง “ข้อความที่จะใส่เป็นช่อง $1” เลือกเนื้อหาที่เปลี่ยนตามคำตอบ Studio เลือกข้อความที่น่าจะเป็นเนื้อหาหลักให้อัตโนมัติ และสร้าง Style tag template จาก Raw HTML ทั้งก้อน</p>
+              <p class="guide-tip">พื้นหลังเริ่มต้นถูกใส่ใน element หลักของการ์ด และถูกแยกเข้า CSS ที่สร้างให้ ไม่ได้ใส่บนพื้นหลังหน้าพรีวิว</p>
+            </section>
+
+            <section id="style-tag" class="guide-card">
+              <p class="eyebrow">02 · STYLE TAG</p>
+              <h2>แยก HTML ต้นฉบับกับ HTML แม่แบบ</h2>
+              <p>แท็บ <strong>HTML แม่แบบ (Style tag)</strong> คือโครงสร้างการ์ดที่แยก inline style เป็น class แล้ว แทนข้อความที่เลือกด้วย <code>$1</code> หนึ่งจุด</p>
+              <p>แท็บ <strong>HTML ต้นฉบับ</strong> คือ Raw HTML เดิมที่ยังมี inline style อยู่ ใช้เทียบกับแม่แบบได้ ส่วน CSS ที่ดึงออกมาจะอยู่ในแท็บ <strong>CSS ส่วนกลาง</strong></p>
+              <p>ชื่อแท็กแก้ได้ใน Quick Edit เช่น <code>rubii21</code> ส่วนแท็บ <strong>ข้อความทดสอบ (Output)</strong> แสดงค่าทดลองในแท็ก เพื่อเห็นลำดับและรูปแบบข้อมูลที่ต้องส่งเข้า</p>
+              <div class="guide-example"><span>ข้อความทดสอบก่อนแปลง</span><code>&lt;rubii21&gt;ฝนเพิ่งหยุดตก Mira มองไปยังชานชาลา&lt;/rubii21&gt;</code></div>
+            </section>
+
+            <section id="global-css" class="guide-card">
+              <p class="eyebrow">03 · GLOBAL CSS</p>
+              <h2>CSS ส่วนกลางถูกดึงจาก inline style</h2>
+              <p>แท็บ <strong>CSS ส่วนกลาง</strong> รวมกฎจาก <code>style="…"</code> ของทุก element ให้เป็น class selector พร้อมใส่ class ที่ตรงกันไว้ใน HTML แม่แบบ การแก้สี พื้นหลัง หรือส่วนย่อยจะสร้าง CSS ใหม่ตามการแก้ไข</p>
+              <p class="guide-tip">ใช้ CSS ที่ Studio สร้างได้เลย ไม่ต้องคัดกฎออกจาก HTML เอง และไม่ต้องใส่แท็ก <code>&lt;style&gt;</code> ครอบ</p>
+            </section>
+
+            <section id="regex" class="guide-card">
+              <p class="eyebrow">04 · REGEX</p>
+              <h2>Regex แทนค่าได้หลายจุด และเพิ่มกฎแยกกันได้</h2>
+              <p>Style tag ใช้ช่อง <code>$1</code> เดียวตามตำแหน่งที่เลือก ส่วน Regex เลือกข้อความได้สูงสุด 33 จุด แล้วสร้าง capture group <code>$1</code> ถึง <code>$33</code> ใน HTML replacement ให้อัตโนมัติ หรือกดเพิ่มกฎ Regex เพื่อกำหนด pattern/replacement เอง</p>
+              <p>ระบบเลือก marker เช่น <code>(ข้อความที่เปลี่ยน)</code> หรือ <code>{{field}}</code> ให้อัตโนมัติ หากต้นฉบับเป็นข้อความตัวอย่างธรรมดาให้ติ๊กเลือกทีละจุดเอง เพราะ Studio บอกไม่ได้ว่าค่านั้นจะเปลี่ยนตอนใช้งานจริงหรือไม่</p>
+              <div class="guide-example"><span>เมื่อเลือก 3 จุดใน Quick Edit</span><code>&lt;tag&gt;ชื่อโพสต์||จำนวนไลก์||คอมเมนต์&lt;/tag&gt;</code></div>
+              <p>Regex หลายช่องใช้ <code>||</code> คั่นค่าตามลำดับที่เลือก ห้ามมี <code>||</code> อยู่ในค่าจริงของช่องนั้น ๆ เพิ่ม Regex แยกได้หลายกฎ พร้อมตั้งชื่อ เลือกให้ทำงานกับเนื้อหาต้นฉบับหรือข้อความที่แสดง และแก้ pattern/replacement ได้</p>
+              <div class="guide-columns">
+                <div><strong>เนื้อหาต้นฉบับ</strong><p>มองเห็นข้อความดิบ รวม Markdown, HTML, attribute และ CSS เหมาะกับการแทน marker หรือโครงสร้างทั้งก้อน กฎทำงานก่อนขยาย Style tag</p></div>
+                <div><strong>ข้อความที่แสดง</strong><p>ทำงานหลังขยาย Style tag และจัดรูปแบบ Markdown แล้ว เปลี่ยนเฉพาะข้อความที่เห็น ไม่แก้ HTML tag หรือ CSS</p></div>
+              </div>
+              <p>นิพจน์ใช้รูปแบบ <code>/pattern/flags</code> โดย <code>$1</code> ถึง <code>$33</code> ใน replacement อ้างถึง capture group ตามลำดับ กฎ Regex ใน Rubii ทำงานตามลำดับที่ตั้งไว้ ส่วน Regex กับ Style tag เป็นวิธีแทนแท็กคนละแบบ ควรเลือกอย่างใดอย่างหนึ่งสำหรับแท็กเดียวกัน</p>
+            </section>
+
+            <section id="workflow" class="guide-card">
+              <p class="eyebrow">05 · GENERATED OUTPUT</p>
+              <h2>ข้อความทดสอบและคำสั่งตัวละคร</h2>
+              <p><strong>ข้อความทดสอบ (Output)</strong> คือข้อความต้นทางที่โมเดลส่งในแชตก่อน Rubii แปลงเป็นการ์ด ระบบเติมค่าทดสอบที่อ่านได้ให้แล้ว: marker ใช้ค่าตัวอย่างตามชนิด ส่วนข้อความคงที่ใช้ข้อความจาก HTML ที่เลือก แทนค่าทดสอบด้วยข้อมูลจริงก่อนใช้งาน และคั่นหลายช่องด้วย <code>||</code></p>
+              <p><strong>ตั้งค่าตัวละคร · System Prompt</strong> เป็น Markdown แบบหัวข้อและ bullet สั้น ๆ บอกว่าจะใช้แท็กเมื่อใด ใส่ข้อมูลอะไร และเรียงช่อง Regex อย่างไร โดยไม่สั่งให้เขียน HTML/CSS</p>
+              <p>ข้อความนี้เป็นคำสั่งธรรมดาสำหรับต่อท้าย System Prompt ของตัวละคร ไม่ใช่ JSON หรือไฟล์นำเข้า และจะเปลี่ยนตามชื่อแท็กกับช่องข้อมูลที่เลือก</p>
+              <p>Rubii ประมวลผล Regex ในเนื้อหาต้นฉบับก่อนขยาย Style tag และ Markdown จากนั้นจึงทำ Regex ในข้อความที่แสดงและใช้ CSS ส่วนกลาง ดูลำดับนี้ประกอบก่อนเลือกใช้ Regex กับ Style tag พร้อมกัน</p>
+              <p class="guide-source">อ้างอิง: <a href="https://rubii.ai/blog/styles-and-regex" target="_blank" rel="noreferrer">Rubii · Styles &amp; regex</a></p>
+            </section>
+          </div>
+        </div>
+      </main>
+      <footer class="page-footer"><span>Snippet Studio</span><span>คู่มือเริ่มจาก HTML ที่คุณมีอยู่</span></footer>
+    </div>
+  </body>
+</html>

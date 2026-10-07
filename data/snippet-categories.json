@@ -1,0 +1,50 @@
+[
+  {
+    "id": "date-time",
+    "title": "วัน เวลา และสถานะ",
+    "summary": "การ์ดวันที่ เวลา สถานที่ และแจ้งเตือน",
+    "order": 1
+  },
+  {
+    "id": "chat-interfaces",
+    "title": "หน้าจอแชต",
+    "summary": "หน้าตาจำลองแชตและข้อความส่วนตัว",
+    "order": 2
+  },
+  {
+    "id": "social-interfaces",
+    "title": "โปรไฟล์และกิจกรรมโซเชียล",
+    "summary": "โพสต์ โปรไฟล์ การแจ้งเตือน และกิจกรรมจากแอปโซเชียล",
+    "order": 3
+  },
+  {
+    "id": "ai-chat",
+    "title": "หน้าจอแชต AI",
+    "summary": "ตัวอย่างหน้าสนทนาจากผู้ช่วย AI",
+    "order": 4
+  },
+  {
+    "id": "bank-transfers",
+    "title": "สลิปและรายการโอน",
+    "summary": "ตัวอย่างรายการโอนและหน้าสรุปการชำระเงิน",
+    "order": 5
+  },
+  {
+    "id": "vertical-slips",
+    "title": "สลิปแนวตั้งยาว",
+    "summary": "สลิปธนาคารและวอลเล็ตแบบแนวตั้ง",
+    "order": 6
+  },
+  {
+    "id": "social-posts",
+    "title": "โพสต์โซเชียล",
+    "summary": "โพสต์ภาพและข้อความจาก Instagram, Facebook และ X",
+    "order": 7
+  },
+  {
+    "id": "style-tags",
+    "title": "Rubii Style tags",
+    "summary": "Style tag พร้อม HTML template และ CSS",
+    "order": 8
+  }
+]

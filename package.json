@@ -1,0 +1,10 @@
+{
+  "name": "rubii-snippet-studio",
+  "version": "1.0.0",
+  "description": "Snippet Studio — คลังตัวอย่างและแม่แบบโค้ด HTML/CSS สำหรับ Rubii",
+  "type": "module",
+  "scripts": {
+    "dev": "npx serve .",
+    "start": "npx serve ."
+  }
+}

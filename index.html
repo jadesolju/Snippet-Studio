@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0d1120">
+    <title>Snippet Studio — คลังโค้ดของเรา</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="Snippet Studio หน้าหลัก">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 40 40" role="presentation" focusable="false">
+              <defs>
+                <linearGradient id="jelly-bell" x1="9" y1="7" x2="31" y2="27" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#e4d7ff" />
+                  <stop offset=".55" stop-color="#b9a5ff" />
+                  <stop offset="1" stop-color="#87e6e4" />
+                </linearGradient>
+              </defs>
+              <path d="M10 19c0-7.2 4.5-12 10-12s10 4.8 10 12c0 2.7-4.5 4.6-10 4.6S10 21.7 10 19Z" fill="url(#jelly-bell)" />
+              <path d="M11.5 20.3c2.2 1.4 5.1 2.1 8.5 2.1s6.3-.7 8.5-2.1" fill="none" stroke="#f7efff" stroke-linecap="round" stroke-width="1.4" />
+              <path d="M14 24c-.2 3.3 1.5 3.5 1.3 6.2M20 24.1c0 2.7-.9 3.7-.4 6.1M26 24c.2 3.3-1.5 3.5-1.3 6.2" fill="none" stroke="#b9a5ff" stroke-linecap="round" stroke-width="1.7" />
+              <path d="m7.5 12 .6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6.6-1.4ZM32.5 9l.5 1.2 1.2.5-1.2.5-.5 1.2-.5-1.2-1.2-.5 1.2-.5.5-1.2Z" fill="#f4b8df" />
+              <circle cx="31.5" cy="27" r="1.2" fill="#8de8e4" />
+            </svg>
+          </span>
+          <span class="brand-copy">
+            <span class="eyebrow">JELLYFISH COSMIC</span>
+            <span class="brand-name">Snippet Studio</span>
+          </span>
+        </a>
+        <div class="topbar-note">
+          <span class="live-dot" aria-hidden="true"></span>
+          <span>คลังตัวอย่างส่วนตัว</span>
+        </div>
+        <nav class="topbar-links" aria-label="เมนูหลัก">
+          <a href="./" aria-current="page">คลังโค้ด</a>
+          <a href="./guide.html">คู่มือตั้งค่า</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="intro-row" aria-labelledby="page-title">
+          <div>
+            <p class="eyebrow intro-eyebrow">BROWSE · PREVIEW · COPY</p>
+            <h1 id="page-title">โค้ดทุกแบบ อยู่ในที่เดียว</h1>
+            <p class="intro-copy">เลือกหมวด เปิดดูตัวอย่าง แล้วคัดลอกโค้ดไปใช้หรือปรับต่อได้ทันที</p>
+          </div>
+          <div class="library-count" aria-live="polite">
+            <strong id="total-count">—</strong>
+            <span>ตัวอย่างในคลัง</span>
+          </div>
+        </section>
+
+        <section class="studio-layout" aria-label="คลังและพรีวิวโค้ด">
+          <aside class="library-panel" aria-label="เลือกหมวดและตัวอย่าง">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">LIBRARY</p>
+                <h2>คลังโค้ด</h2>
+              </div>
+              <span class="library-count-small" id="visible-count">—</span>
+            </div>
+
+            <label class="search-box">
+              <span class="search-icon" aria-hidden="true">⌕</span>
+              <span class="sr-only">ค้นหาตัวอย่าง</span>
+              <input id="search-input" type="search" placeholder="ค้นหาชื่อหรือหมวด..." autocomplete="off">
+              <kbd>/</kbd>
+            </label>
+
+            <label class="category-dropdown">
+              <span class="category-heading">หมวดหมู่</span>
+              <span class="category-select-wrap">
+                <select id="category-select" aria-label="เลือกหมวดหมู่"></select>
+                <span class="category-chevron" aria-hidden="true">⌄</span>
+              </span>
+            </label>
+
+            <div class="snippet-heading-row">
+              <span>ตัวอย่าง</span>
+              <span id="list-count">—</span>
+            </div>
+            <div id="snippet-list" class="snippet-list" aria-label="รายการตัวอย่าง"></div>
+          </aside>
+
+          <section class="detail-panel" aria-live="polite">
+            <div id="loading-state" class="empty-state">
+              <span class="loading-orbit" aria-hidden="true"></span>
+              <p>กำลังโหลดคลังโค้ด…</p>
+            </div>
+
+            <div id="error-state" class="empty-state error-state" hidden>
+              <span class="empty-icon" aria-hidden="true">!</span>
+              <h2>โหลดคลังโค้ดไม่สำเร็จ</h2>
+              <p>ลองรีเฟรชหน้านี้ หรือตรวจว่าเซิร์ฟเวอร์กำลังทำงานอยู่</p>
+            </div>
+
+            <div id="no-results-state" class="empty-state" hidden>
+              <span class="empty-icon" aria-hidden="true">⌕</span>
+              <h2>ไม่พบตัวอย่าง</h2>
+              <p>ลองเปลี่ยนคำค้นหาหรือเลือกหมวดอื่น</p>
+            </div>
+
+            <div id="detail-content" hidden>
+              <div class="detail-heading">
+                <div class="detail-title-group">
+                  <p id="detail-category" class="eyebrow">หมวด</p>
+                  <h2 id="detail-title">ชื่อตัวอย่าง</h2>
+                  <p id="detail-summary" class="detail-summary"></p>
+                </div>
+                <div class="detail-nav" aria-label="เปลี่ยนตัวอย่าง">
+                  <span id="detail-position" class="position-label">—</span>
+                  <button id="previous-button" class="icon-button" type="button" aria-label="รายการก่อนหน้า">←</button>
+                  <button id="next-button" class="icon-button" type="button" aria-label="รายการถัดไป">→</button>
+                </div>
+              </div>
+
+              <div class="workbench-grid">
+                <section class="preview-panel card-panel" aria-labelledby="preview-heading">
+                  <div class="card-heading">
+                    <div>
+                      <p class="eyebrow">LIVE PREVIEW</p>
+                      <h3 id="preview-heading">พรีวิวตัวอย่าง</h3>
+                    </div>
+                    <span class="device-label"><span class="device-dot" aria-hidden="true"></span> MOBILE</span>
+                    </div>
+                    <div class="background-controls">
+                      <label class="background-toggle">
+                        <input id="background-enabled" type="checkbox">
+                        <span class="toggle-track" aria-hidden="true"></span>
+                        <span>
+                          <strong>ใส่รูปในพื้นหลังการ์ด</strong>
+                          <small>ระบบจะปรับภาพให้เต็มการ์ดโดยอัตโนมัติ</small>
+                        </span>
+                      </label>
+                      <label class="background-url-field">
+                        <span>URL รูปพื้นหลังของการ์ด</span>
+                        <input id="background-url" type="url" placeholder="วางลิงก์รูปภาพ เช่น https://…" autocomplete="url">
+                      </label>
+                    </div>
+                    <div class="device-frame">
+                    <div class="device-island" aria-hidden="true"></div>
+                    <iframe id="preview-frame" title="พรีวิวโค้ดตัวอย่าง" sandbox=""></iframe>
+                  </div>
+                  <div class="field-area">
+                    <div class="field-heading">
+                      <div>
+                        <p class="eyebrow">QUICK EDIT</p>
+                        <h3>ปรับค่าตัวอย่าง</h3>
+                      </div>
+                    </div>
+                    <div id="field-list" class="field-list"></div>
+                    <p id="no-fields" class="field-empty" hidden>ตัวอย่างนี้ไม่มีค่าที่แก้ไขได้แยกไว้</p>
+                    <div id="rubii-slot-controls" class="rubii-slot-controls" hidden>
+                      <label for="rubii-slot-select">ข้อความที่จะใส่เป็นช่อง $1 ใน Style tag</label>
+                      <select id="rubii-slot-select"></select>
+                      <small>Style tag มีช่องแทนค่าเดียว ส่วน Regex เลือกข้อความได้หลายจุดแยกกัน</small>
+                      <details class="rubii-regex-settings">
+                        <summary><span>ตั้งค่าช่อง Regex</span><span id="rubii-regex-capture-count" class="part-count">0 / 33</span></summary>
+                        <div class="rubii-regex-settings-body">
+                          <p class="rubii-regex-help">เลือกข้อความที่ต้องการแทนด้วย <code>$1</code> ถึง <code>$33</code> ตามลำดับที่แสดงไว้ ตัวอย่างข้อความคงที่ต้องเลือกเองและตรวจว่าเป็นจุดที่เปลี่ยนจริง</p>
+                          <div id="rubii-regex-capture-list" class="rubii-regex-capture-list"></div>
+                          <p class="rubii-regex-help">เมื่อเลือกหลายช่อง ให้คั่นค่าตอนใช้แท็กด้วย <code>||</code> เช่น <code>&lt;tag&gt;ชื่อโพสต์||ยอดไลก์&lt;/tag&gt;</code></p>
+                          <div class="rubii-extra-regex-heading"><strong>กฎ Regex เพิ่มเติม</strong><button id="add-regex-rule-button" class="part-copy-button" type="button">＋ เพิ่ม Regex</button></div>
+                          <div id="rubii-extra-regex-list" class="rubii-extra-regex-list"></div>
+                        </div>
+                      </details>
+                    </div>
+                    <details id="html-parts-panel" class="html-parts-panel">
+                      <summary>
+                        <span><strong>แยกส่วน Raw HTML</strong><small>ตั้งค่าสี / Customize สี · เลือกสี ใส่ HEX และปรับ Opacity แยกตามส่วน</small></span>
+                        <span id="html-part-count" class="part-count">—</span>
+                      </summary>
+                      <div id="html-parts-list" class="html-parts-list"></div>
+                    </details>
+                  </div>
+                </section>
+
+                <section class="code-panel card-panel" aria-labelledby="code-heading">
+                  <div class="card-heading code-heading">
+                    <div>
+                      <p class="eyebrow">READY TO COPY</p>
+                      <h3 id="code-heading">โค้ดของตัวอย่าง</h3>
+                    </div>
+                    <span id="code-format-count" class="format-count">—</span>
+                  </div>
+                  <div id="code-tabs" class="code-tabs" role="tablist" aria-label="ชนิดโค้ด"></div>
+                  <div class="code-toolbar">
+                    <span id="active-code-label">HTML</span>
+                    <button id="copy-button" class="copy-button" type="button">
+                      <span aria-hidden="true">▢</span>
+                      <span>คัดลอก</span>
+                    </button>
+                  </div>
+                  <pre class="code-output"><code id="code-output"></code></pre>
+                  <p id="code-note" class="code-note"></p>
+                </section>
+              </div>
+              <div id="toast" class="toast" role="status" aria-live="polite"></div>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <footer class="page-footer">
+        <span>Snippet Studio</span>
+        <span>เพิ่มรายการใหม่ได้จากไฟล์ข้อมูลคลังโค้ด</span>
+      </footer>
+    </div>
+  </body>
+</html>
