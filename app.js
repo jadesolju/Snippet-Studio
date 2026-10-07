@@ -202,7 +202,7 @@ let categories = [];
 let snippets = [];
 let selectedCategoryId = "all";
 let selectedSnippetId = "";
-let activeCodeKey = "html";
+let activeCodeKey = "template";
 let currentFields = [];
 let toastTimer;
 const editValuesBySnippet = new Map();
@@ -215,7 +215,63 @@ function isRubiiHtmlSnippet(snippet) {
   return Boolean(snippet.code?.html && !snippet.editable?.tagName);
 }
 
+const snippetTagMap = {
+  "snippet-01": "widget",
+  "snippet-02": "event-card",
+  "snippet-03": "standby-widget",
+  "snippet-04": "notice-card",
+  "snippet-05": "alert-card",
+  "snippet-06": "calendar-card",
+  "snippet-07": "alert-log",
+  "snippet-08": "date-notice",
+  "snippet-09": "line-chat",
+  "snippet-10": "ig-dm",
+  "snippet-11": "messenger",
+  "snippet-12": "ig-post",
+  "snippet-13": "ig-story",
+  "snippet-14": "fb-status",
+  "snippet-15": "notification-center",
+  "snippet-16": "ig-profile",
+  "snippet-17": "activity-log",
+  "snippet-18": "onlyfans",
+  "snippet-19": "fansly",
+  "snippet-20": "patreon",
+  "snippet-21": "x-private",
+  "snippet-22": "hidden-album",
+  "snippet-23": "chatgpt",
+  "snippet-24": "gemini",
+  "snippet-25": "grok",
+  "snippet-26": "kbank-transfer",
+  "snippet-27": "scb-transfer",
+  "snippet-28": "ktb-transfer",
+  "snippet-29": "bay-transfer",
+  "snippet-30": "uob-transfer",
+  "snippet-31": "truemoney-transfer",
+  "snippet-32": "transfer-success",
+  "snippet-33": "money-sent",
+  "snippet-34": "transfer-receipt",
+  "snippet-35": "payment-dispatch",
+  "snippet-36": "thai-receipt",
+  "snippet-38": "kbank-slip",
+  "snippet-39": "scb-slip",
+  "snippet-40": "ktb-slip",
+  "snippet-41": "bay-slip",
+  "snippet-42": "truemoney-slip",
+  "snippet-43": "ig-photo",
+  "snippet-44": "fb-photo",
+  "snippet-45": "x-photo",
+  "snippet-46": "fb-feed",
+  "snippet-47": "x-feed",
+  "snippet-48": "google-search",
+  "snippet-49": "google-trends",
+  "snippet-50": "safari",
+  "snippet-51": "cafe-receipt",
+};
+
 function defaultRubiiTagName(snippet) {
+  if (snippet.id && snippetTagMap[snippet.id]) {
+    return snippetTagMap[snippet.id];
+  }
   const suffix = String(snippet.id ?? "card").replace(/[^a-z\d]/gi, "").toLowerCase() || "card";
   return `rubii${suffix}`;
 }
@@ -1614,7 +1670,7 @@ function renderDetail(items) {
   errorState.hidden = true;
   const category = categoryFor(snippet.categoryId);
   if (lastCodeSnippetId !== snippet.id) {
-    activeCodeKey = isRubiiHtmlSnippet(snippet) ? "settings" : "html";
+    activeCodeKey = isRubiiHtmlSnippet(snippet) ? "template" : "html";
     lastCodeSnippetId = snippet.id;
   }
   detailCategory.textContent = category?.title ?? "ตัวอย่าง";
