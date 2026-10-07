@@ -1019,3 +1019,21 @@ body {
   word-break: break-word !important;
   overflow-x: hidden !important;
 }
+
+
+/* Brand Jellyfish Mascot Logo */
+.brand-mascot {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(192, 160, 255, 0.45));
+  animation: float-mascot 3.6s ease-in-out infinite alternate;
+  flex: 0 0 40px;
+  margin-right: 2px;
+}
+
+@keyframes float-mascot {
+  0% { transform: translateY(0px) rotate(-1deg); }
+  50% { transform: translateY(-3px) rotate(1.5deg) scale(1.03); }
+  100% { transform: translateY(0px) rotate(-1deg); }
+}
