@@ -24,27 +24,39 @@
     "order": 4
   },
   {
+    "id": "search-interfaces",
+    "title": "ค้นหาและเบราว์เซอร์ (Google / Safari)",
+    "summary": "การ์ดผลการค้นหา Google, Trends และเบราว์เซอร์ Safari",
+    "order": 5
+  },
+  {
     "id": "bank-transfers",
     "title": "สลิปและรายการโอน",
     "summary": "ตัวอย่างรายการโอนและหน้าสรุปการชำระเงิน",
-    "order": 5
+    "order": 6
+  },
+  {
+    "id": "cafe-receipts",
+    "title": "ใบเสร็จคาเฟ่และร้านอาหาร",
+    "summary": "สลิปใบเสร็จร้านอาหาร คาเฟ่ และค่าบริการ",
+    "order": 7
   },
   {
     "id": "vertical-slips",
     "title": "สลิปแนวตั้งยาว",
     "summary": "สลิปธนาคารและวอลเล็ตแบบแนวตั้ง",
-    "order": 6
+    "order": 8
   },
   {
     "id": "social-posts",
     "title": "โพสต์โซเชียล",
     "summary": "โพสต์ภาพและข้อความจาก Instagram, Facebook และ X",
-    "order": 7
+    "order": 9
   },
   {
     "id": "style-tags",
     "title": "Rubii Style tags",
     "summary": "Style tag พร้อม HTML template และ CSS",
-    "order": 8
+    "order": 10
   }
 ]
