@@ -449,7 +449,7 @@ function buildPartTextEditor(part, textarea, snippet) {
   group.className = "part-text-controls";
   const heading = document.createElement("span");
   heading.className = "part-text-heading";
-  heading.innerHTML = "<span>✏️ <strong>ปรับแต่งข้อความในส่วนนี้</strong> (พิมพ์แก้ได้ทันที)</span>";
+  heading.innerHTML = `<span class="heading-with-icon"><svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><strong>ปรับแต่งข้อความในส่วนนี้</strong> (พิมพ์แก้ได้ทันที)</span>`;
   group.append(heading);
 
   for (const originalText of texts) {
@@ -495,7 +495,7 @@ function buildPartColorEditor(part, textarea, snippet) {
   group.className = "part-color-controls";
   const heading = document.createElement("span");
   heading.className = "part-color-heading";
-  heading.textContent = "ตั้งค่าสี / Customize สี และปรับ Opacity ของส่วนนี้";
+  heading.innerHTML = `<span class="heading-with-icon"><svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/></svg><strong>ตั้งค่าสี & Opacity ของส่วนนี้</strong></span>`;
   group.append(heading);
 
   for (const color of colors) {
@@ -1509,6 +1509,6 @@ if (resetCodeButton) {
     renderCodeTabs(snippet);
     updateCodePanel(snippet);
     renderPreview(snippet);
-    showToast("🔄 รีเซ็ตโค้ดและการตั้งค่าทั้งหมดกลับเป็นค่าเริ่มต้นแล้ว");
+    showToast("รีเซ็ตโค้ดและการตั้งค่าทั้งหมดกลับเป็นค่าเริ่มต้นแล้ว");
   });
 }

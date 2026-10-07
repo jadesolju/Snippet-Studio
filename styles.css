@@ -504,3 +504,9 @@ body { font-size: 14px; }
 .code-editor-wrapper { position: relative; display: grid; margin-top: 2px; }
 .code-editor-textarea { display: block; width: 100%; min-height: 290px; max-height: 520px; padding: 13px 14px; resize: vertical; border: 1px solid var(--line-strong); border-radius: 9px; outline: 0; background: #0c0f16; color: #e2e8f4; font: 11px/1.65 "DM Mono", Consolas, monospace; tab-size: 2; white-space: pre; box-shadow: inset 0 2px 6px rgba(0,0,0,0.35); transition: border-color .15s ease, box-shadow .15s ease; }
 .code-editor-textarea:focus { border-color: rgba(135,230,228,.65); box-shadow: inset 0 2px 6px rgba(0,0,0,0.35), 0 0 0 1px rgba(135,230,228,.25); }
+
+/* SVG Icon Utilities */
+.ui-icon { vertical-align: middle; display: inline-block; flex-shrink: 0; }
+.toggle-title { display: flex; align-items: center; gap: 6px; }
+.heading-with-icon { display: flex; align-items: center; gap: 6px; }
+.copy-button { display: inline-flex; align-items: center; gap: 6px; }

@@ -135,15 +135,21 @@
                           <input id="visual-edit-enabled" type="checkbox" checked>
                           <span class="toggle-track" aria-hidden="true"></span>
                           <span>
-                            <strong>✏️ Direct Visual Edit (แก้ไขข้อความบนพรีวิว)</strong>
-                            <small>สามารถเปิด/ปิดโหมดนี้เพื่อคลิกแก้ไขข้อความบนการ์ดได้โดยตรง</small>
+                            <span class="toggle-title">
+                              <svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                              <strong>Direct Visual Edit</strong>
+                            </span>
+                            <small>สามารถเปิด/ปิดเพื่อคลิกแก้ไขข้อความบนการ์ดได้โดยตรง</small>
                           </span>
                         </label>
                         <label class="toggle-control background-toggle">
                           <input id="background-enabled" type="checkbox">
                           <span class="toggle-track" aria-hidden="true"></span>
                           <span>
-                            <strong>🖼️ ใส่รูปในพื้นหลังการ์ด</strong>
+                            <span class="toggle-title">
+                              <svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                              <strong>ใส่รูปพื้นหลังการ์ด</strong>
+                            </span>
                             <small>ระบบจะปรับภาพให้เต็มการ์ดโดยอัตโนมัติ</small>
                           </span>
                         </label>
@@ -158,7 +164,7 @@
                     <iframe id="preview-frame" title="พรีวิวโค้ดตัวอย่าง" sandbox="allow-scripts allow-same-origin"></iframe>
                   </div>
                   <div class="field-area">
-                    <details id="quick-edit-panel" class="quick-edit-panel html-parts-panel" open>
+                    <details id="quick-edit-panel" class="quick-edit-panel html-parts-panel">
                       <summary>
                         <span>
                           <strong>QUICK EDIT · ปรับค่าตัวอย่าง</strong>
@@ -204,7 +210,8 @@
                     </div>
                     <div class="code-header-actions">
                       <button id="reset-code-button" class="reset-button" type="button" title="รีเซ็ตโค้ดและการตั้งค่าทั้งหมดของการ์ดนี้กลับเป็นค่าเริ่มต้น">
-                        🔄 รีเซ็ตค่าเริ่มต้น
+                        <svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                        <span>รีเซ็ตค่าเริ่มต้น</span>
                       </button>
                       <span id="code-format-count" class="format-count">—</span>
                     </div>
@@ -213,10 +220,13 @@
                   <div class="code-toolbar">
                     <div class="code-toolbar-left">
                       <span id="active-code-label">HTML</span>
-                      <span class="code-edit-badge">✏️ แก้ไขโค้ดและ Config ได้สดๆ</span>
+                      <span class="code-edit-badge">
+                        <svg class="ui-icon" viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        <span>แก้ไขโค้ดและ Config ได้โดยตรง</span>
+                      </span>
                     </div>
                     <button id="copy-button" class="copy-button" type="button">
-                      <span aria-hidden="true">▢</span>
+                      <svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                       <span>คัดลอก</span>
                     </button>
                   </div>
