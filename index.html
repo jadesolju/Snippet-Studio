@@ -129,15 +129,25 @@
                     </div>
                     <span class="device-label"><span class="device-dot" aria-hidden="true"></span> MOBILE</span>
                     </div>
-                    <div class="background-controls">
-                      <label class="background-toggle">
-                        <input id="background-enabled" type="checkbox">
-                        <span class="toggle-track" aria-hidden="true"></span>
-                        <span>
-                          <strong>ใส่รูปในพื้นหลังการ์ด</strong>
-                          <small>ระบบจะปรับภาพให้เต็มการ์ดโดยอัตโนมัติ</small>
-                        </span>
-                      </label>
+                    <div class="preview-controls">
+                      <div class="preview-toggles">
+                        <label class="toggle-control visual-edit-toggle">
+                          <input id="visual-edit-enabled" type="checkbox" checked>
+                          <span class="toggle-track" aria-hidden="true"></span>
+                          <span>
+                            <strong>✏️ Direct Visual Edit (แก้ไขข้อความบนพรีวิว)</strong>
+                            <small>สามารถเปิด/ปิดโหมดนี้เพื่อคลิกแก้ไขข้อความบนการ์ดได้โดยตรง</small>
+                          </span>
+                        </label>
+                        <label class="toggle-control background-toggle">
+                          <input id="background-enabled" type="checkbox">
+                          <span class="toggle-track" aria-hidden="true"></span>
+                          <span>
+                            <strong>🖼️ ใส่รูปในพื้นหลังการ์ด</strong>
+                            <small>ระบบจะปรับภาพให้เต็มการ์ดโดยอัตโนมัติ</small>
+                          </span>
+                        </label>
+                      </div>
                       <label class="background-url-field">
                         <span>URL รูปพื้นหลังของการ์ด</span>
                         <input id="background-url" type="url" placeholder="วางลิงก์รูปภาพ เช่น https://…" autocomplete="url">
@@ -148,14 +158,19 @@
                     <iframe id="preview-frame" title="พรีวิวโค้ดตัวอย่าง" sandbox="allow-scripts allow-same-origin"></iframe>
                   </div>
                   <div class="field-area">
-                    <div class="field-heading">
-                      <div>
-                        <p class="eyebrow">QUICK EDIT</p>
-                        <h3>ปรับค่าตัวอย่าง</h3>
+                    <details id="quick-edit-panel" class="quick-edit-panel html-parts-panel" open>
+                      <summary>
+                        <span>
+                          <strong>QUICK EDIT · ปรับค่าตัวอย่าง</strong>
+                          <small>พับเก็บหรือเปิดเพื่อแก้ไขตัวแปร, ข้อความในวงเล็บ และลิงก์รูปภาพ</small>
+                        </span>
+                        <span id="quick-edit-count" class="part-count">—</span>
+                      </summary>
+                      <div class="quick-edit-body">
+                        <div id="field-list" class="field-list"></div>
+                        <p id="no-fields" class="field-empty" hidden>ตัวอย่างนี้ไม่มีค่าที่แก้ไขได้แยกไว้</p>
                       </div>
-                    </div>
-                    <div id="field-list" class="field-list"></div>
-                    <p id="no-fields" class="field-empty" hidden>ตัวอย่างนี้ไม่มีค่าที่แก้ไขได้แยกไว้</p>
+                    </details>
                     <div id="rubii-slot-controls" class="rubii-slot-controls" hidden>
                       <label for="rubii-slot-select">ข้อความที่จะใส่เป็นช่อง $1 ใน Style tag</label>
                       <select id="rubii-slot-select"></select>

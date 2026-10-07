@@ -45,6 +45,8 @@ const copyButton = document.querySelector("#copy-button");
 const toast = document.querySelector("#toast");
 const previousButton = document.querySelector("#previous-button");
 const nextButton = document.querySelector("#next-button");
+const visualEditEnabled = document.querySelector("#visual-edit-enabled");
+const quickEditCount = document.querySelector("#quick-edit-count");
 const backgroundEnabled = document.querySelector("#background-enabled");
 const backgroundUrl = document.querySelector("#background-url");
 const htmlPartsPanel = document.querySelector("#html-parts-panel");
@@ -262,6 +264,7 @@ function buildFieldEditor(snippet) {
   const values = fieldValues(snippet);
   fieldList.replaceChildren();
   noFields.hidden = currentFields.length > 0;
+  if (quickEditCount) quickEditCount.textContent = currentFields.length ? `${currentFields.length} ค่า` : "—";
 
   for (const field of currentFields) {
     const row = document.createElement("div");
@@ -1118,13 +1121,14 @@ function previewDocument(snippet) {
   const sampleValues = ["ตัวอย่างข้อความ", "ตัวอย่างสถานที่", "21:29", "29°C · มีเมฆมาก"];
   html = html.replace(/\$(\d+)/g, (_match, index) => sampleValues[Number(index) - 1] ?? "ตัวอย่าง");
   html = htmlWithBackground(snippet, html);
+
   const css = editedCode(snippet, "css");
-  return `<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>
-    *{box-sizing:border-box}html,body{min-height:100%;margin:0}body{padding:12px;background:#191d27;color:#f2f4fa;font-family:Arial,"Noto Sans Thai",sans-serif;overflow-x:hidden}img{max-width:100%}pre{white-space:pre-wrap;overflow-wrap:anywhere}
-    [contenteditable="true"]:hover { outline: 1.5px dashed rgba(135,230,228,.55) !important; border-radius: 4px; }
-    [contenteditable="true"]:focus { outline: 2px solid rgba(135,230,228,.85) !important; border-radius: 4px; background: rgba(135,230,228,.08); }
-    ${css}
-  </style></head><body>${html}
+  const isDirectEdit = visualEditEnabled ? visualEditEnabled.checked : true;
+  const directEditStyles = isDirectEdit ? `
+    [contenteditable="true"]:hover { outline: 1.5px dashed rgba(135,230,228,.65) !important; border-radius: 4px; cursor: text; }
+    [contenteditable="true"]:focus { outline: 2px solid rgba(135,230,228,.9) !important; border-radius: 4px; background: rgba(135,230,228,.1); cursor: text; }
+  ` : "";
+  const directEditScript = isDirectEdit ? `
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
@@ -1150,8 +1154,14 @@ function previewDocument(snippet) {
         }
       });
     });
-  </script>
-  </body></html>`;
+  </script>` : "";
+
+  return `<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>
+    *{box-sizing:border-box}html,body{min-height:100%;margin:0}body{padding:12px;background:#191d27;color:#f2f4fa;font-family:Arial,"Noto Sans Thai",sans-serif;overflow-x:hidden}img{max-width:100%}pre{white-space:pre-wrap;overflow-wrap:anywhere}
+    ${directEditStyles}
+    ${css}
+  </style></head><body>${html}${directEditScript}</body></html>`;
+
 }
 
 function renderCodeTabs(snippet) {
@@ -1405,6 +1415,12 @@ rubiiSlotControls.addEventListener("click", (event) => {
   renderRubiiSlotControls(snippet);
   updateCodePanel(snippet);
 });
+if (visualEditEnabled) {
+  visualEditEnabled.addEventListener("change", () => {
+    const snippet = snippets.find((item) => item.id === selectedSnippetId);
+    if (snippet) renderPreview(snippet);
+  });
+}
 copyButton.addEventListener("click", copyActiveCode);
 previousButton.addEventListener("click", () => moveSelection(-1));
 nextButton.addEventListener("click", () => moveSelection(1));

@@ -479,3 +479,18 @@ body { font-size: 14px; }
 .part-text-label { overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
 .part-text-input { width: 100%; min-width: 0; min-height: 29px; padding: 5px 8px; border: 1px solid var(--line-strong); border-radius: 7px; outline: 0; background: #0b0e14; color: #f2f4fa; font-size: 11px; }
 .part-text-input:focus { border-color: rgba(135, 230, 228, 0.6); box-shadow: 0 0 0 1px rgba(135, 230, 228, 0.25); }
+
+/* Preview Controls & Direct Visual Edit Toggle */
+.preview-controls { display: grid; gap: 12px; padding: 12px 15px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.015); }
+.preview-toggles { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 20px; }
+.toggle-control { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; user-select: none; }
+.toggle-control input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.toggle-control input:checked + .toggle-track { border-color: rgba(135,230,228,.55); background: #14353d; }
+.toggle-control input:checked + .toggle-track::after { background: #87e6e4; transform: translateX(14px); }
+.toggle-control strong { display: block; font-size: 11px; font-weight: 600; color: #f0f2f8; }
+.toggle-control small { display: block; margin-top: 2px; color: var(--muted); font-size: 9.5px; line-height: 1.4; max-width: 240px; }
+
+/* Quick Edit Collapsible Panel */
+.quick-edit-panel { margin-top: 0; margin-bottom: 15px; border: 1px solid var(--line); border-radius: 11px; background: rgba(8,10,15,.35); }
+.quick-edit-body { padding: 0 12px 12px; }
+.quick-edit-body .field-list { margin-top: 6px; }
