@@ -199,20 +199,31 @@
                 <section class="code-panel card-panel" aria-labelledby="code-heading">
                   <div class="card-heading code-heading">
                     <div>
-                      <p class="eyebrow">READY TO COPY</p>
-                      <h3 id="code-heading">โค้ดของตัวอย่าง</h3>
+                      <p class="eyebrow">READY TO COPY & EDIT</p>
+                      <h3 id="code-heading">โค้ด & Config ตัวอย่าง</h3>
                     </div>
-                    <span id="code-format-count" class="format-count">—</span>
+                    <div class="code-header-actions">
+                      <button id="reset-code-button" class="reset-button" type="button" title="รีเซ็ตโค้ดและการตั้งค่าทั้งหมดของการ์ดนี้กลับเป็นค่าเริ่มต้น">
+                        🔄 รีเซ็ตค่าเริ่มต้น
+                      </button>
+                      <span id="code-format-count" class="format-count">—</span>
+                    </div>
                   </div>
                   <div id="code-tabs" class="code-tabs" role="tablist" aria-label="ชนิดโค้ด"></div>
                   <div class="code-toolbar">
-                    <span id="active-code-label">HTML</span>
+                    <div class="code-toolbar-left">
+                      <span id="active-code-label">HTML</span>
+                      <span class="code-edit-badge">✏️ แก้ไขโค้ดและ Config ได้สดๆ</span>
+                    </div>
                     <button id="copy-button" class="copy-button" type="button">
                       <span aria-hidden="true">▢</span>
                       <span>คัดลอก</span>
                     </button>
                   </div>
-                  <pre class="code-output"><code id="code-output"></code></pre>
+                  <div class="code-editor-wrapper">
+                    <textarea id="code-editor-input" class="code-editor-textarea" spellcheck="false" placeholder="สามารถพิมพ์แก้ไขโค้ดหรือ Config ตรงนี้ได้โดยตรง..."></textarea>
+                    <pre class="code-output" hidden><code id="code-output"></code></pre>
+                  </div>
                   <p id="code-note" class="code-note"></p>
                 </section>
               </div>

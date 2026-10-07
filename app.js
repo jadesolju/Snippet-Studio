@@ -35,6 +35,9 @@ const detailSummary = document.querySelector("#detail-summary");
 const detailPosition = document.querySelector("#detail-position");
 const codeTabs = document.querySelector("#code-tabs");
 const codeOutput = document.querySelector("#code-output");
+const codeEditorInput = document.querySelector("#code-editor-input");
+const resetCodeButton = document.querySelector("#reset-code-button");
+const customCodeBySnippet = new Map();
 const activeCodeLabel = document.querySelector("#active-code-label");
 const codeFormatCount = document.querySelector("#code-format-count");
 const codeNote = document.querySelector("#code-note");
@@ -731,6 +734,9 @@ function applyFieldValues(snippet, source) {
 }
 
 function editedCode(snippet, key) {
+  if (customCodeBySnippet.has(snippet.id) && key in customCodeBySnippet.get(snippet.id)) {
+    return customCodeBySnippet.get(snippet.id)[key];
+  }
   if (isRubiiHtmlSnippet(snippet) && key !== "html") {
     return buildRubiiSections(snippet)[key] ?? "";
   }
@@ -1196,6 +1202,9 @@ function updateCodePanel(snippet) {
   let output = editedCode(snippet, activeCodeKey);
   if (activeCodeKey === "html") output = htmlWithBackground(snippet, output);
   codeOutput.textContent = output;
+  if (codeEditorInput && document.activeElement !== codeEditorInput) {
+    codeEditorInput.value = output;
+  }
   const background = backgroundState(snippet);
   if (background.enabled && !background.url.trim()) {
     codeNote.textContent = "เปิดพื้นหลังการ์ดแล้ว วาง URL รูปภาพเพื่อให้พรีวิวและ HTML ที่คัดลอกมีพื้นหลัง";
@@ -1271,7 +1280,7 @@ function showToast(message) {
 }
 
 async function copyActiveCode() {
-  const content = codeOutput.textContent ?? "";
+  const content = codeEditorInput ? codeEditorInput.value : (codeOutput.textContent ?? "");
   await copyText(content, "คัดลอกโค้ดแล้ว");
 }
 
@@ -1463,3 +1472,43 @@ async function start() {
 }
 
 start();
+
+if (codeEditorInput) {
+  codeEditorInput.addEventListener("input", () => {
+    const snippet = snippets.find((item) => item.id === selectedSnippetId);
+    if (!snippet) return;
+    const newCode = codeEditorInput.value;
+    codeOutput.textContent = newCode;
+    if (!customCodeBySnippet.has(snippet.id)) customCodeBySnippet.set(snippet.id, {});
+    customCodeBySnippet.get(snippet.id)[activeCodeKey] = newCode;
+
+    if (activeCodeKey === "html") {
+      htmlPartsBySnippet.set(snippet.id, splitHtmlIntoParts(newCode));
+      renderHtmlParts(snippet);
+      renderPreview(snippet);
+    } else if (activeCodeKey === "css") {
+      renderPreview(snippet);
+    }
+  });
+}
+
+if (resetCodeButton) {
+  resetCodeButton.addEventListener("click", () => {
+    const snippet = snippets.find((item) => item.id === selectedSnippetId);
+    if (!snippet) return;
+    editValuesBySnippet.delete(snippet.id);
+    backgroundBySnippet.delete(snippet.id);
+    htmlPartsBySnippet.delete(snippet.id);
+    rubiiSettingsBySnippet.delete(snippet.id);
+    customCodeBySnippet.delete(snippet.id);
+
+    buildFieldEditor(snippet);
+    renderHtmlParts(snippet);
+    renderBackgroundControls(snippet);
+    renderRubiiSlotControls(snippet);
+    renderCodeTabs(snippet);
+    updateCodePanel(snippet);
+    renderPreview(snippet);
+    showToast("🔄 รีเซ็ตโค้ดและการตั้งค่าทั้งหมดกลับเป็นค่าเริ่มต้นแล้ว");
+  });
+}
