@@ -1483,9 +1483,7 @@ function buildRubiiSections(snippet) {
     regexSlots.length > 1 ? "- ห้ามใส่ `||` ในค่า และห้ามพิมพ์ HTML/CSS" : "- ห้ามพิมพ์ HTML/CSS",
     "",
     "### ตัวอย่างข้อความที่ส่ง",
-    "```text",
     regexOutput,
-    "```",
   ].filter((line) => line !== null).join("\n");
   const sections = {
     template: styleTemplate.template,
