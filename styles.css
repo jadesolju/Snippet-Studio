@@ -510,3 +510,66 @@ body { font-size: 14px; }
 .toggle-title { display: flex; align-items: center; gap: 6px; }
 .heading-with-icon { display: flex; align-items: center; gap: 6px; }
 .copy-button { display: inline-flex; align-items: center; gap: 6px; }
+
+
+/* Quick Edit Color Picker & Badge Styles */
+.field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.field-color-badge {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(192, 160, 255, 0.12);
+  border: 1px solid rgba(192, 160, 255, 0.25);
+  color: #c9bddf;
+  font-family: "DM Mono", Consolas, monospace;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.field-input-group {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+}
+.field-input-group input[type="text"],
+.field-input-group input[type="url"] {
+  flex: 1;
+  min-width: 0;
+  min-height: 34px;
+  padding: 7px 9px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  outline: 0;
+  background: #10131b;
+  color: var(--text);
+  font-size: 10px;
+  font-family: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.field-input-group input[type="text"]:focus,
+.field-input-group input[type="url"]:focus {
+  border-color: rgba(192,160,255,.55);
+  box-shadow: 0 0 0 3px rgba(192,160,255,.07);
+}
+.field-color-picker {
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  padding: 2px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: #161a24;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.field-color-picker:hover {
+  transform: scale(1.06);
+  border-color: rgba(192,160,255,.6);
+  box-shadow: 0 0 12px rgba(192,160,255,.2);
+}

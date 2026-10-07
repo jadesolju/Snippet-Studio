@@ -1,3 +1,78 @@
+function parseColorInfo(value) {
+  if (!value || typeof value !== "string") return null;
+  const trimmed = value.trim();
+  
+  // 1. Tuple like (255, 255, 255, 0.08) or (255,255,255)
+  const tupleMatch = trimmed.match(/^\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(?:\s*,\s*([\d.]+)\s*)?\)$/);
+  if (tupleMatch) {
+    const r = Math.min(255, parseInt(tupleMatch[1], 10));
+    const g = Math.min(255, parseInt(tupleMatch[2], 10));
+    const b = Math.min(255, parseInt(tupleMatch[3], 10));
+    const alpha = tupleMatch[4] !== undefined ? tupleMatch[4] : null;
+    const hex = "#" + [r, g, b].map(x => x.toString(16).padStart(2, "0")).join("");
+    return {
+      type: "tuple",
+      r, g, b, alpha,
+      hex,
+      format: (newHex, newAlpha) => {
+        const nr = parseInt(newHex.slice(1, 3), 16);
+        const ng = parseInt(newHex.slice(3, 5), 16);
+        const nb = parseInt(newHex.slice(5, 7), 16);
+        const a = newAlpha !== undefined ? newAlpha : (alpha !== null ? alpha : null);
+        return a !== null ? `(${nr},${ng},${nb},${a})` : `(${nr},${ng},${nb})`;
+      }
+    };
+  }
+
+  // 2. rgba(...) or rgb(...)
+  const rgbMatch = trimmed.match(/^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(?:\s*,\s*([\d.]+)\s*)?\)$/i);
+  if (rgbMatch) {
+    const r = Math.min(255, parseInt(rgbMatch[1], 10));
+    const g = Math.min(255, parseInt(rgbMatch[2], 10));
+    const b = Math.min(255, parseInt(rgbMatch[3], 10));
+    const isRgba = trimmed.toLowerCase().startsWith("rgba") || rgbMatch[4] !== undefined;
+    const alpha = rgbMatch[4] !== undefined ? rgbMatch[4] : (isRgba ? "1" : null);
+    const hex = "#" + [r, g, b].map(x => x.toString(16).padStart(2, "0")).join("");
+    return {
+      type: isRgba ? "rgba" : "rgb",
+      r, g, b, alpha,
+      hex,
+      format: (newHex, newAlpha) => {
+        const nr = parseInt(newHex.slice(1, 3), 16);
+        const ng = parseInt(newHex.slice(3, 5), 16);
+        const nb = parseInt(newHex.slice(5, 7), 16);
+        const a = newAlpha !== undefined ? newAlpha : alpha;
+        return a !== null ? `rgba(${nr}, ${ng}, ${nb}, ${a})` : `rgb(${nr}, ${ng}, ${nb})`;
+      }
+    };
+  }
+
+  // 3. Hex code #rgb, #rgba, #rrggbb, #rrggbbaa
+  const hexMatch = trimmed.match(/^#([0-9a-f]{3,8})$/i);
+  if (hexMatch) {
+    let rawHex = hexMatch[1];
+    let alpha = null;
+    let hex = rawHex;
+    if (rawHex.length === 3) {
+      hex = rawHex[0]+rawHex[0] + rawHex[1]+rawHex[1] + rawHex[2]+rawHex[2];
+    } else if (rawHex.length === 4) {
+      alpha = (parseInt(rawHex[3]+rawHex[3], 16) / 255).toFixed(2);
+      hex = rawHex[0]+rawHex[0] + rawHex[1]+rawHex[1] + rawHex[2]+rawHex[2];
+    } else if (rawHex.length === 8) {
+      alpha = (parseInt(rawHex.slice(6, 8), 16) / 255).toFixed(2);
+      hex = rawHex.slice(0, 6);
+    }
+    return {
+      type: "hex",
+      hex: "#" + hex.toLowerCase(),
+      alpha,
+      format: (newHex) => newHex
+    };
+  }
+
+  return null;
+}
+
 const codeLabels = {
   template: "HTML แม่แบบ (Style tag)",
   html: "HTML",
@@ -210,7 +285,8 @@ function collectFields(snippet) {
     seenPlaceholders.add(token);
     const content = token.slice(1, -1);
     let label = "ค่าตัวอย่าง";
-    if (content === "HH:MM" || content.startsWith("เวลา")) label = "เวลา";
+    if (parseColorInfo(token)) label = "ค่าสี (RGB/Alpha)";
+    else if (content === "HH:MM" || content.startsWith("เวลา")) label = "เวลา";
     else if (content === "วัน") label = "วัน";
     else if (content === "วันที่") label = "วันที่";
     else if (content.startsWith("เดือน/ปี")) label = "เดือน / ปี";
@@ -272,9 +348,18 @@ function buildFieldEditor(snippet) {
   for (const field of currentFields) {
     const row = document.createElement("div");
     row.className = "field-row";
+    
+    const labelRow = document.createElement("div");
+    labelRow.className = "field-label-row";
+    
     const label = document.createElement("label");
     label.htmlFor = `field-${field.id}`;
     label.textContent = field.label;
+    labelRow.append(label);
+
+    const inputGroup = document.createElement("div");
+    inputGroup.className = "field-input-group";
+
     const input = document.createElement("input");
     input.id = `field-${field.id}`;
     input.dataset.fieldId = field.id;
@@ -282,7 +367,56 @@ function buildFieldEditor(snippet) {
     input.value = values[field.id];
     input.spellcheck = false;
     if (field.kind === "tagName" || field.kind === "rubiiTagName") input.pattern = "[A-Za-z][A-Za-z0-9_-]*";
-    row.append(label, input);
+
+    const currentValue = values[field.id] || field.value;
+    const colorInfo = parseColorInfo(currentValue);
+
+    if (colorInfo) {
+      row.classList.add("field-row-color");
+      const badge = document.createElement("span");
+      badge.className = "field-color-badge";
+      badge.textContent = colorInfo.alpha !== null ? `RGBA (${Math.round((Number(colorInfo.alpha) || 1) * 100)}%)` : "RGB";
+      labelRow.append(badge);
+
+      const picker = document.createElement("input");
+      picker.type = "color";
+      picker.className = "field-color-picker";
+      picker.value = colorInfo.hex;
+      picker.title = "คลิกเพื่อเลือกสี (มี EyeDropper ดูดสีได้)";
+      picker.setAttribute("aria-label", `เลือกสีสำหรับ ${field.label}`);
+
+      picker.addEventListener("input", () => {
+        const latestVal = input.value;
+        const latestInfo = parseColorInfo(latestVal) || colorInfo;
+        const formatted = latestInfo.format(picker.value);
+        input.value = formatted;
+        values[field.id] = formatted;
+        
+        const updatedInfo = parseColorInfo(formatted);
+        if (updatedInfo && updatedInfo.alpha !== null) {
+          badge.textContent = `RGBA (${Math.round((Number(updatedInfo.alpha) || 1) * 100)}%)`;
+        }
+
+        updateCodePanel(snippet);
+        renderPreview(snippet);
+      });
+
+      input.addEventListener("input", () => {
+        const newInfo = parseColorInfo(input.value);
+        if (newInfo) {
+          picker.value = newInfo.hex;
+          if (newInfo.alpha !== null) {
+            badge.textContent = `RGBA (${Math.round((Number(newInfo.alpha) || 1) * 100)}%)`;
+          }
+        }
+      });
+
+      inputGroup.append(picker, input);
+    } else {
+      inputGroup.append(input);
+    }
+
+    row.append(labelRow, inputGroup);
     fieldList.append(row);
   }
   renderHtmlParts(snippet);
@@ -1512,3 +1646,34 @@ if (resetCodeButton) {
     showToast("รีเซ็ตโค้ดและการตั้งค่าทั้งหมดกลับเป็นค่าเริ่มต้นแล้ว");
   });
 }
+
+
+// Two-way Direct Visual Edit synchronization and persistence
+window.addEventListener("message", (event) => {
+  if (event.data?.type === "PREVIEW_DIRECT_TEXT_INPUT" && event.data.html) {
+    const snippet = snippets.find((item) => item.id === selectedSnippetId);
+    if (!snippet) return;
+    
+    let cleanHtml = event.data.html;
+    const bgState = backgroundState(snippet);
+    if (bgState.enabled && bgState.url.trim()) {
+      const cssUrl = bgState.url.trim().replace(/\\/g, "\\\\").replace(/"/g, "\\\"").replace(/[\r\n\f]/g, "");
+      const additions = `background-image:linear-gradient(rgba(10,12,18,.28),rgba(10,12,18,.28)),url("${cssUrl}");background-size:cover;background-position:center;background-repeat:no-repeat;`;
+      cleanHtml = cleanHtml.split(additions).join("");
+    }
+    
+    if (!customCodeBySnippet.has(snippet.id)) customCodeBySnippet.set(snippet.id, {});
+    customCodeBySnippet.get(snippet.id)["html"] = cleanHtml;
+    
+    // Update HTML parts and rubii settings
+    htmlPartsBySnippet.set(snippet.id, splitHtmlIntoParts(cleanHtml));
+    
+    // Refresh UI without resetting user focus
+    const wasHtmlOpen = htmlPartsPanel ? htmlPartsPanel.open : false;
+    renderHtmlParts(snippet);
+    if (htmlPartsPanel) htmlPartsPanel.open = wasHtmlOpen;
+    
+    renderRubiiSlotControls(snippet);
+    updateCodePanel(snippet);
+  }
+});
