@@ -1302,8 +1302,8 @@ function buildRubiiTemplate(snippet, chosenSlots) {
     element.removeAttribute("style");
   }
 
-  const template = formatHtml(applyFieldValues(snippet, doc.body.innerHTML));
-  const css = formatCss(applyFieldValues(snippet, cssRules.join("\n")));
+  const template = applyFieldValues(snippet, doc.body.innerHTML.replace(/\n\s*/g, ""));
+  const css = applyFieldValues(snippet, cssRules.join(""));
   return { template, css };
 }
 
