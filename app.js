@@ -1,3 +1,40 @@
+
+function formatHtml(html) {
+  if (!html) return "";
+  let formatted = "";
+  let indent = 0;
+  const tab = "  ";
+  const clean = html.replace(/>\s*</g, ">\n<").trim();
+  const lines = clean.split("\n");
+  for (let line of lines) {
+    line = line.trim();
+    if (!line) continue;
+    if (line.match(/^<\/\s*[\w:-]+/)) {
+      indent = Math.max(0, indent - 1);
+    }
+    formatted += tab.repeat(indent) + line + "\n";
+    if (
+      line.match(/^<\s*[\w:-]+(?:\s+[^>]*?)?>/) &&
+      !line.match(/^<\s*(?:area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr|!--)/i) &&
+      !line.endsWith("/>") &&
+      !line.match(/^<\s*[\w:-]+[^>]*>.*?<\/\s*[\w:-]+>/)
+    ) {
+      indent += 1;
+    }
+  }
+  return formatted.trim();
+}
+
+function formatCss(css) {
+  if (!css) return "";
+  return css
+    .replace(/;\s*/g, ";\n  ")
+    .replace(/\{\s*/g, " {\n  ")
+    .replace(/\s*\}\s*/g, "\n}\n\n")
+    .replace(/  \n/g, "")
+    .trim();
+}
+
 function parseColorInfo(value) {
   if (!value || typeof value !== "string") return null;
   const trimmed = value.trim();
@@ -1265,8 +1302,8 @@ function buildRubiiTemplate(snippet, chosenSlots) {
     element.removeAttribute("style");
   }
 
-  const template = applyFieldValues(snippet, doc.body.innerHTML);
-  const css = applyFieldValues(snippet, cssRules.join("\n"));
+  const template = formatHtml(applyFieldValues(snippet, doc.body.innerHTML));
+  const css = formatCss(applyFieldValues(snippet, cssRules.join("\n")));
   return { template, css };
 }
 

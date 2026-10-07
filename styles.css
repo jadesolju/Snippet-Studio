@@ -996,3 +996,14 @@ body {
   tab-size: 2;
   white-space: pre;
 }
+
+
+/* Auto Word-Wrap & Code Formatting */
+.code-editor-textarea,
+.code-output,
+.html-part-source,
+.rubii-extra-regex-card textarea {
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+}
