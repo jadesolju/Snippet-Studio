@@ -198,7 +198,7 @@ function collectFields(snippet) {
   }
 
   const seenPlaceholders = new Set();
-  const literalPattern = /\((?:HH:MM|วัน(?:ที่)?|เดือน\/ปี พ\.ศ\.|สถานที่[^()\n]*|สถานการณ์[^()\n]*|ข้อความ[^()\n]*|เวลา[^()\n]*|จำนวนเงิน[^()\n]*)\)/g;
+  const literalPattern = /\((?:[^()\n]{1,120})\)/g;
   for (const match of codeText.matchAll(literalPattern)) {
     const token = match[0];
     if (seenPlaceholders.has(token)) continue;
@@ -417,6 +417,71 @@ function labelForColorProperty(property) {
   return "สี";
 }
 
+
+function extractTextStringsFromHtml(html) {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT);
+  const strings = [];
+  let node;
+  const seen = new Set();
+  while ((node = walker.nextNode())) {
+    const parent = node.parentElement;
+    if (!parent || parent.closest("script,style,template,noscript")) continue;
+    const text = node.nodeValue.trim();
+    if (text && text.length >= 1 && !seen.has(text) && !/^([✕🤍↗️🎙️🔍🕒📈⭐📱🔒🛍️💬aA🔄🧾0-9\s:•+-]|&#\d+;)+$/.test(text)) {
+      seen.add(text);
+      strings.push(text);
+    }
+  }
+  return strings;
+}
+
+function buildPartTextEditor(part, textarea, snippet) {
+  const texts = extractTextStringsFromHtml(part.source);
+  if (!texts.length) return null;
+  const group = document.createElement("div");
+  group.className = "part-text-controls";
+  const heading = document.createElement("span");
+  heading.className = "part-text-heading";
+  heading.innerHTML = "<span>✏️ <strong>ปรับแต่งข้อความในส่วนนี้</strong> (พิมพ์แก้ได้ทันที)</span>";
+  group.append(heading);
+
+  for (const originalText of texts) {
+    let currentText = originalText;
+    const row = document.createElement("div");
+    row.className = "part-text-row";
+
+    const label = document.createElement("span");
+    label.className = "part-text-label";
+    label.textContent = originalText.length > 28 ? originalText.slice(0, 28) + "…" : originalText;
+    label.title = originalText;
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "part-text-input";
+    input.value = currentText;
+    input.spellcheck = false;
+    input.placeholder = originalText;
+    input.setAttribute("aria-label", `แก้ไขข้อความ ${originalText}`);
+
+    input.addEventListener("input", () => {
+      const nextText = input.value;
+      if (nextText !== currentText && currentText) {
+        part.source = part.source.split(currentText).join(nextText);
+        currentText = nextText;
+        textarea.value = part.source;
+        renderRubiiSlotControls(snippet);
+        updateCodePanel(snippet);
+        renderPreview(snippet);
+      }
+    });
+
+    row.append(label, input);
+    group.append(row);
+  }
+  return group;
+}
+
 function buildPartColorEditor(part, textarea, snippet) {
   const colors = colorsInHtml(part.source);
   if (!colors.length) return null;
@@ -619,6 +684,8 @@ function renderHtmlParts(snippet) {
       if (refreshed) refreshed.open = true;
     });
     card.append(summary, textarea);
+    const textEditor = buildPartTextEditor(part, textarea, snippet);
+    if (textEditor) card.append(textEditor);
     const colorEditor = buildPartColorEditor(part, textarea, snippet);
     if (colorEditor) card.append(colorEditor);
     htmlPartsList.append(card);
@@ -1054,8 +1121,37 @@ function previewDocument(snippet) {
   const css = editedCode(snippet, "css");
   return `<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>
     *{box-sizing:border-box}html,body{min-height:100%;margin:0}body{padding:12px;background:#191d27;color:#f2f4fa;font-family:Arial,"Noto Sans Thai",sans-serif;overflow-x:hidden}img{max-width:100%}pre{white-space:pre-wrap;overflow-wrap:anywhere}
+    [contenteditable="true"]:hover { outline: 1.5px dashed rgba(135,230,228,.55) !important; border-radius: 4px; }
+    [contenteditable="true"]:focus { outline: 2px solid rgba(135,230,228,.85) !important; border-radius: 4px; background: rgba(135,230,228,.08); }
     ${css}
-  </style></head><body>${html}</body></html>`;
+  </style></head><body>${html}
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      let node;
+      while ((node = walker.nextNode())) {
+        const parent = node.parentElement;
+        if (parent && !parent.closest('script,style,template,noscript') && node.nodeValue.trim()) {
+          parent.setAttribute('contenteditable', 'true');
+          parent.setAttribute('spellcheck', 'false');
+          parent.title = 'คลิกเพื่อพิมพ์แก้ข้อความนี้ได้โดยตรง';
+        }
+      }
+      document.body.addEventListener('input', () => {
+        const root = document.body.firstElementChild;
+        if (root) {
+          const clone = root.cloneNode(true);
+          clone.querySelectorAll('[contenteditable]').forEach(el => {
+            el.removeAttribute('contenteditable');
+            el.removeAttribute('spellcheck');
+            el.removeAttribute('title');
+          });
+          window.parent.postMessage({ type: 'PREVIEW_DIRECT_TEXT_INPUT', html: clone.outerHTML }, '*');
+        }
+      });
+    });
+  </script>
+  </body></html>`;
 }
 
 function renderCodeTabs(snippet) {

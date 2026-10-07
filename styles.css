@@ -471,3 +471,11 @@ body { font-size: 14px; }
   .guide-hero > p:not(.eyebrow) { font-size: 12px; }
   .guide-card h2 { font-size: 16px; }
 }
+
+/* Text Editing in HTML Parts */
+.part-text-controls { display: grid; gap: 7px; padding: 10px; border-top: 1px solid var(--line); background: rgba(14, 18, 26, 0.45); }
+.part-text-heading { color: #87e6e4; font-size: 10px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.part-text-row { display: grid; grid-template-columns: minmax(90px, 0.4fr) minmax(140px, 1fr); align-items: center; gap: 8px; min-width: 0; }
+.part-text-label { overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.part-text-input { width: 100%; min-width: 0; min-height: 29px; padding: 5px 8px; border: 1px solid var(--line-strong); border-radius: 7px; outline: 0; background: #0b0e14; color: #f2f4fa; font-size: 11px; }
+.part-text-input:focus { border-color: rgba(135, 230, 228, 0.6); box-shadow: 0 0 0 1px rgba(135, 230, 228, 0.25); }
