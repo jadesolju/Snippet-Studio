@@ -990,7 +990,7 @@ function renderHtmlParts(snippet) {
 }
 
 function backgroundState(snippet) {
-  if (!backgroundBySnippet.has(snippet.id)) backgroundBySnippet.set(snippet.id, { enabled: true, url: defaultBackgroundUrl });
+  if (!backgroundBySnippet.has(snippet.id)) backgroundBySnippet.set(snippet.id, { enabled: false, url: defaultBackgroundUrl });
   return backgroundBySnippet.get(snippet.id);
 }
 
@@ -998,6 +998,8 @@ function renderBackgroundControls(snippet) {
   const state = backgroundState(snippet);
   backgroundEnabled.checked = state.enabled;
   backgroundUrl.value = state.url;
+  const urlField = document.querySelector(".background-url-field");
+  if (urlField) urlField.hidden = !state.enabled;
 }
 
 function assembleRawHtml(snippet) {
@@ -1420,7 +1422,7 @@ function previewDocument(snippet) {
   html = htmlWithBackground(snippet, html);
 
   const css = editedCode(snippet, "css");
-  const isDirectEdit = visualEditEnabled ? visualEditEnabled.checked : true;
+  const isDirectEdit = visualEditEnabled ? visualEditEnabled.checked : false;
   const directEditStyles = isDirectEdit ? `
     [contenteditable="true"]:hover { outline: 1.5px dashed rgba(135,230,228,.65) !important; border-radius: 4px; cursor: text; }
     [contenteditable="true"]:focus { outline: 2px solid rgba(135,230,228,.9) !important; border-radius: 4px; background: rgba(135,230,228,.1); cursor: text; }
@@ -1663,7 +1665,10 @@ fieldList.addEventListener("input", (event) => {
 backgroundEnabled.addEventListener("change", () => {
   const snippet = snippets.find((item) => item.id === selectedSnippetId);
   if (!snippet) return;
-  backgroundState(snippet).enabled = backgroundEnabled.checked;
+  const state = backgroundState(snippet);
+  state.enabled = backgroundEnabled.checked;
+  const urlField = document.querySelector(".background-url-field");
+  if (urlField) urlField.hidden = !state.enabled;
   updateCodePanel(snippet);
   renderPreview(snippet);
 });
