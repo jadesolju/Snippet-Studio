@@ -1268,29 +1268,61 @@ function previewDocument(snippet) {
     [contenteditable="true"]:hover { outline: 1.5px dashed rgba(135,230,228,.65) !important; border-radius: 4px; cursor: text; }
     [contenteditable="true"]:focus { outline: 2px solid rgba(135,230,228,.9) !important; border-radius: 4px; background: rgba(135,230,228,.1); cursor: text; }
   ` : "";
+
+  const values = fieldValues(snippet);
+  const fieldsMapping = currentFields.map((f) => ({
+    id: f.id,
+    token: f.token || f.original || f.value,
+    value: values[f.id] ?? f.value,
+  }));
+
   const directEditScript = isDirectEdit ? `
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      const fieldsList = ${JSON.stringify(fieldsMapping)};
       const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
       let node;
       while ((node = walker.nextNode())) {
         const parent = node.parentElement;
-        if (parent && !parent.closest('script,style,template,noscript') && node.nodeValue.trim()) {
-          parent.setAttribute('contenteditable', 'true');
-          parent.setAttribute('spellcheck', 'false');
-          parent.title = 'คลิกเพื่อพิมพ์แก้ข้อความนี้ได้โดยตรง';
+        if (parent && !parent.closest('script,style,template,noscript')) {
+          const text = node.nodeValue.trim();
+          if (text) {
+            parent.setAttribute('contenteditable', 'true');
+            parent.setAttribute('spellcheck', 'false');
+            parent.title = 'คลิกเพื่อพิมพ์แก้ข้อความนี้ได้โดยตรง (จะซิงค์กับ Quick Edit และโค้ดทันที)';
+            
+            const matched = fieldsList.find((f) => f.value === text || f.token === text || text.includes(f.value) || (f.token && text.includes(f.token)));
+            if (matched && !parent.dataset.fieldId) {
+              parent.dataset.fieldId = matched.id;
+              parent.dataset.token = matched.token;
+            }
+          }
         }
       }
-      document.body.addEventListener('input', () => {
+
+      document.body.addEventListener('input', (e) => {
+        const target = e.target.closest('[contenteditable="true"]');
+        const fieldId = target ? target.dataset.fieldId : null;
+        const newText = target ? target.textContent.trim() : null;
+        const token = target ? target.dataset.token : null;
+
         const root = document.body.firstElementChild;
         if (root) {
           const clone = root.cloneNode(true);
-          clone.querySelectorAll('[contenteditable]').forEach(el => {
+          clone.querySelectorAll('[contenteditable]').forEach((el) => {
             el.removeAttribute('contenteditable');
             el.removeAttribute('spellcheck');
             el.removeAttribute('title');
+            el.removeAttribute('data-field-id');
+            el.removeAttribute('data-token');
           });
-          window.parent.postMessage({ type: 'PREVIEW_DIRECT_TEXT_INPUT', html: clone.outerHTML }, '*');
+          window.parent.postMessage({
+            type: 'PREVIEW_DIRECT_TEXT_INPUT',
+            fieldId: fieldId,
+            newText: newText,
+            token: token,
+            html: clone.outerHTML
+          }, '*');
         }
       });
     });
@@ -1301,7 +1333,6 @@ function previewDocument(snippet) {
     ${directEditStyles}
     ${css}
   </style></head><body>${html}${directEditScript}</body></html>`;
-
 }
 
 function renderCodeTabs(snippet) {
@@ -1456,7 +1487,19 @@ fieldList.addEventListener("input", (event) => {
   const snippet = snippets.find((item) => item.id === selectedSnippetId);
   if (!snippet) return;
   const values = fieldValues(snippet);
-  values[input.dataset.fieldId] = input.value;
+  const fieldId = input.dataset.fieldId;
+  const prevVal = values[fieldId];
+  const nextVal = input.value;
+  values[fieldId] = nextVal;
+
+  if (customCodeBySnippet.has(snippet.id) && customCodeBySnippet.get(snippet.id)["html"]) {
+    let customHtml = customCodeBySnippet.get(snippet.id)["html"];
+    if (prevVal && customHtml.includes(prevVal)) {
+      customHtml = customHtml.split(prevVal).join(nextVal);
+      customCodeBySnippet.get(snippet.id)["html"] = customHtml;
+    }
+  }
+
   updateCodePanel(snippet);
   renderPreview(snippet);
 });
@@ -1653,26 +1696,52 @@ window.addEventListener("message", (event) => {
   if (event.data?.type === "PREVIEW_DIRECT_TEXT_INPUT" && event.data.html) {
     const snippet = snippets.find((item) => item.id === selectedSnippetId);
     if (!snippet) return;
-    
-    let cleanHtml = event.data.html;
+
+    const { fieldId, newText, html } = event.data;
+    const values = fieldValues(snippet);
+
+    // 1. Update matching Quick Edit field value and input element
+    if (fieldId && newText !== null) {
+      values[fieldId] = newText;
+      const input = document.querySelector(`#field-${fieldId}`);
+      if (input && input.value !== newText) {
+        input.value = newText;
+      }
+
+      const colorInfo = parseColorInfo(newText);
+      if (colorInfo) {
+        const row = input ? input.closest(".field-row") : null;
+        if (row) {
+          const picker = row.querySelector(".field-color-picker");
+          if (picker) picker.value = colorInfo.hex;
+          const badge = row.querySelector(".field-color-badge");
+          if (badge && colorInfo.alpha !== null) {
+            badge.textContent = `RGBA (${Math.round((Number(colorInfo.alpha) || 1) * 100)}%)`;
+          }
+        }
+      }
+    }
+
+    // 2. Clean temporary preview background overlay if present
+    let cleanHtml = html;
     const bgState = backgroundState(snippet);
     if (bgState.enabled && bgState.url.trim()) {
       const cssUrl = bgState.url.trim().replace(/\\/g, "\\\\").replace(/"/g, "\\\"").replace(/[\r\n\f]/g, "");
       const additions = `background-image:linear-gradient(rgba(10,12,18,.28),rgba(10,12,18,.28)),url("${cssUrl}");background-size:cover;background-position:center;background-repeat:no-repeat;`;
       cleanHtml = cleanHtml.split(additions).join("");
     }
-    
+
     if (!customCodeBySnippet.has(snippet.id)) customCodeBySnippet.set(snippet.id, {});
     customCodeBySnippet.get(snippet.id)["html"] = cleanHtml;
-    
+
     // Update HTML parts and rubii settings
     htmlPartsBySnippet.set(snippet.id, splitHtmlIntoParts(cleanHtml));
-    
-    // Refresh UI without resetting user focus
+
+    // Refresh UI parts without losing user focus
     const wasHtmlOpen = htmlPartsPanel ? htmlPartsPanel.open : false;
     renderHtmlParts(snippet);
     if (htmlPartsPanel) htmlPartsPanel.open = wasHtmlOpen;
-    
+
     renderRubiiSlotControls(snippet);
     updateCodePanel(snippet);
   }
