@@ -13,6 +13,7 @@ function parseColorInfo(value) {
     return {
       type: "tuple",
       r, g, b, alpha,
+      alphaPercent: alpha !== null ? Math.round(Number(alpha) * 100) : 100,
       hex,
       format: (newHex, newAlpha) => {
         const nr = parseInt(newHex.slice(1, 3), 16);
@@ -20,6 +21,10 @@ function parseColorInfo(value) {
         const nb = parseInt(newHex.slice(5, 7), 16);
         const a = newAlpha !== undefined ? newAlpha : (alpha !== null ? alpha : null);
         return a !== null ? `(${nr},${ng},${nb},${a})` : `(${nr},${ng},${nb})`;
+      },
+      withAlphaPercent: (percent) => {
+        const a = Number((Math.max(0, Math.min(100, Number(percent))) / 100).toFixed(2));
+        return `(${r},${g},${b},${a})`;
       }
     };
   }
@@ -36,6 +41,7 @@ function parseColorInfo(value) {
     return {
       type: isRgba ? "rgba" : "rgb",
       r, g, b, alpha,
+      alphaPercent: alpha !== null ? Math.round(Number(alpha) * 100) : 100,
       hex,
       format: (newHex, newAlpha) => {
         const nr = parseInt(newHex.slice(1, 3), 16);
@@ -43,6 +49,10 @@ function parseColorInfo(value) {
         const nb = parseInt(newHex.slice(5, 7), 16);
         const a = newAlpha !== undefined ? newAlpha : alpha;
         return a !== null ? `rgba(${nr}, ${ng}, ${nb}, ${a})` : `rgb(${nr}, ${ng}, ${nb})`;
+      },
+      withAlphaPercent: (percent) => {
+        const a = Number((Math.max(0, Math.min(100, Number(percent))) / 100).toFixed(2));
+        return `rgba(${r}, ${g}, ${b}, ${a})`;
       }
     };
   }
@@ -62,11 +72,19 @@ function parseColorInfo(value) {
       alpha = (parseInt(rawHex.slice(6, 8), 16) / 255).toFixed(2);
       hex = rawHex.slice(0, 6);
     }
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
     return {
       type: "hex",
       hex: "#" + hex.toLowerCase(),
       alpha,
-      format: (newHex) => newHex
+      alphaPercent: alpha !== null ? Math.round(Number(alpha) * 100) : 100,
+      format: (newHex) => newHex,
+      withAlphaPercent: (percent) => {
+        const a = Number((Math.max(0, Math.min(100, Number(percent))) / 100).toFixed(2));
+        return `rgba(${r}, ${g}, ${b}, ${a})`;
+      }
     };
   }
 
@@ -375,7 +393,7 @@ function buildFieldEditor(snippet) {
       row.classList.add("field-row-color");
       const badge = document.createElement("span");
       badge.className = "field-color-badge";
-      badge.textContent = colorInfo.alpha !== null ? `RGBA (${Math.round((Number(colorInfo.alpha) || 1) * 100)}%)` : "RGB";
+      badge.textContent = `RGBA ${colorInfo.alphaPercent}%`;
       labelRow.append(badge);
 
       const picker = document.createElement("input");
@@ -385,38 +403,99 @@ function buildFieldEditor(snippet) {
       picker.title = "คลิกเพื่อเลือกสี (มี EyeDropper ดูดสีได้)";
       picker.setAttribute("aria-label", `เลือกสีสำหรับ ${field.label}`);
 
-      picker.addEventListener("input", () => {
-        const latestVal = input.value;
-        const latestInfo = parseColorInfo(latestVal) || colorInfo;
-        const formatted = latestInfo.format(picker.value);
-        input.value = formatted;
-        values[field.id] = formatted;
+      // Opacity row
+      const opacityRow = document.createElement("div");
+      opacityRow.className = "field-opacity-row";
+      
+      const opacityLabel = document.createElement("label");
+      opacityLabel.className = "field-opacity-label";
+      opacityLabel.innerHTML = `<svg class="ui-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/></svg><span>ความโปร่งใส (Opacity)</span>`;
+      
+      const opacitySlider = document.createElement("input");
+      opacitySlider.type = "range";
+      opacitySlider.className = "field-opacity-slider";
+      opacitySlider.min = "0";
+      opacitySlider.max = "100";
+      opacitySlider.step = "1";
+      opacitySlider.value = String(colorInfo.alphaPercent);
+      opacitySlider.setAttribute("aria-label", `ปรับความโปร่งใส ${field.label}`);
+
+      const opacityNumber = document.createElement("input");
+      opacityNumber.type = "number";
+      opacityNumber.className = "field-opacity-number";
+      opacityNumber.min = "0";
+      opacityNumber.max = "100";
+      opacityNumber.step = "1";
+      opacityNumber.value = String(colorInfo.alphaPercent);
+      opacityNumber.setAttribute("aria-label", `เปอร์เซ็นต์ความโปร่งใส ${field.label}`);
+
+      const percentUnit = document.createElement("span");
+      percentUnit.className = "field-opacity-unit";
+      percentUnit.textContent = "%";
+
+      const updateColorValue = (formattedValue) => {
+        const prevVal = values[field.id];
+        input.value = formattedValue;
+        values[field.id] = formattedValue;
         
-        const updatedInfo = parseColorInfo(formatted);
-        if (updatedInfo && updatedInfo.alpha !== null) {
-          badge.textContent = `RGBA (${Math.round((Number(updatedInfo.alpha) || 1) * 100)}%)`;
+        const latestInfo = parseColorInfo(formattedValue);
+        if (latestInfo) {
+          badge.textContent = `RGBA ${latestInfo.alphaPercent}%`;
+          opacitySlider.value = String(latestInfo.alphaPercent);
+          opacityNumber.value = String(latestInfo.alphaPercent);
+          picker.value = latestInfo.hex;
+        }
+
+        if (customCodeBySnippet.has(snippet.id) && customCodeBySnippet.get(snippet.id)["html"]) {
+          let customHtml = customCodeBySnippet.get(snippet.id)["html"];
+          if (prevVal && customHtml.includes(prevVal)) {
+            customHtml = customHtml.split(prevVal).join(formattedValue);
+            customCodeBySnippet.get(snippet.id)["html"] = customHtml;
+          }
         }
 
         updateCodePanel(snippet);
         renderPreview(snippet);
+      };
+
+      picker.addEventListener("input", () => {
+        const currentVal = input.value;
+        const currentInfo = parseColorInfo(currentVal) || colorInfo;
+        const currentAlpha = (Number(opacitySlider.value) / 100).toFixed(2);
+        const formatted = currentInfo.format(picker.value, currentAlpha);
+        updateColorValue(formatted);
       });
+
+      const onOpacityChange = (val) => {
+        if (val === "") return;
+        const percent = Math.max(0, Math.min(100, Number(val)));
+        const currentVal = input.value;
+        const currentInfo = parseColorInfo(currentVal) || colorInfo;
+        const formatted = currentInfo.withAlphaPercent(percent);
+        updateColorValue(formatted);
+      };
+
+      opacitySlider.addEventListener("input", () => onOpacityChange(opacitySlider.value));
+      opacityNumber.addEventListener("input", () => onOpacityChange(opacityNumber.value));
 
       input.addEventListener("input", () => {
         const newInfo = parseColorInfo(input.value);
         if (newInfo) {
           picker.value = newInfo.hex;
-          if (newInfo.alpha !== null) {
-            badge.textContent = `RGBA (${Math.round((Number(newInfo.alpha) || 1) * 100)}%)`;
-          }
+          badge.textContent = `RGBA ${newInfo.alphaPercent}%`;
+          opacitySlider.value = String(newInfo.alphaPercent);
+          opacityNumber.value = String(newInfo.alphaPercent);
         }
       });
 
       inputGroup.append(picker, input);
+      opacityRow.append(opacityLabel, opacitySlider, opacityNumber, percentUnit);
+      row.append(labelRow, inputGroup, opacityRow);
     } else {
       inputGroup.append(input);
+      row.append(labelRow, inputGroup);
     }
 
-    row.append(labelRow, inputGroup);
     fieldList.append(row);
   }
   renderHtmlParts(snippet);
@@ -1715,9 +1794,11 @@ window.addEventListener("message", (event) => {
           const picker = row.querySelector(".field-color-picker");
           if (picker) picker.value = colorInfo.hex;
           const badge = row.querySelector(".field-color-badge");
-          if (badge && colorInfo.alpha !== null) {
-            badge.textContent = `RGBA (${Math.round((Number(colorInfo.alpha) || 1) * 100)}%)`;
-          }
+          if (badge) badge.textContent = `RGBA ${colorInfo.alphaPercent}%`;
+          const opacitySlider = row.querySelector(".field-opacity-slider");
+          if (opacitySlider) opacitySlider.value = String(colorInfo.alphaPercent);
+          const opacityNumber = row.querySelector(".field-opacity-number");
+          if (opacityNumber) opacityNumber.value = String(colorInfo.alphaPercent);
         }
       }
     }
