@@ -278,6 +278,7 @@ function collectFields(snippet) {
     });
   }
 
+  // 1. Collect template tokens {{ ... }}
   const seenTokens = new Set();
   for (const match of codeText.matchAll(/\{\{\s*([^{}]+?)\s*\}\}/g)) {
     const token = match[0];
@@ -285,33 +286,112 @@ function collectFields(snippet) {
     if (seenTokens.has(token)) continue;
     seenTokens.add(token);
     const key = match[1].trim();
+    let label = tokenLabels[key] ?? `ค่า ${key}`;
+    if (key === "char") label = "ชื่อตัวละคร ({{char}})";
+    else if (key === "user") label = "ชื่อผู้ใช้ ({{user}})";
+    else if (key === "color") label = "สีเน้นหลัก ({{color}})";
+    else if (key === "location") label = "สถานที่ ({{location}})";
     fields.push({
       id: `token-${fields.length}`,
       kind: "token",
       token,
-      label: tokenLabels[key] ?? `ค่า ${key}`,
+      label,
       value: token,
       inputType: "text",
     });
   }
 
+  // 2. Scan CSS declarations in style attributes to identify exact color contexts
   const seenPlaceholders = new Set();
+  const styleAttributes = /\bstyle\s*=\s*(["'])([\s\S]*?)\1/gi;
+  let isRoot = true;
+
+  for (const match of codeText.matchAll(styleAttributes)) {
+    const styleContent = match[2];
+    const declarations = /(^|;)\s*([\w-]+)\s*:\s*([^;]+)/g;
+    
+    // Check context hints around the tag
+    const beforeTag = codeText.slice(Math.max(0, match.index - 120), match.index);
+    let contextHint = isRoot ? "การ์ดหลัก" : "";
+    if (beforeTag.includes("border-radius:50%") || beforeTag.includes("width:34px") || beforeTag.includes("width:36px") || beforeTag.includes("width:40px")) {
+      contextHint = "ไอคอน / โปรไฟล์";
+    } else if (beforeTag.includes("border-left") || beforeTag.includes("padding-left")) {
+      contextHint = "เส้นเน้น / คอมเมนต์";
+    } else if (beforeTag.includes("border-top") || beforeTag.includes("border-bottom")) {
+      contextHint = "เส้นคั่นสถิติ / เมนู";
+    } else if (beforeTag.includes("ACTIVITY") || beforeTag.includes("NOTIFICATION")) {
+      contextHint = "ป้ายสถานะ";
+    }
+
+    for (const dec of styleContent.matchAll(declarations)) {
+      const prop = dec[2].toLowerCase().trim();
+      const val = dec[3].trim();
+
+      const colorMatches = val.matchAll(/\((?:[^()\n]{1,120})\)/g);
+      for (const cm of colorMatches) {
+        const token = cm[0];
+        if (seenPlaceholders.has(token)) continue;
+
+        // Skip non-color css functions (e.g. blur, calc, url, var, scale, rotate)
+        const beforeMatch = val.slice(Math.max(0, cm.index - 10), cm.index).toLowerCase();
+        if (beforeMatch.endsWith("blur") || beforeMatch.endsWith("calc") || beforeMatch.endsWith("url") || beforeMatch.endsWith("var") || beforeMatch.endsWith("scale") || beforeMatch.endsWith("rotate")) {
+          continue;
+        }
+
+        const colorInfo = parseColorInfo(token);
+        if (!colorInfo) continue;
+
+        seenPlaceholders.add(token);
+
+        let label = "สี";
+        if (prop.startsWith("background")) {
+          label = isRoot ? "สีพื้นหลังการ์ดหลัก (Main BG)" : (contextHint ? `สีพื้นหลัง${contextHint}` : "สีพื้นหลังกล่อง (Box BG)");
+        } else if (prop.startsWith("border-left") || prop.startsWith("border-right")) {
+          label = "สีเส้นคั่นข้าง / เส้นเน้น (Accent Line)";
+        } else if (prop.startsWith("border-top") || prop.startsWith("border-bottom")) {
+          label = "สีเส้นคั่นแถบ / เส้นแบ่ง (Divider)";
+        } else if (prop.startsWith("border")) {
+          label = isRoot ? "สีเส้นขอบการ์ด (Card Border)" : (contextHint ? `สีเส้นขอบ${contextHint}` : "สีเส้นขอบกล่อง (Border)");
+        } else if (prop.includes("shadow")) {
+          label = "สีเงาตกกระทบ (Card Shadow)";
+        } else if (prop === "color") {
+          label = "สีข้อความ (Text Color)";
+        }
+
+        fields.push({
+          id: `placeholder-${fields.length}`,
+          kind: "literal",
+          token,
+          label,
+          value: token,
+          inputType: "text",
+        });
+      }
+    }
+    isRoot = false;
+  }
+
+  // 3. Scan HTML text nodes for user placeholders (วัน, เวลา, ข้อความ, สถานที่, ฯลฯ)
   const literalPattern = /\((?:[^()\n]{1,120})\)/g;
-  for (const match of codeText.matchAll(literalPattern)) {
+  const htmlWithoutStyles = codeText.replace(/\bstyle\s*=\s*(["'])[\s\S]*?\1/gi, '');
+  for (const match of htmlWithoutStyles.matchAll(literalPattern)) {
     const token = match[0];
     if (seenPlaceholders.has(token)) continue;
     seenPlaceholders.add(token);
-    const content = token.slice(1, -1);
-    let label = "ค่าตัวอย่าง";
-    if (parseColorInfo(token)) label = "ค่าสี (RGB/Alpha)";
-    else if (content === "HH:MM" || content.startsWith("เวลา")) label = "เวลา";
-    else if (content === "วัน") label = "วัน";
-    else if (content === "วันที่") label = "วันที่";
-    else if (content.startsWith("เดือน/ปี")) label = "เดือน / ปี";
-    else if (content.startsWith("สถานที่")) label = "สถานที่";
-    else if (content.startsWith("สถานการณ์")) label = "สถานการณ์";
-    else if (content.startsWith("ข้อความ")) label = "ข้อความ";
-    else if (content.startsWith("จำนวนเงิน")) label = "จำนวนเงิน";
+    const content = token.slice(1, -1).trim();
+
+    let label = "ข้อความตัวอย่าง";
+    if (content === "HH:MM" || content.startsWith("เวลา")) label = "เวลา (Time)";
+    else if (content === "วัน") label = "วัน (Day)";
+    else if (content === "วันที่") label = "วันที่ (Date)";
+    else if (content.startsWith("เดือน/ปี")) label = "เดือน / ปี (Month/Year)";
+    else if (content.startsWith("สถานที่")) label = "สถานที่ (Location)";
+    else if (content.startsWith("สถานการณ์")) label = "สถานการณ์ / แจ้งเตือน (Status)";
+    else if (content.startsWith("ข้อความ")) label = "ข้อความหลัก (Message)";
+    else if (content.startsWith("ความคิด") || content.startsWith("มุมมอง")) label = "ความคิดเห็นเสริม (Comment)";
+    else if (content.startsWith("จำนวนเงิน") || content.startsWith("ราคา")) label = "จำนวนเงิน (Amount)";
+    else if (content.length <= 25) label = content;
+
     fields.push({
       id: `placeholder-${fields.length}`,
       kind: "literal",
@@ -322,6 +402,7 @@ function collectFields(snippet) {
     });
   }
 
+  // 4. Collect image URLs
   const urls = new Map();
   for (const match of codeText.matchAll(/url\(\s*(["']?)([^"')]+)\1\s*\)/gi)) {
     const url = match[2].trim();
@@ -339,11 +420,12 @@ function collectFields(snippet) {
       id: `url-${imageNumber}`,
       kind: "url",
       original: url,
-      label: kind === "background" ? "URL รูปพื้นหลัง" : `URL รูปภาพ ${imageNumber}`,
+      label: kind === "background" ? "URL รูปพื้นหลัง" : `URL รูปไอคอน/รูปภาพ ${imageNumber}`,
       value: url,
       inputType: "url",
     });
   }
+
   return fields;
 }
 
