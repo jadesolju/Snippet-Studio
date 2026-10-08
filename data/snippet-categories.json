@@ -54,9 +54,27 @@
     "order": 9
   },
   {
-    "id": "style-tags",
-    "title": "Rubii Style tags",
-    "summary": "Style tag พร้อม HTML template และ CSS",
+    "id": "emotion-stats",
+    "title": "ดัชนีอารมณ์ & ความรู้สึก",
+    "summary": "ดัชนีความรัก ความใคร่ ความหึงหวง และระดับความรู้สึก",
     "order": 10
+  },
+  {
+    "id": "retro-gaming",
+    "title": "เกมย้อนยุค & เรโทร",
+    "summary": "เครื่องเกมพกพา Game Boy, พิกเซล และผลการแข่งขันเรซซิ่ง",
+    "order": 11
+  },
+  {
+    "id": "music-players",
+    "title": "เครื่องเล่นเพลง & เนื้อเพลง",
+    "summary": "เครื่องเล่นเพลงแผ่นเสียง, Dynamic Island และเนื้อเพลง Apple Music",
+    "order": 12
+  },
+  {
+    "id": "cyber-y2k",
+    "title": "ไซเบอร์พังก์ & Y2K",
+    "summary": "หน้าจอ HUD ไซเบอร์พังก์, ขับรถยามค่ำคืน, และวินเทจ Y2K",
+    "order": 13
   }
 ]
