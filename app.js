@@ -291,6 +291,7 @@ const snippetTagMap = {
   "snippet-73": "digital-paradise",
   "snippet-74": "retro-window",
   "snippet-75": "cyber-hud",
+  "snippet-76": "incognito-mode",
 };
 
 function defaultRubiiTagName(snippet) {
