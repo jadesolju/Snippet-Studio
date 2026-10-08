@@ -1264,18 +1264,18 @@ function htmlWithBackground(snippet, html) {
   if (!state.enabled || !url) return html;
   const root = scanHtmlTags(html).find((tag) => tag.kind === "open");
   if (!root) return html;
-  const cssUrl = url.replace(/\\/g, "\\\\").replace(/"/g, "\\\"").replace(/[\r\n\f]/g, "");
-  const additions = `background-image:linear-gradient(rgba(10,12,18,.28),rgba(10,12,18,.28)),url(\"${cssUrl}\");background-size:cover;background-position:center;background-repeat:no-repeat;`;
+  const cssUrl = url.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/[\r\n\f]/g, "");
+  const additions = `background-image:linear-gradient(rgba(10,12,18,.28),rgba(10,12,18,.28)),url('${cssUrl}');background-size:cover;background-position:center;background-repeat:no-repeat;`;
   const rootTag = html.slice(root.start, root.end);
   const styleAttribute = rootTag.match(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i);
   let updatedRoot;
   if (styleAttribute) {
     const existing = styleAttribute[2].replace(/\s*$/, "").replace(/;?$/, ";");
     const merged = `${existing}${additions}`;
-    updatedRoot = rootTag.replace(styleAttribute[0], `style="${escapeHtmlAttribute(merged)}"`);
+    updatedRoot = rootTag.replace(styleAttribute[0], `style="${merged}"`);
   } else {
     const insertAt = rootTag.lastIndexOf(">");
-    updatedRoot = `${rootTag.slice(0, insertAt)} style="${escapeHtmlAttribute(additions)}"${rootTag.slice(insertAt)}`;
+    updatedRoot = `${rootTag.slice(0, insertAt)} style="${additions}"${rootTag.slice(insertAt)}`;
   }
   return `${html.slice(0, root.start)}${updatedRoot}${html.slice(root.end)}`;
 }
@@ -2275,7 +2275,7 @@ window.addEventListener("message", (event) => {
     const bgState = backgroundState(snippet);
     if (bgState.enabled && bgState.url.trim()) {
       const cssUrl = bgState.url.trim().replace(/\\/g, "\\\\").replace(/"/g, "\\\"").replace(/[\r\n\f]/g, "");
-      const additions = `background-image:linear-gradient(rgba(10,12,18,.28),rgba(10,12,18,.28)),url("${cssUrl}");background-size:cover;background-position:center;background-repeat:no-repeat;`;
+      const additions = `background-image:linear-gradient(rgba(10,12,18,.28),rgba(10,12,18,.28)),url('${cssUrl}');background-size:cover;background-position:center;background-repeat:no-repeat;`;
       cleanHtml = cleanHtml.split(additions).join("");
     }
 
