@@ -2,6 +2,8 @@
 
 เว็บแอปพลิเคชันสำหรับค้นหา ดูตัวอย่าง (Preview), ปรับแต่ง และคัดลอกโค้ดแม่แบบ HTML, CSS และ Style Tags สำหรับ Rubii
 
+แนวทางออกแบบและตรวจสอบการ์ดอยู่ที่ [RUBII_CARD_GUIDELINES.md](./RUBII_CARD_GUIDELINES.md)
+
 ## การเริ่มต้นใช้งาน (Local)
 
 เปิดไฟล์ `index.html` ในเว็บเบราว์เซอร์ได้ทันที หรือรัน Local Server:

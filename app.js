@@ -381,6 +381,74 @@ function renderSnippetList(items) {
   }
 }
 
+function visibleTextStringsFromHtml(source) {
+  const doc = new DOMParser().parseFromString(source, "text/html");
+  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT);
+  const strings = [];
+  let node;
+  while ((node = walker.nextNode())) {
+    if (node.parentElement?.closest("script,style,template,noscript")) continue;
+    const text = node.nodeValue.trim();
+    if (text) strings.push(text);
+  }
+  return strings;
+}
+
+function suggestedTextVariableMatches(text) {
+  const source = String(text ?? "");
+  const explicitRanges = [...source.matchAll(/\([^()\n]{1,120}\)|\{\{[^{}]+\}\}%?|\b\d{1,3}%(?!\w)/g)]
+    .map((match) => ({ start: match.index, end: match.index + match[0].length }));
+  const definitions = [
+    {
+      type: "prompt",
+      pattern: /\[[^\]\r\n]{3,120}\]/g,
+      accept: (value) => /(?:ระบุ|อธิบาย|เขียน|กำหนด|(?:รายละเอียด|คำบรรยาย|สไตล์ประจำตัว|สถานที่|ความคิดในใจ|ความรู้สึก|ข้อความโพสต์)\s*[:：])/i.test(value),
+    },
+    { type: "reference", pattern: /(?:\b(?:Ref|Reference)|รหัสอ้างอิง(?:ธุรกรรม)?|เลขอ้างอิง)\s*:\s*([A-Z\d][A-Z\d-]{3,})/gi, captureGroup: 1 },
+    { type: "date", pattern: /\b(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\s*,?\s*\d{1,2}\s+(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+20\d{2}\b/gi },
+    { type: "date", pattern: /\b\d{1,2}\s+(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+20\d{2}\b/gi },
+    { type: "date", pattern: /\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2},?\s+20\d{2}\b/gi },
+    { type: "date", pattern: /\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+20\d{2}\b/gi },
+    { type: "date", pattern: /\b20\d{2}[./-]\d{1,2}[./-]\d{1,2}\b/g },
+    { type: "date", pattern: /\b\d{1,2}[./-]\d{1,2}[./-](?:\d{2}|20\d{2})\b/g },
+    { type: "date", pattern: /\d{1,2}\s+(?:ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.|มกราคม|กุมภาพันธ์|มีนาคม|เมษายน|พฤษภาคม|มิถุนายน|กรกฎาคม|สิงหาคม|กันยายน|ตุลาคม|พฤศจิกายน|ธันวาคม)\s+\d{2,4}/gi },
+    { type: "time", pattern: /\b\d{1,2}:\d{2}(?::\d{2})?\s*(?:AM|PM)?(?:\s*น\.)?/gi },
+    { type: "time", pattern: /\b\d{1,2}'\d{2}"\d{2}\b/g },
+    { type: "amount", pattern: /(?:[$£€¥฿]\s*\d[\d,]*(?:\.\d{1,2})?\+?|\d[\d,]*(?:\.\d{1,2})?\s*(?:บาท|THB|USD|GBP|EUR|AUD|CAD|JPY|CNY|KRW|INR)\b)/gi },
+    { type: "count", pattern: /\d[\d,]*(?:\.\d+)?(?:\s?[KMB])?(?=\s*(?:likes?|comments?|followers?|subscribers?|members?|users?|views?|posts?|credits?|coins?)\b)/gi },
+    { type: "count", pattern: /\d[\d,]*(?:\.\d+)?(?=\s*(?:คน|ไลก์|คอมเมนต์|ผู้ติดตาม|สมาชิก|รายการ|ครั้ง))/gi },
+    { type: "relativeTime", pattern: /\b\d+\s*(?:seconds?|secs?|minutes?|mins?|hours?|hrs?|days?|weeks?|months?|years?)\s+ago\b/gi },
+    { type: "relativeTime", pattern: /\d+\s*(?:นาที|ชั่วโมง|วัน)\s*ที่แล้ว/g },
+    { type: "relativeTime", pattern: /\b\d+\s*(?:s|sec|secs|second|seconds|m|min|mins|minute|minutes|h|hr|hrs|hour|hours)\s*read\b/gi },
+  ];
+  const suggestions = [];
+  for (const definition of definitions) {
+    for (const match of source.matchAll(definition.pattern)) {
+      const value = match[definition.captureGroup ?? 0];
+      if (!value) continue;
+      if (definition.accept && !definition.accept(value)) continue;
+      const start = match.index + match[0].indexOf(value);
+      const end = start + value.length;
+      if (explicitRanges.some((range) => start < range.end && end > range.start)) continue;
+      if (suggestions.some((item) => start < item.end && end > item.start)) continue;
+      suggestions.push({ value, start, end, type: definition.type });
+    }
+  }
+  return suggestions.sort((a, b) => a.start - b.start);
+}
+
+function suggestedVariableLabel(type) {
+  return ({
+    prompt: "ข้อความบอกใบ้",
+    reference: "เลขอ้างอิง",
+    date: "วันที่",
+    time: "เวลา/ระยะเวลา",
+    amount: "จำนวนเงิน",
+    count: "ตัวเลขสถิติ",
+    relativeTime: "เวลาที่ผ่านมา",
+  })[type] ?? "ค่าที่อาจเปลี่ยน";
+}
+
 function collectFields(snippet) {
   const fields = [];
   const codeText = Object.values(snippet.code ?? {}).filter(Boolean).join("\n");
@@ -527,6 +595,24 @@ function collectFields(snippet) {
     });
   }
 
+  // 3b. Surface likely changing text as review-only suggestions, never as markers.
+  for (const text of visibleTextStringsFromHtml(htmlWithoutStyles)) {
+    for (const suggestion of suggestedTextVariableMatches(text)) {
+      if (seenPlaceholders.has(suggestion.value)) continue;
+      seenPlaceholders.add(suggestion.value);
+      fields.push({
+        id: `suggestion-${fields.length}`,
+        kind: "literal",
+        token: suggestion.value,
+        label: `ตรวจดู · ${suggestedVariableLabel(suggestion.type)}`,
+        value: suggestion.value,
+        inputType: "text",
+        suggested: true,
+        suggestionType: suggestion.type,
+      });
+    }
+  }
+
   // 4. Collect image URLs
   const urls = new Map();
   for (const match of codeText.matchAll(/url\(\s*(["']?)([^"')]+)\1\s*\)/gi)) {
@@ -581,6 +667,12 @@ function buildFieldEditor(snippet) {
     label.htmlFor = `field-${field.id}`;
     label.textContent = field.label;
     labelRow.append(label);
+    if (field.suggested) {
+      const badge = document.createElement("span");
+      badge.className = "field-suggestion-badge";
+      badge.textContent = "ตรวจเอง";
+      labelRow.append(badge);
+    }
 
     const inputGroup = document.createElement("div");
     inputGroup.className = "field-input-group";
@@ -1204,32 +1296,54 @@ function rubiiTextSlots(source) {
   for (const [nodeIndex, textNode] of nodes.entries()) {
     const text = textNode.nodeValue;
     const matches = [...text.matchAll(dynamicPattern)];
-    const candidates = matches.length
-      ? matches.map((match, matchIndex) => ({ target: match[0], start: match.index, end: match.index + match[0].length, matchIndex }))
-      : (text.trim().length >= 3
-        ? [{ target: text.trim(), start: text.indexOf(text.trim()), end: text.indexOf(text.trim()) + text.trim().length, matchIndex: 0 }]
-        : []);
+    const candidates = matches.map((match) => ({
+      target: match[0],
+      start: match.index,
+      end: match.index + match[0].length,
+      explicit: true,
+    }));
+    candidates.push(...suggestedTextVariableMatches(text).map((suggestion) => ({
+      target: suggestion.value,
+      start: suggestion.start,
+      end: suggestion.end,
+      suggested: true,
+      suggestionType: suggestion.type,
+    })));
+    candidates.sort((a, b) => a.start - b.start || a.end - b.end);
+    if (!candidates.length && text.trim().length >= 3) {
+      const start = text.indexOf(text.trim());
+      candidates.push({ target: text.trim(), start, end: start + text.trim().length, example: true });
+    }
 
-    for (const candidate of candidates) {
+    for (const [matchIndex, candidate] of candidates.entries()) {
       const target = candidate.target.trim();
       if (!target) continue;
       const words = `${target} ${text}`.toLocaleLowerCase("th");
-      let score = matches.length ? 5 : 0;
+      let score = candidate.explicit ? 5 : candidate.suggested ? 1 : 0;
       if (/สถานการณ์|ข้อความ|โพสต์|caption|รายละเอียด|message|บทสนทนา|คำบรรยาย|เหตุการณ์|บันทึก|โน้ต/.test(words)) score += 12;
       if (/จำนวนเงิน|ยอดโอน|ยอดเงิน|สินค้า|รายการ|เนื้อหา|คำตอบ|ตอบกลับ/.test(words)) score += 8;
       if (isRubiiPercentageTarget(target)) score += 8;
       if (/สถานที่|วันที่|เดือน|\bวัน\b|เวลา|hh:mm|\{\{char\}\}/i.test(target)) score -= 3;
       score += Math.min(target.length, 60) / 20;
       const context = text.replace(/\s+/g, " ").trim();
-      const label = `${target} · ${context === target ? "ข้อความ" : context}`;
-      slots.push({ id: `${nodeIndex}:${candidate.matchIndex}`, nodeIndex, start: candidate.start, end: candidate.end, target: candidate.target, label, score, explicit: matches.length > 0 });
+      const label = candidate.suggested
+        ? `${suggestedVariableLabel(candidate.suggestionType)} · ${target}`
+        : `${target} · ${context === target ? "ข้อความ" : context}`;
+      slots.push({
+        id: `${nodeIndex}:${matchIndex}`,
+        nodeIndex,
+        start: candidate.start,
+        end: candidate.end,
+        target: candidate.target,
+        label,
+        score,
+        explicit: Boolean(candidate.explicit),
+        suggested: Boolean(candidate.suggested),
+        suggestionType: candidate.suggestionType,
+      });
     }
   }
   return { doc, nodes, slots };
-}
-
-function bestRubiiSlot(slots) {
-  return [...slots].sort((a, b) => b.score - a.score || b.target.length - a.target.length)[0];
 }
 
 function renderRubiiSlotControls(snippet) {
@@ -1239,11 +1353,13 @@ function renderRubiiSlotControls(snippet) {
 
   const { slots } = rubiiTextSlots(assembleRawHtml(snippet));
   const state = rubiiSettingsBySnippet.get(snippet.id) ?? {};
-  const preferred = slots.some((slot) => slot.id === state.slotId) ? state.slotId : bestRubiiSlot(slots)?.id;
+  const preferred = typeof state.slotId === "string"
+    ? (slots.some((slot) => slot.id === state.slotId) ? state.slotId : "")
+    : (slots.find((slot) => slot.explicit)?.id ?? "");
   state.slotId = preferred ?? "";
   if (!Array.isArray(state.regexSlotIds)) {
     const explicitSlots = slots.filter((slot) => slot.explicit && slot.score > 0).slice(0, maxRegexCaptures);
-    state.regexSlotIds = explicitSlots.length ? explicitSlots.map((slot) => slot.id) : (preferred ? [preferred] : []);
+    state.regexSlotIds = explicitSlots.map((slot) => slot.id);
   }
   state.regexSlotIds = state.regexSlotIds.filter((id) => slots.some((slot) => slot.id === id)).slice(0, maxRegexCaptures);
   if (!Array.isArray(state.extraRegexRules)) state.extraRegexRules = [];
@@ -1267,6 +1383,10 @@ function renderRubiiSlotControls(snippet) {
   }
 
   rubiiSlotSelect.disabled = false;
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = "เลือกข้อความเพื่อกำหนดเป็น $1";
+  rubiiSlotSelect.append(placeholder);
   for (const slot of slots) {
     const option = document.createElement("option");
     option.value = slot.id;
@@ -1287,8 +1407,9 @@ function renderRubiiSlotControls(snippet) {
     checkbox.disabled = !checkbox.checked && selectedIds.size >= maxRegexCaptures;
     const number = checkbox.checked ? `${state.regexSlotIds.indexOf(slot.id) + 1}. ` : "";
     const marker = document.createElement("span");
-    marker.className = "rubii-regex-capture-kind";
-    marker.textContent = slot.explicit ? "marker" : "ตัวอย่าง";
+    marker.className = `rubii-regex-capture-kind${slot.suggested ? " is-suggestion" : ""}`;
+    marker.textContent = slot.explicit ? "marker" : slot.suggested ? "ตรวจดู" : "ตัวอย่าง";
+    if (slot.suggested) marker.title = "ระบบเดาว่าอาจเปลี่ยน แนะนำให้ตรวจสอบก่อนเลือก";
     const text = document.createElement("span");
     text.className = "rubii-regex-capture-text";
     text.textContent = `${number}${slot.label}`;
@@ -1513,6 +1634,7 @@ function describeRubiiSlot(slot) {
 
 function rubiiSlotLabel(slot, index, snippet) {
   const raw = describeRubiiSlot(slot);
+  if (slot?.suggested) return suggestedVariableLabel(slot.suggestionType);
   const text = `${slot?.target ?? ""} ${slot?.label ?? ""}`.toLocaleLowerCase("th");
   const title = String(snippet?.title ?? "").toLocaleLowerCase("th");
   if (/hh:mm|เวลา|time/.test(text)) return "เวลา";
@@ -1578,7 +1700,7 @@ function buildRubiiSections(snippet) {
   const source = htmlWithBackground(snippet, assembleRawHtml(snippet));
   const { slots } = rubiiTextSlots(source);
   const state = rubiiSettingsBySnippet.get(snippet.id) ?? {};
-  const styleSlot = slots.find((item) => item.id === state.slotId) ?? bestRubiiSlot(slots);
+  const styleSlot = slots.find((item) => item.id === state.slotId) ?? null;
   const styleTemplate = buildRubiiTemplate(snippet, styleSlot ? [styleSlot] : []);
   const regexSlots = (state.regexSlotIds ?? []).map((id) => slots.find((slot) => slot.id === id)).filter(Boolean).slice(0, maxRegexCaptures);
   const regexTemplate = buildRubiiTemplate(snippet, regexSlots);
@@ -1588,7 +1710,7 @@ function buildRubiiSections(snippet) {
   const styleExample = `<${tagName}>${rubiiSampleValue(styleSlot)}</${tagName}>`;
   const regexOutput = regexSlots.length
     ? `<${tagName}>${regexSlots.map((slot) => rubiiSampleValue(slot)).join("||")}</${tagName}>`
-    : styleExample;
+    : styleSlot ? styleExample : "ยังไม่ได้เลือกช่อง — เลือก Marker หรือข้อความที่ตรวจดูแล้วก่อน";
   const styleDescription = rubiiSlotLabel(styleSlot, 0, snippet) || "เนื้อหาหลัก";
   const regexDescriptions = regexSlots.map((slot, index) => `\`$${index + 1}\` = ${rubiiSlotLabel(slot, index, snippet)}`).join("; ");
   const extraRules = state.extraRegexRules ?? [];
