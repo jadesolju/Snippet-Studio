@@ -196,6 +196,7 @@ const rubiiSlotSelect = document.querySelector("#rubii-slot-select");
 const rubiiRegexCaptureCount = document.querySelector("#rubii-regex-capture-count");
 const rubiiRegexCaptureList = document.querySelector("#rubii-regex-capture-list");
 const extraRegexRuleList = document.querySelector("#rubii-extra-regex-list");
+const regexFallbackFormat = document.querySelector("#regex-fallback-format");
 const maxRegexCaptures = 33;
 
 let categories = [];
@@ -1246,6 +1247,11 @@ function renderRubiiSlotControls(snippet) {
   state.regexSlotIds = state.regexSlotIds.filter((id) => slots.some((slot) => slot.id === id)).slice(0, maxRegexCaptures);
   if (!Array.isArray(state.extraRegexRules)) state.extraRegexRules = [];
   rubiiSettingsBySnippet.set(snippet.id, state);
+  const addFallbackButton = document.querySelector("#add-regex-fallback-button");
+  if (addFallbackButton) {
+    addFallbackButton.disabled = state.regexSlotIds.length === 0;
+    addFallbackButton.title = addFallbackButton.disabled ? "เลือกช่อง Regex อย่างน้อยหนึ่งช่องก่อน" : "สร้าง Pattern สำรองและคัดลอก Replacement จาก Regex หลัก";
+  }
 
   if (!slots.length) {
     const option = document.createElement("option");
@@ -1255,7 +1261,7 @@ function renderRubiiSlotControls(snippet) {
     rubiiSlotSelect.disabled = true;
     rubiiRegexCaptureList.replaceChildren();
     rubiiRegexCaptureCount.textContent = "0 / 33";
-    renderExtraRegexRules(state);
+    renderExtraRegexRules(state, snippet);
     return;
   }
 
@@ -1289,12 +1295,19 @@ function renderRubiiSlotControls(snippet) {
     rubiiRegexCaptureList.append(label);
   }
   rubiiRegexCaptureCount.textContent = `${state.regexSlotIds.length} / ${maxRegexCaptures}`;
-  renderExtraRegexRules(state);
+  renderExtraRegexRules(state, snippet);
 }
 
-function renderExtraRegexRules(state) {
+function renderExtraRegexRules(state, snippet) {
   extraRegexRuleList.replaceChildren();
+  const source = htmlWithBackground(snippet, assembleRawHtml(snippet));
+  const { slots } = rubiiTextSlots(source);
+  const regexSlots = (state.regexSlotIds ?? []).map((id) => slots.find((slot) => slot.id === id)).filter(Boolean).slice(0, maxRegexCaptures);
+  const regexReplacement = regexSlots.length ? buildRubiiTemplate(snippet, regexSlots).template : "";
+  const tagValue = fieldValues(snippet).rubiiTagName;
+  const tagName = /^[A-Za-z][A-Za-z0-9_-]*$/.test(tagValue ?? "") ? tagValue : defaultRubiiTagName(snippet);
   for (const [index, rule] of state.extraRegexRules.entries()) {
+    const isGeneratedFallback = ["pipe", "comma", "newline"].includes(rule.generatedFormat);
     const card = document.createElement("section");
     card.className = "rubii-extra-regex-card";
     card.dataset.regexRuleId = rule.id;
@@ -1315,6 +1328,7 @@ function renderExtraRegexRules(state) {
       stage.append(option);
     }
     stage.value = rule.stage ?? "raw";
+    stage.disabled = isGeneratedFallback;
     const actions = document.createElement("div");
     actions.className = "rubii-regex-rule-actions";
     for (const [direction, label, title] of [[-1, "↑", "เลื่อนกฎขึ้น"], [1, "↓", "เลื่อนกฎลง"]]) {
@@ -1335,24 +1349,48 @@ function renderExtraRegexRules(state) {
     remove.dataset.removeRegexRule = rule.id;
     remove.textContent = "ลบ";
     actions.append(remove);
-    heading.append(name, stage, actions);
+    if (isGeneratedFallback) {
+      const format = document.createElement("select");
+      format.setAttribute("aria-label", `ตัวคั่นของ Regex สำรอง ${index + 1}`);
+      for (const [value, label] of [["pipe", "คั่นด้วย |"], ["comma", "คั่นด้วย ,"], ["newline", "ขึ้นบรรทัดใหม่"]]) {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = label;
+        format.append(option);
+      }
+      format.value = rule.generatedFormat;
+      format.addEventListener("change", () => {
+        rule.generatedFormat = format.value;
+        renderRubiiSlotControls(snippet);
+        updateCodePanel(snippet);
+      });
+      heading.append(name, format, actions);
+    } else {
+      heading.append(name, stage, actions);
+    }
 
     const patternLabel = document.createElement("label");
     patternLabel.className = "rubii-regex-rule-field";
-    patternLabel.innerHTML = "<span>Pattern <small>/pattern/flags</small></span>";
+    patternLabel.innerHTML = isGeneratedFallback
+      ? "<span>Pattern <small>สร้างอัตโนมัติจากช่องที่เลือก</small></span>"
+      : "<span>Pattern <small>/pattern/flags</small></span>";
     const pattern = document.createElement("textarea");
     pattern.dataset.regexRuleField = "pattern";
-    pattern.value = rule.pattern ?? "";
+    pattern.value = isGeneratedFallback ? buildRegexPattern(tagName, regexSlots, rule.generatedFormat) : rule.pattern ?? "";
+    pattern.readOnly = isGeneratedFallback;
     pattern.placeholder = "/pattern/flags";
     pattern.setAttribute("aria-label", `Pattern ของ Regex ${index + 1}`);
     patternLabel.append(pattern);
 
     const replacementLabel = document.createElement("label");
     replacementLabel.className = "rubii-regex-rule-field";
-    replacementLabel.innerHTML = "<span>Replacement <small>ใช้ $1–$33 ตาม capture group</small></span>";
+    replacementLabel.innerHTML = isGeneratedFallback
+      ? "<span>Replacement <small>ใช้ชุดเดียวกับ Regex หลัก</small></span>"
+      : "<span>Replacement <small>ใช้ $1–$33 ตาม capture group</small></span>";
     const replacement = document.createElement("textarea");
     replacement.dataset.regexRuleField = "replacement";
-    replacement.value = rule.replacement ?? "";
+    replacement.value = isGeneratedFallback ? regexReplacement : rule.replacement ?? "";
+    replacement.readOnly = isGeneratedFallback;
     replacement.placeholder = "HTML หรือข้อความแทนที่";
     replacement.setAttribute("aria-label", `Replacement ของ Regex ${index + 1}`);
     replacementLabel.append(replacement);
@@ -1446,8 +1484,19 @@ function buildRubiiTemplate(snippet, chosenSlots) {
   return { template, css };
 }
 
-function buildRegexPattern(tagName, captureCount) {
-  const captures = Array.from({ length: captureCount }, () => "([\\s\\S]*?)").join("\\|\\|");
+function buildRegexPattern(tagName, chosenSlots, format = "doublePipe") {
+  const separators = {
+    doublePipe: { delimiter: "\\|\\|", textCapture: "([\\s\\S]*?)" },
+    pipe: { delimiter: "\\|(?!\\|)", textCapture: "([^|]*?)" },
+    comma: { delimiter: "\\s*,\\s*", textCapture: "([^,]*?)" },
+    newline: { delimiter: "\\r?\\n", textCapture: "([^\\r\\n]*?)" },
+  };
+  const { delimiter, textCapture } = separators[format] ?? separators.doublePipe;
+  const captures = chosenSlots.map((slot) => (
+    isRubiiPercentageSlot(slot)
+      ? "(\\d{1,3}(?:\\.\\d+)?)\\s*%?"
+      : textCapture
+  )).join(delimiter);
   return `/<${tagName}>${captures}<\\/${tagName}>/g`;
 }
 
@@ -1546,15 +1595,16 @@ function buildRubiiSections(snippet) {
   if (regexSlots.length) {
     regexLines.push(
       `Regex 1 · หลายช่อง · เนื้อหาต้นฉบับ`,
-      `Pattern: ${buildRegexPattern(tagName, regexSlots.length)}`,
+      `Pattern: ${buildRegexPattern(tagName, regexSlots)}`,
       `Replacement: ${regexTemplate.template}`,
     );
   }
   extraRules.forEach((rule, index) => {
+    const generatedFallback = ["pipe", "comma", "newline"].includes(rule.generatedFormat);
     regexLines.push(
       `Regex ${regexSlots.length ? index + 2 : index + 1} · ${rule.name || `Regex เพิ่มเติม ${index + 1}`} · ${rule.stage === "displayed" ? "ข้อความที่แสดง" : "เนื้อหาต้นฉบับ"}`,
-      `Pattern: ${rule.pattern || "(ยังไม่ได้กำหนด)"}`,
-      `Replacement: ${rule.replacement || "(ยังไม่ได้กำหนด)"}`,
+      `Pattern: ${generatedFallback ? buildRegexPattern(tagName, regexSlots, rule.generatedFormat) : rule.pattern || "(ยังไม่ได้กำหนด)"}`,
+      `Replacement: ${generatedFallback ? regexTemplate.template : rule.replacement || "(ยังไม่ได้กำหนด)"}`,
     );
   });
   const systemPrompt = [
@@ -1913,6 +1963,32 @@ rubiiSlotControls.addEventListener("click", (event) => {
   const snippet = snippets.find((item) => item.id === selectedSnippetId);
   if (!snippet || !isRubiiHtmlSnippet(snippet)) return;
   const state = rubiiSettingsBySnippet.get(snippet.id) ?? {};
+  if (event.target.closest("#add-regex-fallback-button")) {
+    const source = htmlWithBackground(snippet, assembleRawHtml(snippet));
+    const { slots } = rubiiTextSlots(source);
+    const regexSlots = (state.regexSlotIds ?? []).map((id) => slots.find((slot) => slot.id === id)).filter(Boolean).slice(0, maxRegexCaptures);
+    if (!regexSlots.length) return;
+    const tagValue = fieldValues(snippet).rubiiTagName;
+    const tagName = /^[A-Za-z][A-Za-z0-9_-]*$/.test(tagValue ?? "") ? tagValue : defaultRubiiTagName(snippet);
+    const format = regexFallbackFormat?.value ?? "pipe";
+    const formatLabels = { pipe: "คั่นด้วย |", comma: "คั่นด้วย ,", newline: "ขึ้นบรรทัดใหม่" };
+    const baseName = `รูปแบบสำรอง: ${formatLabels[format] ?? formatLabels.pipe}`;
+    const existingNames = new Set((state.extraRegexRules ?? []).map((rule) => rule.name));
+    let name = baseName;
+    let suffix = 2;
+    while (existingNames.has(name)) name = `${baseName} ${suffix++}`;
+    state.extraRegexRules ??= [];
+    state.extraRegexRules.push({
+      id: `regex-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      name,
+      stage: "raw",
+      generatedFormat: format,
+    });
+    rubiiSettingsBySnippet.set(snippet.id, state);
+    renderRubiiSlotControls(snippet);
+    updateCodePanel(snippet);
+    return;
+  }
   if (event.target.closest("#add-regex-rule-button")) {
     state.extraRegexRules ??= [];
     const existingNames = new Set(state.extraRegexRules.map((rule) => rule.name));

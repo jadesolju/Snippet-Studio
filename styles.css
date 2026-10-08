@@ -255,6 +255,9 @@ h1, h2, h3, p { margin-top: 0; }
 .rubii-regex-capture-text { overflow-wrap: anywhere; }
 .rubii-regex-capture-kind { padding: 2px 4px; border: 1px solid var(--line); border-radius: 4px; color: #9c91b2; font: 8px "DM Mono", Consolas, monospace; white-space: nowrap; }
 .rubii-extra-regex-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: #d8d0e7; font-size: 9px; }
+.rubii-extra-regex-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 5px; }
+.rubii-extra-regex-actions select { min-height: 30px; padding: 5px 7px; border: 1px solid var(--line-strong); border-radius: 7px; background: #10131b; color: #e5e0ef; font: 9px "Noto Sans Thai", Arial, sans-serif; }
+.rubii-extra-regex-actions button:disabled { opacity: .4; cursor: default; }
 .rubii-extra-regex-list { display: grid; gap: 8px; }
 .rubii-extra-regex-card { display: grid; gap: 8px; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: #11141c; }
 .rubii-extra-regex-card-heading { display: grid; grid-template-columns: minmax(95px,1fr) minmax(120px,.8fr) auto; align-items: center; gap: 6px; }
@@ -265,6 +268,7 @@ h1, h2, h3, p { margin-top: 0; }
 .rubii-regex-rule-field > span { display: flex; justify-content: space-between; gap: 6px; }
 .rubii-regex-rule-field small { color: var(--muted); font-size: 8px; }
 .rubii-extra-regex-card textarea { display: block; width: 100%; min-height: 54px; padding: 7px; resize: vertical; border: 1px solid var(--line-strong); border-radius: 6px; outline: 0; background: #0e1118; color: #d7dbea; font: 9px/1.55 "DM Mono", Consolas, monospace; }
+.rubii-extra-regex-card textarea[readonly] { color: #aeb5c5; }
 .html-parts-panel { margin-top: 15px; border: 1px solid var(--line); border-radius: 11px; background: rgba(8,10,15,.35); }
 .html-parts-panel > summary { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px; cursor: pointer; list-style: none; }
 .html-parts-panel > summary::-webkit-details-marker, .html-part-card > summary::-webkit-details-marker { display: none; }
@@ -323,6 +327,8 @@ h1, h2, h3, p { margin-top: 0; }
   .rubii-extra-regex-card-heading { grid-template-columns: minmax(0,1fr) auto; }
   .rubii-extra-regex-card-heading select { grid-column: 1 / -1; grid-row: 2; }
   .rubii-regex-rule-actions { grid-column: 2; grid-row: 1; }
+  .rubii-extra-regex-heading { align-items: flex-start; flex-wrap: wrap; }
+  .rubii-extra-regex-actions { width: 100%; justify-content: flex-start; }
   .device-frame { width: min(100% - 22px, 370px); height: 520px; }
   .html-part-label small { max-width: 190px; }
   .html-part-source { min-height: 115px; }

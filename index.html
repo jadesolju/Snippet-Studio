@@ -205,8 +205,20 @@
                         <div class="rubii-regex-settings-body">
                           <p class="rubii-regex-help">เลือกข้อความที่ต้องการแทนด้วย <code>$1</code> ถึง <code>$33</code> ตามลำดับที่แสดงไว้ ตัวอย่างข้อความคงที่ต้องเลือกเองและตรวจว่าเป็นจุดที่เปลี่ยนจริง</p>
                           <div id="rubii-regex-capture-list" class="rubii-regex-capture-list"></div>
-                          <p class="rubii-regex-help">เมื่อเลือกหลายช่อง ให้คั่นค่าตอนใช้แท็กด้วย <code>||</code> เช่น <code>&lt;tag&gt;ชื่อโพสต์||ยอดไลก์&lt;/tag&gt;</code></p>
-                          <div class="rubii-extra-regex-heading"><strong>กฎ Regex เพิ่มเติม</strong><button id="add-regex-rule-button" class="part-copy-button" type="button">＋ เพิ่ม Regex</button></div>
+                          <p class="rubii-regex-help">เมื่อเลือกหลายช่อง ให้คั่นค่าตอนใช้แท็กด้วย <code>||</code> เช่น <code>&lt;tag&gt;ชื่อโพสต์||ยอดไลก์&lt;/tag&gt;</code> ช่องเปอร์เซ็นต์จับเฉพาะตัวเลขและยอมรับเครื่องหมาย <code>%</code> ที่ตามหลังได้</p>
+                          <div class="rubii-extra-regex-heading">
+                            <strong>กฎ Regex เพิ่มเติม</strong>
+                            <div class="rubii-extra-regex-actions">
+                              <select id="regex-fallback-format" aria-label="ตัวคั่นของ Regex สำรอง">
+                                <option value="pipe">คั่นด้วย |</option>
+                                <option value="comma">คั่นด้วย ,</option>
+                                <option value="newline">ขึ้นบรรทัดใหม่</option>
+                              </select>
+                              <button id="add-regex-fallback-button" class="part-copy-button" type="button">＋ เพิ่มรูปแบบสำรอง</button>
+                              <button id="add-regex-rule-button" class="part-copy-button" type="button">＋ Regex เอง</button>
+                            </div>
+                          </div>
+                          <p class="rubii-regex-help">เพิ่มรูปแบบสำรองเพื่อคัดลอก Replacement ของ Regex หลักไปใช้กับตัวคั่นอีกแบบโดยอัตโนมัติ หรือเพิ่ม Regex เองเมื่อโครงสร้างต้นทางต่างกัน แต่ละกฎจะแปลงข้อมูลเป็นผลลัพธ์ปลายทางได้ครบในตัว</p>
                           <div id="rubii-extra-regex-list" class="rubii-extra-regex-list"></div>
                         </div>
                       </details>
