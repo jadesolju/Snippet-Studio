@@ -22,8 +22,11 @@
 - ใช้ `flex:1` หรือกำหนด `width`/`flex-shrink` แยกกัน หลีกเลี่ยงค่า shorthand หลายส่วนอย่าง `flex:1 1 0` ที่ parser บางตัวตีความไม่เหมือนกัน
 - ให้ข้อความและกล่องลูกย่อได้ อย่าบังคับความกว้างรวมจนล้นจอ และลองกับข้อความภาษาไทยที่ยาวจริง
 - ใช้ความสูงคงที่เฉพาะองค์ประกอบที่จำเป็น เช่น ช่องรูปภาพ; เนื้อหาข้อความควรขยายความสูงได้
-- วางรูปในกล่องที่มีขนาดชัดเจน และกำหนด `display:block;width:100%` ให้รูป; ใช้สัดส่วนธรรมชาติหรือ `object-fit:contain` แทน `object-fit:cover`
-- ใช้ `<img src="your-image.gif" alt="คำอธิบาย" class="my-gif">` สำหรับภาพหรือ GIF ที่เป็นเนื้อหาหลัก แล้วกำหนดขนาดผ่าน inline style หรือ CSS ส่วนกลาง เช่น `.my-gif{display:block;width:100%;height:auto}`
+- วางรูปในกล่องที่มีขนาดชัดเจน:
+  - **สำหรับรูปแบนเนอร์แนวนอน / หน้าปก (Banner / Panoramic / Cover):** ให้ใช้ `object-fit:cover; object-position:center; width:100%; height:100%; display:block;` เพื่อให้ภาพแผ่เต็มผืนผ้า ไม่เกิดขอบมืดหรือช่องว่างด้านข้าง (Letterboxing Void)
+  - **สำหรับภาพโพสต์ฟีดเดี่ยว (Feed Posts):** ให้ใช้สัดส่วนธรรมชาติ `width:100%; height:auto; display:block;`
+  - **สำหรับไอคอนและโลโก้ขนาดเล็ก (Icons / Logos):** ให้ใช้ขนาดคงที่ชัดเจน เช่น `width:20px; height:20px; object-fit:contain; display:block;`
+- ใช้ `<img src="your-image.gif" alt="คำอธิบาย" class="my-gif">` สำหรับภาพหรือ GIF ที่เป็นเนื้อหาหลัก แล้วกำหนดขนาดผ่าน inline style หรือ CSS ส่วนกลาง เช่น `.my-gif{display:block;width:100%;height:100%;object-fit:cover;}`
 - ใช้ `background-image` กับภาพตกแต่งพื้นหลังได้ แต่ตรวจว่ากฎ CSS อยู่ในช่อง Global CSS ของ Moment และ selector ตรงกับ class ที่อยู่บน element จริง อย่าคาดว่าพื้นหลังของเว็บทั้งหน้า เช่น `body` หรือ `:root` จะกลายเป็นพื้นหลังของการ์ดในแชตโดยอัตโนมัติ
 - เอกสาร Rubii ระบุว่า Style Tags และ Global CSS แสดงบนเว็บและแอปรุ่น 2.4.2 ขึ้นไป และแอปรองรับ HTML/CSS มากขึ้น แต่ยังแนะนำให้ตรวจผลทั้งสองที่ จึงไม่ควรรับรองว่า property หรือ URL รูปทุกแบบทำงานได้ 100%: [Rubii: Styles & regex](https://rubii.ai/blog/styles-and-regex)
 
