@@ -769,6 +769,101 @@ body {
   gap: 10px;
 }
 
+.field-label-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.field-type-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.field-type-icon.icon-text, .field-type-icon.icon-color-text {
+  background: rgba(204, 93, 232, 0.15);
+  color: #cc5de8;
+  border: 1px solid rgba(204, 93, 232, 0.25);
+}
+
+.field-type-icon.icon-bg {
+  background: rgba(81, 207, 102, 0.15);
+  color: #51cf66;
+  border: 1px solid rgba(81, 207, 102, 0.25);
+}
+
+.field-type-icon.icon-border {
+  background: rgba(51, 154, 240, 0.15);
+  color: #339af0;
+  border: 1px solid rgba(51, 154, 240, 0.25);
+}
+
+.field-type-icon.icon-divider, .field-type-icon.icon-line {
+  background: rgba(34, 184, 207, 0.15);
+  color: #22b8cf;
+  border: 1px solid rgba(34, 184, 207, 0.25);
+}
+
+.field-type-icon.icon-shadow {
+  background: rgba(255, 146, 43, 0.15);
+  color: #ff922b;
+  border: 1px solid rgba(255, 146, 43, 0.25);
+}
+
+.field-type-icon.icon-media {
+  background: rgba(255, 107, 107, 0.15);
+  color: #ff6b6b;
+  border: 1px solid rgba(255, 107, 107, 0.25);
+}
+
+.background-options-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, auto);
+  gap: 10px;
+  align-items: flex-end;
+  margin-top: 8px;
+}
+
+.background-shadow-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.background-shadow-field > span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #c9bddf;
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+.background-shadow-field select {
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: #0d1017;
+  color: #f2f4fa;
+  font-size: 12.5px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.background-shadow-field select:focus {
+  border-color: rgba(192, 160, 255, 0.65);
+  box-shadow: 0 0 0 3px rgba(192, 160, 255, 0.12);
+}
+
 .field-label-row label {
   color: #d8deee !important;
   font-size: 13px !important;

@@ -173,10 +173,24 @@
                           </span>
                         </label>
                       </div>
-                      <label class="background-url-field" hidden>
-                        <span>URL รูปพื้นหลังของการ์ด</span>
-                        <input id="background-url" type="url" placeholder="วางลิงก์รูปภาพ เช่น https://…" autocomplete="url">
-                      </label>
+                      <div class="background-options-row" hidden>
+                        <label class="background-url-field">
+                          <span>URL รูปพื้นหลังของการ์ด</span>
+                          <input id="background-url" type="url" placeholder="วางลิงก์รูปภาพ เช่น https://…" autocomplete="url">
+                        </label>
+                        <label class="background-shadow-field">
+                          <span>
+                            <svg class="ui-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+                            เงาข้อความ (Text Shadow)
+                          </span>
+                          <select id="background-text-shadow" aria-label="รูปแบบเงาข้อความเมื่อใส่รูปพื้นหลัง">
+                            <option value="none">🚫 ไม่ใส่เงา (None)</option>
+                            <option value="soft" selected>🌑 เงามืดนุ่มนวล (Soft Dark - แนะนำ)</option>
+                            <option value="outline">🔲 ตัดเส้นขอบคม (Sharp Outline)</option>
+                            <option value="neon">⚡ แสงนีออน (Neon Glow)</option>
+                          </select>
+                        </label>
+                      </div>
                     </div>
                     <div class="device-frame">
                     <div class="device-island" aria-hidden="true"></div>

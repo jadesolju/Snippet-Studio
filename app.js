@@ -195,6 +195,7 @@ const visualEditEnabled = document.querySelector("#visual-edit-enabled");
 const quickEditCount = document.querySelector("#quick-edit-count");
 const backgroundEnabled = document.querySelector("#background-enabled");
 const backgroundUrl = document.querySelector("#background-url");
+const backgroundTextShadow = document.querySelector("#background-text-shadow");
 const htmlPartsPanel = document.querySelector("#html-parts-panel");
 const htmlPartsList = document.querySelector("#html-parts-list");
 const htmlPartCount = document.querySelector("#html-part-count");
@@ -456,6 +457,26 @@ function suggestedVariableLabel(type) {
   })[type] ?? "ค่าที่อาจเปลี่ยน";
 }
 
+function getFieldSvgIcon(type) {
+  switch (type) {
+    case "text":
+    case "color-text":
+      return `<svg class="type-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>`;
+    case "bg":
+      return `<svg class="type-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" fill="currentColor" fill-opacity="0.38"/><rect x="3" y="3" width="18" height="18" rx="4"/></svg>`;
+    case "border":
+      return `<svg class="type-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" stroke-dasharray="3 3"/><path d="M3 9h18"/></svg>`;
+    case "divider":
+      return `<svg class="type-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="13" y2="6" stroke-dasharray="2 2"/></svg>`;
+    case "shadow":
+      return `<svg class="type-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="2" width="15" height="15" rx="3"/><path d="M7 19h12a2 2 0 0 0 2-2V7"/></svg>`;
+    case "media":
+      return `<svg class="type-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>`;
+    default:
+      return `<svg class="type-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/></svg>`;
+  }
+}
+
 function collectFields(snippet) {
   const fields = [];
   const codeText = Object.values(snippet.code ?? {}).filter(Boolean).join("\n");
@@ -465,6 +486,7 @@ function collectFields(snippet) {
       id: "tagName",
       kind: "tagName",
       label: "ชื่อแท็ก",
+      propertyType: "text",
       value: snippet.editable.tagName,
       inputType: "text",
     });
@@ -473,6 +495,7 @@ function collectFields(snippet) {
       id: "rubiiTagName",
       kind: "rubiiTagName",
       label: "ชื่อ Style tag ใน Rubii",
+      propertyType: "text",
       value: defaultRubiiTagName(snippet),
       inputType: "text",
     });
@@ -544,17 +567,24 @@ function collectFields(snippet) {
         seenPlaceholders.add(token);
 
         let label = "สี";
+        let propertyType = "bg";
         if (prop.startsWith("background")) {
+          propertyType = "bg";
           label = isRoot ? "สีพื้นหลังการ์ดหลัก (Main BG)" : (contextHint ? `สีพื้นหลัง${contextHint}` : "สีพื้นหลังกล่อง (Box BG)");
         } else if (prop.startsWith("border-left") || prop.startsWith("border-right")) {
+          propertyType = "divider";
           label = "สีเส้นคั่นข้าง / เส้นเน้น (Accent Line)";
         } else if (prop.startsWith("border-top") || prop.startsWith("border-bottom")) {
+          propertyType = "divider";
           label = "สีเส้นคั่นแถบ / เส้นแบ่ง (Divider)";
         } else if (prop.startsWith("border")) {
+          propertyType = "border";
           label = isRoot ? "สีเส้นขอบการ์ด (Card Border)" : (contextHint ? `สีเส้นขอบ${contextHint}` : "สีเส้นขอบกล่อง (Border)");
         } else if (prop.includes("shadow")) {
+          propertyType = "shadow";
           label = "สีเงาตกกระทบ (Card Shadow)";
         } else if (prop === "color") {
+          propertyType = "color-text";
           label = "สีข้อความ (Text Color)";
         }
 
@@ -563,6 +593,7 @@ function collectFields(snippet) {
           kind: "literal",
           token,
           label,
+          propertyType,
           value: token,
           inputType: "text",
         });
@@ -599,6 +630,7 @@ function collectFields(snippet) {
       kind: "literal",
       token,
       label,
+      propertyType: "text",
       value: token,
       inputType: "text",
     });
@@ -616,6 +648,7 @@ function collectFields(snippet) {
         label: `ตรวจดู · ${suggestedVariableLabel(suggestion.type)}`,
         value: suggestion.value,
         inputType: "text",
+        propertyType: "text",
         suggested: true,
         suggestionType: suggestion.type,
       });
@@ -641,6 +674,7 @@ function collectFields(snippet) {
       kind: "url",
       original: url,
       label: kind === "background" ? "URL รูปพื้นหลัง" : `URL รูปไอคอน/รูปภาพ ${imageNumber}`,
+      propertyType: "media",
       value: url,
       inputType: "url",
     });
@@ -701,10 +735,19 @@ function buildFieldEditor(snippet) {
     const labelRow = document.createElement("div");
     labelRow.className = "field-label-row";
     
+    const labelWrap = document.createElement("div");
+    labelWrap.className = "field-label-wrap";
+
+    const icon = document.createElement("span");
+    icon.className = `field-type-icon icon-${field.propertyType || "text"}`;
+    icon.innerHTML = getFieldSvgIcon(field.propertyType || "text");
+
     const label = document.createElement("label");
     label.htmlFor = `field-${field.id}`;
     label.textContent = field.label;
-    labelRow.append(label);
+
+    labelWrap.append(icon, label);
+    labelRow.append(labelWrap);
     if (field.suggested) {
       const badge = document.createElement("span");
       badge.className = "field-suggestion-badge";
@@ -1277,16 +1320,23 @@ function renderHtmlParts(snippet) {
 }
 
 function backgroundState(snippet) {
-  if (!backgroundBySnippet.has(snippet.id)) backgroundBySnippet.set(snippet.id, { enabled: false, url: defaultBackgroundUrl });
-  return backgroundBySnippet.get(snippet.id);
+  if (!backgroundBySnippet.has(snippet.id)) {
+    backgroundBySnippet.set(snippet.id, { enabled: false, url: defaultBackgroundUrl, textShadow: "soft" });
+  }
+  const st = backgroundBySnippet.get(snippet.id);
+  if (!st.textShadow) st.textShadow = "soft";
+  return st;
 }
 
 function renderBackgroundControls(snippet) {
   const state = backgroundState(snippet);
   backgroundEnabled.checked = state.enabled;
   backgroundUrl.value = state.url;
+  if (backgroundTextShadow) backgroundTextShadow.value = state.textShadow || "soft";
+  const optRow = document.querySelector(".background-options-row");
+  if (optRow) optRow.hidden = !state.enabled;
   const urlField = document.querySelector(".background-url-field");
-  if (urlField) urlField.hidden = !state.enabled;
+  if (urlField && !optRow) urlField.hidden = !state.enabled;
 }
 
 function assembleRawHtml(snippet) {
@@ -1338,7 +1388,17 @@ function htmlWithBackground(snippet, html) {
   const root = scanHtmlTags(html).find((tag) => tag.kind === "open");
   if (!root) return html;
   const cssUrl = url.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/[\r\n\f]/g, "");
-  const additions = `background-image:url('${cssUrl}');background-size:cover;background-position:center;background-repeat:no-repeat;`;
+  
+  let shadowCss = "";
+  if (state.textShadow === "soft") {
+    shadowCss = "text-shadow:0 1px 3px rgba(0,0,0,0.85),0 0 1px rgba(0,0,0,0.9);";
+  } else if (state.textShadow === "outline") {
+    shadowCss = "text-shadow:-1px -1px 0 rgba(0,0,0,0.9),1px -1px 0 rgba(0,0,0,0.9),-1px 1px 0 rgba(0,0,0,0.9),1px 1px 0 rgba(0,0,0,0.9);";
+  } else if (state.textShadow === "neon") {
+    shadowCss = "text-shadow:0 0 8px rgba(0,255,255,0.9),0 0 16px rgba(0,190,230,0.6),0 1px 2px rgba(0,0,0,0.9);";
+  }
+
+  const additions = `background-image:url('${cssUrl}');background-size:cover;background-position:center;background-repeat:no-repeat;${shadowCss}`;
   const rootTag = html.slice(root.start, root.end);
   const styleAttribute = rootTag.match(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i);
   let updatedRoot;
@@ -2152,8 +2212,10 @@ backgroundEnabled.addEventListener("change", () => {
   if (!snippet) return;
   const state = backgroundState(snippet);
   state.enabled = backgroundEnabled.checked;
+  const optRow = document.querySelector(".background-options-row");
+  if (optRow) optRow.hidden = !state.enabled;
   const urlField = document.querySelector(".background-url-field");
-  if (urlField) urlField.hidden = !state.enabled;
+  if (urlField && !optRow) urlField.hidden = !state.enabled;
   updateCodePanel(snippet);
   renderPreview(snippet);
 });
@@ -2164,6 +2226,15 @@ backgroundUrl.addEventListener("input", () => {
   updateCodePanel(snippet);
   renderPreview(snippet);
 });
+if (backgroundTextShadow) {
+  backgroundTextShadow.addEventListener("change", () => {
+    const snippet = snippets.find((item) => item.id === selectedSnippetId);
+    if (!snippet) return;
+    backgroundState(snippet).textShadow = backgroundTextShadow.value;
+    updateCodePanel(snippet);
+    renderPreview(snippet);
+  });
+}
 rubiiSlotSelect.addEventListener("change", () => {
   const snippet = snippets.find((item) => item.id === selectedSnippetId);
   if (!snippet || !isRubiiHtmlSnippet(snippet)) return;
