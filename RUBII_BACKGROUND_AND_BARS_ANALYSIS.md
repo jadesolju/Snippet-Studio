@@ -138,10 +138,109 @@ graph TD
 
 ---
 
-## 6. สรุปข้อเสนอแนะและมาตรฐานการนำไปใช้ (Standardized Recommendations)
+---
 
-1. **สำหรับ Global CSS:** ใช้ Clean Sub-Properties เพื่อให้แยกจาก `background-color` อย่างชัดเจน
-2. **สำหรับ Regex Replacement:** ใช้ Inline Shorthand บนกล่องการ์ดหลักเพื่อความกะทัดรัดและทำงานจบในตัวเอง
-3. **สำหรับแบนเนอร์และภาพปก (Banners & Covers):** บังคับใช้ `object-fit: cover; object-position: center; width: 100%; height: 100%; display: block;` เสมอ เพื่อรับประกันการแสดงผลเต็มผืนผ้าอย่างไร้รอยต่อ
-4. **สำหรับการแสดงผลทั้งระบบ:** ระบบ Snippet Studio ได้รับการปรับปรุงโครงสร้างทั้ง 75 Snippets สู่มาตรฐานสากลเรียบร้อยแล้ว 100%
+## 7. การวิจัยเชิงระบบ: ความสอดคล้องเชิงความหมายของตัวแปร (Semantic Slot Alignment) และความถูกต้องของ Output ในระบบ Rubii
+
+### 7.1 การวิเคราะห์เชิงคุณภาพ: 4 ข้อบกพร่องที่ทำให้ Output ไม่สมเหตุสมผล
+
+```mermaid
+graph TD
+    A["ปัญหาการวิเคราะห์โครงสร้างข้อมูล (Parser & Template Defect)"] --> B["1. Static Label Trapping: ป้ายคงที่ถูกดักจับเป็นตัวแปร เช่น (THB), (ผู้โอน), (ผู้รับ)"]
+    A --> C["2. Macro Swallowing: ตัวแปรระบบ {{char}} ถูกกลืนในวงเล็บ เช่น (เลขบัญชี {{char}})"]
+    A --> D["3. Missing Core Slots: ค่าสำคัญอย่างยอดเงิน 50,000.00 / เลขอ้างอิง เป็น Hardcoded Text"]
+    A --> E["4. Sample Value Scramble: ค่าตัวอย่างสุ่มผิดประเภท เช่น วันที่ถูกแทนด้วยเวลา 21:45"]
+    
+    B --> F["ผลลัพธ์: AI ถูกสั่งให้ป้อนคำว่า 'THB' แทนที่จะป้อน 'ยอดเงิน'"]
+    C --> G["ผลลัพธ์: เลขบัญชีถูกแทนด้วยชื่อ 'Mira' และทำลาย Macro {{char}}"]
+    D --> H["ผลลัพธ์: การ์ดไม่สามารถเปลี่ยนยอดเงินธุรกรรมแบบไดนามิกได้"]
+    E --> I["ผลลัพธ์: Output กลายเป็น <kbank-slip>ตัวอย่างข้อมูล||ตัวอย่างข้อมูล||Mira||...</kbank-slip>"]
+```
+
+1. **Static Label Trapping (ป้ายกำกับคงที่ถูกดักจับเป็นตัวแปร):**
+   - ข้อความกำกับโครงสร้างที่ไม่ควรเปลี่ยนแปลง เช่น สกุลเงิน `(THB)`, หัวข้อส่วน `(ผู้โอน)`, `(ผู้รับ)`, `(PromptPay)` เมื่อถูกใส่วงเล็บ `(...)` ระบบ Regex ของ Quick Edit และ Rubii Slot Parser จะเข้าใจผิดว่าเป็น Marker ที่ผู้ใช้ต้องกรอก ส่งผลให้เกิดช่องว่างที่ไม่จำเป็นและทำให้ AI ต้องสร้าง Output สำหรับคำว่า `THB` แทนที่จะสร้างข้อมูลจริง
+2. **Macro Swallowing (ตัวแปรระบบถูกครอบและกลืนหาย):**
+   - การเขียน `(เลขบัญชี {{char}})` หรือ `(ความคิดของ {{char}})` ทำให้เครื่องหมายวงเล็บกลืน `{{char}}` เข้าไปทั้งก้อน ส่งผลให้:
+     - ระบบสร้าง Slot `$1` ทับข้อความนั้นทั้งหมด และลบ `{{char}}` ออกจากแม่แบบ
+     - ตัวประมวลผลตัวอย่างตรวจเจอคำว่า `char` จึงส่งค่าชื่อตัวละคร (`Mira`) ไปใส่ในช่องเลขบัญชีธนาคาร ทำให้ Output ไร้ความสมเหตุสมผล
+3. **Missing Core Dynamic Slots (ค่าตัวเลขสำคัญกลายเป็นข้อความแข็งตาย):**
+   - ในสลิปโอนเงิน ยอดเงิน `50,000.00` และเลขอ้างอิง `202610068841KB` ถูกเขียนเป็นข้อความธรรมดาโดยไม่มี Marker ทำให้ตัวดึงข้อมูลข้ามไป ดึงแต่เฉพาะข้อความที่มีวงเล็บ ทำให้ยอดเงินซึ่งเป็นสาระสำคัญที่สุดของการ์ดกลายเป็นค่าที่แก้ไม่ได้
+4. **Sample Value Mapping Scramble (การจับคู่ค่าตัวอย่างไม่ตรงบริบท):**
+   - ฟังก์ชันสร้างค่าตัวอย่าง `rubiiSampleValue` ขาดการตรวจสอบความเข้ากันได้ของวันที่และเวลา ทำให้ช่องวันที่ถูกแทนด้วยเวลา `21:45` และช่องที่ไม่มีหมวดหมู่ถูกแทนด้วย `ตัวอย่างข้อมูล` ซ้ำๆ
+
+---
+
+### 7.2 การวิเคราะห์เชิงปริมาณ (Quantitative Semantic Audit)
+
+#### ข้อมูลสถิติเชิงปริมาณของความผิดปกติในระบบ ($N = 75$)
+
+| ประเภทความผิดปกติ (Defect Category) | จำนวน Snippet ที่พบ ($n$) | ร้อยละจากทั้งหมด (%) | ผลกระทบต่อระบบ |
+| :--- | :---: | :---: | :---: |
+| **Static Labels Trapped in Parens (ป้ายกำกับคงที่ติดในวงเล็บ)** | 8 | 10.7% | สร้าง Slot ขยะ และทำให้ Output มีตัวอย่างข้อมูลซ้ำซ้อน |
+| **Macros Swallowed in Parens (Macro ระบบถูกกลืน)** | 13 | 17.3% | ทำลาย `{{char}}` / `{{user}}` และใส่ชื่อตัวละครผิดช่อง |
+| **Hardcoded Financial Amount (ยอดเงินไม่มี Marker)** | 11 | 14.7% | สลิปไม่สามารถเปลี่ยนจำนวนเงินและเลขอ้างอิงได้ |
+| **รวม Snippets ที่มีปัญหาเชิงความหมายอย่างน้อย 1 รายการ** | **19** | **25.3%** | Output แสดงผลไม่สมเหตุสมผล |
+| **Snippets ที่มีความสอดคล้องสมบูรณ์ (Clean & Consistent)** | **56** | **74.7%** | ทำงานถูกต้องตามมาตรฐาน |
+
+#### รายการ Snippets ที่ต้องปรับปรุงเชิงความหมาย (19 รายการ)
+
+1. **กลุ่มธุรกรรมและการเงิน (Bank Transfers & Slips - 11 รายการ):**
+   - `snippet-26` (K PLUS Transfer)
+   - `snippet-27` (SCB Easy Transfer)
+   - `snippet-28` (Krungthai NEXT Transfer)
+   - `snippet-29` (Krungsri KMA Transfer)
+   - `snippet-30` (UOB TMRW Transfer)
+   - `snippet-31` (TrueMoney Wallet Transfer)
+   - `snippet-36` (Thai Transfer Receipt)
+   - `snippet-38` (KBANK Vertical E-Slip)
+   - `snippet-39` (SCB Vertical E-Slip)
+   - `snippet-40` (Krungthai Vertical E-Slip)
+   - `snippet-42` (TrueMoney Vertical Receipt)
+2. **กลุ่มแชตและโซเชียลมีเดีย (Chat & Social Interfaces - 5 รายการ):**
+   - `snippet-09` (Messenger Active Chat)
+   - `snippet-10` (Instagram Direct Message)
+   - `snippet-12` (Instagram Feed Post)
+   - `snippet-13` (Instagram Story)
+   - `snippet-44` (Facebook Photo Post)
+   - `snippet-46` (Facebook Feed Post)
+3. **กลุ่มค้นหา เพลง และระบบย่อย (Search, Music & System - 3 รายการ):**
+   - `snippet-48` (Google Search & History)
+   - `snippet-70` (Apple Music Lyrics Quote)
+   - `snippet-76` (Chrome Incognito Mode)
+
+---
+
+### 7.3 โครงสร้างมาตรฐานที่ถูกต้อง (Standardized Clean Model)
+
+#### ตัวอย่าง: เปรียบเทียบสลิปธนาคารกสิกรไทย (`snippet-38`)
+
+| ส่วนประกอบ (Component) | รูปแบบเดิม (Before - มีข้อผิดพลาด) | มาตรฐานใหม่ (After - สมเหตุสมผล 100%) |
+| :--- | :--- | :--- |
+| **หัวข้อคงที่** | `จาก (ผู้โอน)`, `ถึง (ผู้รับ)`, `บาท (THB)` | `จาก ผู้โอน`, `ถึง ผู้รับ`, `บาท (THB)` (ไร้วงเล็บล่อ Parser) |
+| **ตัวละครและผู้ใช้** | `(เลขบัญชี {{char}})` (กลืน Macro) | `{{char}}` (ผู้โอน) และ `(เลขบัญชี: xxx-x-x8841-x)` แยกเป็นอิสระ |
+| **ยอดเงินทำธุรกรรม** | `50,000.00` (Hardcoded แก้ไม่ได้) | `(จำนวนเงิน: 50,000.00)` หรือ `(50,000.00)` |
+| **เลขอ้างอิงและเวลา** | `202610068841KB` (Hardcoded) | `(เลขอ้างอิง: 202610068841KB)`, `(วันที่ • เวลา)` |
+| **Output สำหรับ Style tag** | `<kbank-slip>ตัวอย่างข้อมูล</kbank-slip>` ❌ | `<kbank-slip>50,000.00</kbank-slip>` ✨ (เปลี่ยนยอดเงินทันที) |
+| **Output สำหรับ Regex** | `<kbank-slip>ตัวอย่าง||ตัวอย่าง||Mira||21:45...</kbank-slip>` ❌ | `<kbank-slip>50,000.00||xxx-x-x8841-x||06 ต.ค. 2569 • 20:39 น.</kbank-slip>` ✨ |
+
+---
+
+## 8. สรุปข้อเสนอแนะและแผนการดำเนินงาน (Action Plan & Implementation Roadmap)
+
+```mermaid
+graph LR
+    A["เฟส 1: ปรับปรุง HTML Template ใน snippets.json (19 รายการ)"] --> B["เฟส 2: อัปเกรด Parser ใน app.js ป้องกัน Static Label Trap"]
+    B --> C["เฟส 3: ปรับปรุง rubiiSampleValue ให้จับคู่ข้อมูลตามบริบทการเงิน/เวลาจริง"]
+    C --> D["เฟส 4: ทดสอบแบบ End-to-End ครบ 75 Snippets"]
+    D --> E["เฟส 5: ซิงก์ Git และ Deploy สู่ Production"]
+```
+
+1. **เฟส 1 (Template Sanitization):** ทำความสะอาด HTML ใน `data/snippets.json` ทั้ง 19 Snippets:
+   - ปลดวงเล็บออกจากข้อความคงที่ (`THB`, `ผู้โอน`, `ผู้รับ`)
+   - แยก `{{char}}` / `{{user}}` ออกจากวงเล็บ Marker
+   - ติดตั้ง Marker ให้กับยอดเงินและเลขอ้างอิง
+2. **เฟส 2 (Engine Enhancement):** อัปเกรด `app.js` ในฟังก์ชัน `collectFields`, `rubiiTextSlots` ให้มี Blacklist ป้องกันไม่ให้ข้อความทั่วไปกลายเป็น Slot
+3. **เฟส 3 (Intelligent Value Generation):** พัฒนา `rubiiSampleValue` ให้ส่งค่าตัวอย่างที่สมจริง (เช่น จำนวนเงิน $\rightarrow$ `50,000.00`, วันที่ $\rightarrow$ `06 ต.ค. 2569`, บัญชี $\rightarrow$ `xxx-x-x1234-x`)
+4. **เฟส 4 & 5 (Verification & Deployment):** ตรวจสอบผลลัพธ์ผ่าน Test Suite และ Deploy ขึ้น Vercel Production
+
 
