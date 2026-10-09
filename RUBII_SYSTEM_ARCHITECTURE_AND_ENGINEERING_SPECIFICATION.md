@@ -1,17 +1,19 @@
 # Rubii AI Platform: System Architecture and Card UI Engineering Specification
 
-**Document Classification:** Comprehensive System Architecture & Engineering Research Specification  
-**Target Platform:** Rubii AI Chat Interface & Embedded WebView Runtime  
+**Document Classification:** Engineering Reference and Design Guidance  
+**Target Platform:** Snippet Studio outputs for Rubii AI  
 **Authoring Context:** System Architecture, Lexical Parsing, CSS Stacking, and Accessibility Engineering  
-**Scope:** LLM Response Ingestion, Style Tag Processing, Regex Replacement Engine, HTML/CSS Structural Specifications, Empirical Failure Mode Analysis, and Production Reference Templates  
+**Scope:** User-facing Style Tag/Regex concepts, practical HTML/CSS guidance, qualitative failure risks, and reference templates  
+
+> **Evidence scope:** Snippet Studio behavior can be checked against this repository. Rubii's internal renderer is not available here; its flow is a conceptual model based on public documentation. Cross-device results and all benchmark values require a reproducible test record. Rubii says Styles & Regex are available on web and app version 2.4.2+, with app rendering close to web in almost all cases ([official article](https://rubii.ai/blog/styles-and-regex)).
 
 ---
 
 ## Executive Summary
 
-The **Rubii AI Platform** integrates Large Language Model (LLM) conversational streams with an advanced client-side UI rendering engine. By intercepting structured semantic markup within AI response streams, Rubii transforms plain-text conversational outputs into interactive, rich HTML5/CSS3 interface components known as **UI Cards**.
+Rubii provides Style Tags, Global CSS, and Regex rules that let Moment authors change how selected chat content is displayed. Public documentation describes this user-facing behavior, but does not expose the renderer's internal implementation.
 
-This specification provides an exhaustive architectural breakdown of the Rubii card runtime, detailing its dual processing modes (Style Tag and Regex Replacement), HTML/CSS constraints, mathematical models for dynamic gauges, accessibility standards under WCAG 2.1, and empirical failure mitigation strategies based on real-world testing.
+This guide explains the two configuration patterns (single-slot Style Tag and Regex replacement), practical HTML/CSS choices, dynamic gauges, and risks to check. Examples are design guidance, not verified guarantees about every Rubii client.
 
 ---
 
@@ -22,7 +24,7 @@ This specification provides an exhaustive architectural breakdown of the Rubii c
 3. [Regex Replacement Engine (Multi-Slot Architecture)](#3-regex-replacement-engine-multi-slot-architecture)
 4. [HTML Structural Constraints and DOM Synthesis](#4-html-structural-constraints-and-dom-synthesis)
 5. [Advanced CSS Engineering and Glassmorphism](#5-advanced-css-engineering-and-glassmorphism)
-6. [Empirical Failure Mode and Resilience Analysis](#6-empirical-failure-mode-and-resilience-analysis)
+6. [Failure Risks and Resilience Guidance](#6-failure-risks-and-resilience-guidance)
 7. [Card Developer Best Practices and Guidelines](#7-card-developer-best-practices-and-guidelines)
 8. [Standard Production Reference Templates](#8-standard-production-reference-templates)
 9. [Conclusion and Architectural Roadmap](#9-conclusion-and-architectural-roadmap)
@@ -33,7 +35,7 @@ This specification provides an exhaustive architectural breakdown of the Rubii c
 
 ### 1.1 End-to-End Processing Architecture
 
-The transformation of raw LLM completion tokens into high-fidelity card components follows a strict four-stage execution pipeline:
+The following diagram is a conceptual model of the user-facing flow, not a confirmed internal execution pipeline:
 
 ```mermaid
 flowchart TD
@@ -65,12 +67,9 @@ flowchart TD
     end
 ```
 
-### 1.2 Runtime Environment Specifications
+### 1.2 Runtime and Compatibility Notes
 
-Card rendering occurs within an embedded client WebView with the following technical boundaries:
-- **Viewport Constraints:** Dynamic card container widths ranging between $340\text{px}$ and $440\text{px}$ based on device form factor.
-- **Hardware Acceleration:** Backdrop blur filters (`backdrop-filter`) are offloaded to device GPUs via native compositor layers.
-- **Script Execution Sandbox:** JavaScript execution inside card payloads is typically disabled or strictly scoped to ensure security and prevent state corruption in the host application.
+Rubii's public article states that the app supports more HTML/CSS from version 2.4.2 and renders close to the web in almost all cases. This repository does not establish the WebView engine, viewport range, GPU behavior, or script sandbox policy; verify specific properties on the clients you support.
 
 ---
 
@@ -80,9 +79,7 @@ The **Style Tag** architecture is engineered for cards containing a single dynam
 
 ### 2.1 Structural Separation
 
-In Style Tag templates, presentation logic is completely decoupled from content:
-1. **Header `<style>` Element:** Declares isolated CSS classes governing layout, glassmorphism, geometry, and typography.
-2. **HTML Body:** Defines the DOM hierarchy with exactly one content placeholder slot designated as `$1`.
+In the Snippet Studio workflow, the HTML template and Global CSS are separate outputs. The template uses a selected `$1` slot; paste each output into its corresponding Rubii setting. This describes the Studio output path, not Rubii's internal storage format.
 
 ```mermaid
 flowchart LR
@@ -90,11 +87,9 @@ flowchart LR
         R["<quest-log>Traveled to the ancient ruins and discovered the lost relic.</quest-log>"]
     end
 
-    subgraph StyleTagTemplate["Style Tag Template"]
-        T["<style>
-.rubii-quest { background: rgba(255,255,255,0.08); border-radius: 24px; padding: 18px; }
-</style>
-<div class='rubii-quest'>$1</div>"]
+    subgraph StyleTagTemplate["Snippet Studio outputs"]
+        T["HTML template: <div class='rubii-quest'>$1</div>"]
+        CSS["Global CSS: .rubii-quest { background: rgba(255,255,255,0.08); ... }"]
     end
 
     subgraph RenderedDOM["Final Document Object Model"]
@@ -103,15 +98,16 @@ flowchart LR
 
     R -->|"Single-Slot Injection into $1"| T
     T --> RenderedDOM
+    CSS --> RenderedDOM
 ```
 
 ### 2.2 Operational Characteristics
 
 | Evaluation Vector | Style Tag Architecture Profile |
 | :--- | :--- |
-| **Parsing Complexity** | $O(1)$ constant time string interpolation. |
-| **LLM Prompt Reliability** | Highest ($>98\%$ success rate) as no delimiter coordination is required. |
-| **Multi-field Segregation** | Unsupported. Sub-fields (such as timestamp or badge status) must be statically defined or formatted within the single payload. |
+| **Input shape** | One selected content slot; no delimiter between multiple fields is needed. |
+| **Prompt coordination** | Fewer values to order than a multi-slot Regex rule; output still needs review. |
+| **Multiple independent fields** | Use Regex when separate values must map to separate template locations. |
 
 ---
 
@@ -154,14 +150,14 @@ flowchart TD
 
 ### 3.2 Delimiter Evaluation and Trade-off Matrix
 
-The selection of delimiters directly impacts model compliance and parsing fidelity:
+Delimiter choice affects how easy it is to keep values separate. The notes below are qualitative guidance, not scores from a comparative benchmark:
 
-| Delimiter | Token Format Example | Regex Capture Pattern | Robustness Index | Analysis & Recommended Use |
-| :--- | :--- | :--- | :---: | :--- |
-| **Double Pipe (`\|\|`)** | `Val1\|\|Val2\|\|Val3` | `([\s\S]*?)\|\|([\s\S]*?)` | **9.6 / 10** | **Industry Standard.** Does not collide with natural punctuation, single pipes, or markdown tables. |
-| **Single Pipe (`\|`)** | `Val1\|Val2\|Val3` | `([^\|]*?)\|(?!\|)([^\|]*?)` | **6.5 / 10** | High collision risk with markdown tables and mathematical expressions. |
-| **Comma (`,`)** | `Val1, Val2, Val3` | `([^,]*?)\s*,\s*([^,]*?)` | **3.8 / 10** | **Severe Hazard.** Breaks immediately on numeric thousand separators (e.g. `$50,000`). |
-| **Newline (`\n`)** | `Val1\nVal2\nVal3` | `([^\r\n]*?)\r?\n([^\r\n]*?)` | **7.2 / 10** | Prone to failure if the model injects unintended blank lines or formatting wraps. |
+| Delimiter | Example | Consideration |
+| :--- | :--- | :--- |
+| **Double pipe (`||`)** | `Val1||Val2||Val3` | Useful when the text values are unlikely to contain `||`; explain order clearly in the prompt. |
+| **Single pipe (`|`)** | `Val1|Val2|Val3` | May collide with tables or prose that uses pipe characters. |
+| **Comma (`,`)** | `Val1, Val2, Val3` | Can collide with commas inside prose or numbers such as `50,000`. |
+| **Newline** | One value per line | Readable, but extra blank lines or wrapped formatting need consideration. |
 
 ---
 
@@ -169,7 +165,7 @@ The selection of delimiters directly impacts model compliance and parsing fideli
 
 ### 4.1 The Single Root Container Mandate
 
-Every card layout **must encapsulate its entire structure within a single root `<div>` element**. Multi-root fragments cause layout collapse in chat bubbles and break CSS isolation.
+Using one root `<div>` is a useful template guideline because it gives the card one place for width, spacing, and background rules. This is a design recommendation, not a verified Rubii platform mandate.
 
 ```html
 <!-- CORRECT: Single root encapsulating container with border-box model -->
@@ -255,50 +251,51 @@ display: block;
 
 For progress indicators (HP, MP, affection meters, battery bars, progress meters):
 - **Dynamic Variable Injection:** `width: $X%;`
-- **Boundary Clamping:** To prevent UI breakage if an LLM outputs values exceeding $100\%$ (e.g. `125%`), the style declaration must enforce:
+- **Boundary Clamping:** To limit a bar if a value exceeds $100\%$ (e.g. `125%`), a template can include:
   `style="width: $X%; max-width: 100%; min-width: 0%;"`
 - **Syntax Fault Defense:** LLMs occasionally output non-numeric descriptive strings like `MAX` instead of `100`. In CSS, `width: MAX%;` is an invalid property declaration, causing the browser engine to discard the rule and collapse the gauge to $0\%$. Templates should handle numeric extraction cleanly.
 
 ### 5.4 Typography and WCAG 2.1 Contrast Buffering
 
-Under the **Web Content Accessibility Guidelines (WCAG 2.1)**, text contrast ratio ($C$) is defined as:
+Text contrast ratio ($C$) is defined as:
 
 $$C = \frac{L_1 + 0.05}{L_2 + 0.05}$$
 
-Where $L_1$ and $L_2$ represent the relative luminance of foreground text and background surface. When white text (`#ffffff`, $L_1 = 1.0$) is placed over high-luminance dynamic background art ($L_2 \approx 0.85$), the contrast ratio plummets to $1.16:1$, failing WCAG minimum requirements ($4.5:1$ for AA, $7.0:1$ for AAA).
+Where $L_1$ and $L_2$ are the lighter and darker relative luminance values. WCAG 2.2 requires at least 4.5:1 for normal text at AA and 7:1 at AAA; large text uses 3:1 and 4.5:1 respectively. A `text-shadow` can help separate text from a background, but does not guarantee these ratios. Measure against the actual pixels behind the text ([W3C WCAG 2.2](https://www.w3.org/TR/wcag/)).
 
-Applying a calibrated `text-shadow` establishes a local contrast buffer:
+The Snippet Studio presets can help separate text from nearby image details, but they do not establish WCAG conformance without measuring the rendered text and background:
 
-| Preset Identifier | CSS Rule Declaration | Contrast Ratio on Light Art | Evaluation |
-| :--- | :--- | :---: | :--- |
-| **None** | `text-shadow: none;` | $1.2:1$ | Fails AA/AAA. Illegible on bright backgrounds. |
-| **Soft Dark (Default)** | `text-shadow: 0 1px 3px rgba(0,0,0,0.85), 0 0 1px rgba(0,0,0,0.9);` | $6.8:1$ | **Recommended.** Satisfies WCAG AAA while preserving visual subtlety. |
-| **Sharp Outline** | `text-shadow: -1px -1px 0 rgba(0,0,0,0.9), 1px -1px 0 rgba(0,0,0,0.9), -1px 1px 0 rgba(0,0,0,0.9), 1px 1px 0 rgba(0,0,0,0.9);` | $11.5:1$ | Exceeds AAA. Ideal for gaming HUDs and high-speed data feeds. |
-| **Neon Glow** | `text-shadow: 0 0 8px rgba(0,255,255,0.9), 0 0 16px rgba(0,190,230,0.6);` | $8.2:1$ | Satisfies AAA. Optimized for sci-fi and magical interfaces. |
+| Preset | CSS rule | Use |
+| :--- | :--- | :--- |
+| **None** | `text-shadow: none;` | Check text against the actual background. |
+| **Soft Dark** | `text-shadow: 0 1px 3px rgba(0,0,0,0.85), 0 0 1px rgba(0,0,0,0.9);` | A Studio preset that may improve legibility; not a WCAG pass by itself. |
+| **Sharp Outline** | `text-shadow: -1px -1px 0 rgba(0,0,0,0.9), 1px -1px 0 rgba(0,0,0,0.9), -1px 1px 0 rgba(0,0,0,0.9), 1px 1px 0 rgba(0,0,0,0.9);` | A decorative option for HUD/retro themes; check small text. |
+| **Neon Glow** | `text-shadow: 0 0 8px rgba(0,255,255,0.9), 0 0 16px rgba(0,190,230,0.6);` | A decorative effect; do not treat it as contrast validation. |
 
 ---
 
-## 6. Empirical Failure Mode and Resilience Analysis
+## 6. Failure Risks and Resilience Guidance
 
-Empirical stress testing across heterogeneous model completions reveals distinct operational failure modes:
+The following are qualitative risks to check; this document does not include a reproducible benchmark or measured failure distribution:
 
 ```mermaid
-pie title Empirical Distribution of Card Parsing & Rendering Failures
-    "Missing or Extra Delimiters from LLM" : 41
-    "Unbounded Content String Overflow" : 24
-    "Non-numeric Gauge Value (e.g. MAX)" : 17
-    "CSS Specificity Bleed & Inline Conflicts" : 11
-    "Unescaped Special Regex Characters" : 7
+flowchart TD
+    A[Unexpected card output] --> B{What changed?}
+    B -->|Fields shifted or missing| C[Check delimiter count and slot order]
+    B -->|Text clipped| D[Test long content; allow the card to grow]
+    B -->|Gauge is static| E[Check numeric input and width-to-slot mapping]
+    B -->|Image has empty space or crop| F[Choose cover or natural aspect ratio]
+    B -->|Web and app differ| G[Test the actual Rubii clients and record versions]
 ```
 
 ### 6.1 Failure Mode Breakdown and Mitigation Strategies
 
 | Failure Class | Root Cause Mechanism | Observable UI Defect | Architectural Mitigation Strategy |
 | :--- | :--- | :--- | :--- |
-| **Delimiter Omission** | Model omits one or more `\|\|` separators during generation under high token temperature. | Slots misalign; content shifts into wrong visual columns or drops out entirely. | Implement fallback regex patterns with optional slot captures, or utilize single-slot Style Tag architecture. |
-| **Catastrophic Backtracking** | Regex patterns with nested quantifiers (e.g., `(.*)+`) encounter non-matching input strings. | Complete UI freeze, high CPU utilization ($100\%$), thread starvation. | Enforce atomic non-greedy quantifiers `([\s\S]*?)` without nested repetition operators. |
+| **Delimiter Omission** | Model omits or adds a `||` separator. | Slots may shift or fail to match. | State the exact order; use a single slot when separate fields are unnecessary. |
+| **Regex backtracking** | Patterns with nested quantifiers (e.g. `(.*)+`) may do excessive work on non-matching input. | Slow matching for some patterns and inputs. | Prefer simple patterns such as `([\s\S]*?)` and avoid nested repetition. |
 | **Syntax Invalidation** | Model emits non-numeric strings (`Full`, `MAX`, `Unknown`) into numeric CSS slots. | Progress bars render at $0\%$ width because the browser rejects invalid unit syntax. | Add client-side numeric sanitization regex `(\d{1,3}(?:\.\d+)?)` prior to style injection. |
-| **GPU Overdraw Pressure** | More than 3 nested layers of `backdrop-filter: blur()` rendered concurrently on a mobile screen. | Frame rate drops ($<30\text{ fps}$), elevated battery drain, thermal throttling. | Cap nested frosted glass layers to a maximum of 2 tiers per card component. |
+| **Blur performance** | Several large `backdrop-filter` regions may increase rendering cost. | Check for visible lag on target devices. | Reduce blur area or layers if testing shows a problem. |
 | **Text Clipping** | Fixed containers with `overflow: hidden` receive $500+$ word generations. | Truncated message payloads without scroll affordance. | Apply `min-height` with auto-expanding layout or controlled `line-clamp` rules. |
 
 ---
@@ -399,4 +396,4 @@ To ensure maximum visual quality, rendering performance, and runtime resilience,
 
 The Rubii AI card rendering paradigm demonstrates that combining Large Language Model semantic reasoning with standards-compliant HTML5 and CSS3 presentation engines creates highly engaging, dynamic conversational interfaces.
 
-By establishing rigorous structural constraints—such as single-root encapsulation, clean delimiter tokenization, defensive width clamping, and WCAG contrast buffering—card creators can ensure that interface components remain visually stunning, resilient to generation anomalies, and performant across diverse client hardware configurations.
+Clear slot order, flexible layouts, and measured contrast make cards easier to review and maintain. Compatibility and performance still depend on the actual Rubii client and should be checked on the web and app versions used by the audience.

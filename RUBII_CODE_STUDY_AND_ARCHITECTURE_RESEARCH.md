@@ -3,6 +3,10 @@
 **เอกสารสำหรับ:** ผู้พัฒนาและเจ้าของโครงการ (Internal Developer & Master Study Manual)  
 **วัตถุประสงค์:** อธิบายกลไกการทำงานของโค้ดทุกส่วนในโปรเจกต์ Snippet Studio และสถาปัตยกรรมการเรนเดอร์การ์ดบน Rubii AI อย่างละเอียดทุกมิติ ตั้งแต่ระดับโครงสร้างไฟล์ไปจนถึงกลไกการประมวลผลภายใน  
 
+> **ขอบเขตหลักฐาน:** รายละเอียด Snippet Studio อ้างอิง `app.js`, `index.html` และ `data/*.json` ใน repository นี้ ส่วน pipeline ภายใน Rubii เป็นแบบจำลองจากเอกสารสาธารณะ ไม่ใช่ implementation ที่ตรวจโค้ดได้ ปัจจุบันมี 75 snippets ใน 9 หมวด หมายเลข `snippet-01`–`snippet-76` โดยเว้น `snippet-37`
+
+> **อ่านต่อ:** [สถาปัตยกรรมแอป](./ARCHITECTURE.md) · [แนวทางทำการ์ด](./RUBII_CARD_GUIDELINES.md) · [ข้อสังเกตและสิ่งที่ต้องทดสอบบน Rubii](./RUBII_BACKGROUND_AND_BARS_ANALYSIS.md)
+
 ---
 
 ## สารบัญภาพรวมระบบ
@@ -32,12 +36,12 @@ Snippet Studio/
 ├── guide.html                   (คู่มือการใช้งานสำหรับผู้ใช้ทั่วไป)
 ├── data/
 │   ├── snippets.json            (ฐานข้อมูลการ์ดทั้งหมด 75 รายการ พร้อมโค้ด HTML/CSS และ Slot ตัวอย่าง)
-│   └── snippet-categories.json  (โครงสร้างหมวดหมู่การ์ด 7 หมวด)
+│   └── snippet-categories.json  (โครงสร้างหมวดหมู่การ์ด 9 หมวด)
 └── RUBII_CODE_STUDY_AND_ARCHITECTURE_RESEARCH.md (คู่มือศึกษาการทำงานฉบับนี้)
 ```
 
 ### หน้าที่ของไฟล์หลักในระบบ
-- **`app.js` (Engine Core):** ทำหน้าที่สแกนโค้ด HTML/CSS สกัดตัวแปร จัดหมวดหมู่ฟิลด์ คำนวณความโปร่งใสของสี (RGBA/Hex) ประกอบ Regex สร้าง Output ที่ตรงตามมาตรฐาน Rubii และควบคุม Iframe Preview
+- **`app.js` (Engine Core):** ทำหน้าที่สแกนโค้ด HTML/CSS สกัดตัวแปร จัดหมวดหมู่ฟิลด์ คำนวณความโปร่งใสของสี (RGBA/Hex) ประกอบ Regex และควบคุม Iframe Preview; Output จาก Studio ควรตรวจบน Rubii ก่อนใช้งาน
 - **`data/snippets.json` (Single Source of Truth):** บรรจุแม่แบบการ์ดทั้งหมด โดยโครงสร้าง HTML แต่ละตัวจะถูกออกแบบให้อยู่ใน Root `<div>` ตัวเดียว และใช้ Inline Styles เพื่อให้ง่ายต่อการ Compile เป็น Style Tag หรือ Regex
 - **`index.html` & `styles.css` (Presentation Layer):** แสดงผล Workspace 2 ฝั่ง (ฝั่งซ้าย: Preview & Quick Edit, ฝั่งขวา: Code Output Panel) รองรับการแสดงผลทุกขนาดหน้าจอ
 
@@ -64,7 +68,7 @@ flowchart TD
     end
 
     subgraph Render["Stage 4: Live View & Interactive Synchronization"]
-        C1 --> R1["Code Panel Display: Template, HTML, CSS, Regex, Markdown"]
+        C1 --> R1["Code Panel: Template, HTML, CSS, Regex, Output, Settings"]
         C2 --> R2["Preview Frame (Iframe): Render Mobile Card Simulation"]
         R2 <-->|"postMessage (Two-Way Sync)"| R3["Direct Visual Edit Mode"]
     end
@@ -90,12 +94,7 @@ flowchart TD
 4. **ตรวจหา Suggested Variables:** สแกนหาคำที่น่าจะเปลี่ยน เช่น เวลา (`21:45`), ยอดเงิน, ข้อความยาว เพื่อติดป้าย "ตรวจดู" ให้ผู้ใช้เลือกเอง
 
 ### อัลกอริทึมการให้คะแนนความสำคัญของ Slot (Slot Scoring Algorithm)
-ใน `rubiiTextSlots` ระบบจะคำนวณคะแนน (`score`) เพื่อเลือกค่าที่ดีที่สุดเป็น `$1` ของ Style Tag:
-- มีคำว่า `สถานการณ์`, `ข้อความ`, `โพสต์`, `caption`, `message` $\rightarrow$ $+12$ คะแนน
-- มีคำว่า `จำนวนเงิน`, `ยอดโอน`, `ยอดเงิน`, `ราคา` $\rightarrow$ $+8$ คะแนน
-- เป็นช่องเปอร์เซ็นต์ `(\d+%)` $\rightarrow$ $+8$ คะแนน
-- เป็น Marker ที่ระบุชัด $\rightarrow$ $+5$ คะแนน
-- มีคำว่า `สถานที่`, `วันที่`, `เวลา`, `{{char}}` $\rightarrow$ $-3$ คะแนน (เพราะมักเป็นข้อมูลรอง)
+ใน `rubiiTextSlots` คะแนนเป็น heuristic สำหรับจัดลำดับช่องแนะนำ ไม่ใช่การเข้าใจความหมายแบบสมบูรณ์: explicit marker เริ่มที่ +5, คำบอกเนื้อหาหลักบางกลุ่มเพิ่ม +12, กลุ่มจำนวนเงิน/รายการ/คำตอบหรือเปอร์เซ็นต์เพิ่ม +8, เวลา/prompt/reference บางชนิดเพิ่ม +5 และความยาวข้อความมีผลเล็กน้อย คะแนนลด 3 สำหรับวันที่/เวลา/สถานที่และ `{{char}}` บางกรณี ผู้ใช้ยังเลือกหรือแก้ช่องเองได้
 
 ---
 
@@ -134,14 +133,13 @@ flowchart LR
 
 ### การสร้าง Output สำหรับ 2 โหมด
 1. **โหมด Style Tag:**
-   - รวม CSS ทั้งหมดไว้ในแท็ก `<style>`
-   - แทนที่ข้อความหลักเพียงจุดเดียวด้วย `$1`
-   - ผลลัพธ์: AI ส่งเพียง `<tag>ข้อความ</tag>` ก็เปลี่ยนการ์ดได้ทันที
+   - สร้าง HTML template ที่มีตำแหน่ง `$1` สำหรับข้อความที่เลือก และสร้าง CSS ส่วนกลางแยกเป็น Output อีกส่วน
+   - ผลลัพธ์ตัวอย่าง: AI ส่ง `<tag>ข้อความ</tag>` แล้ว Rubii ใช้ Style Tag/Global CSS ที่ตั้งค่าไว้เพื่อปรับการแสดงผล
 2. **โหมด Regex Replacement:**
    - ใช้ฟังก์ชัน `buildRegexPattern(tagName, chosenSlots, format)` สร้าง Regex
    - รองรับตัวคั่นหลายรูปแบบ:
      - `doublePipe` (ค่าเริ่มต้น): `\|\|`
-     - `pipe`: `\|(?!\球)`
+     - `pipe`: `\|(?!\|)`
      - `comma`: `\s*,\s*`
      - `newline`: `\r?\n`
    - แทนค่า `$1` ถึง `$33` ลงในตำแหน่งที่ถูกต้องใน HTML Template
@@ -159,16 +157,16 @@ flowchart TD
     C --> D{"Evaluate Target Width"}
     D -->|"Width matches or non-100% value found"| E["Bind Bar Element to Variable $X%"]
     E --> F["Strip Static Width from Class CSS Rules"]
-    F --> G["Inject inline style='width: $X%; max-width: 100%; min-width: 0%;'"]
+    F --> G["Inject inline style='width: $X%; max-width: 100%;'"]
 ```
 
 > **สรุปขั้นตอน Workflow (Dynamic Progress Bar Binding):**
 > 1. **ตรวจจับค่าเปอร์เซ็นต์:** ระบบสแกนหาข้อความเปอร์เซ็นต์ในเทมเพลต เช่น `85%` หรือ `(85%)`
 > 2. **ค้นหาคอนเทนเนอร์หลอดสถานะ:** ค้นหา Element แม่ที่ใกล้ที่สุดและตรวจสอบแท็กหลอดด้านในที่มีการกำหนดความกว้างเป็นเปอร์เซ็นต์
-> 3. **ผูกตัวแปรและป้องกันการล้นกรอบ:** ผูกค่าความกว้างเข้ากับ `$X%` พร้อมตัดสไตล์เดิมออกจาก CSS Class และใส่ `max-width: 100%; min-width: 0%;` เพื่อป้องกันหลอดล้นหรือหดตัวผิดปกติ
+> 3. **ผูกตัวแปรและจำกัดความกว้าง:** ผูกค่าความกว้างเข้ากับ `$X%` ตัด `width` เดิมออกจาก CSS class แล้วใส่ `width:$X%;max-width:100%;` เป็น inline style; `min-width:0` เป็นคำแนะนำสำหรับ layout บางแบบ ไม่ใช่ค่าที่ builder เติมให้อัตโนมัติ
 
 ### กฎสำคัญของการสร้างหลอดสถานะ
-- **ห้ามใส่ `width: MAX%;`:** ให้ใช้ `width: 100%;` แทน เพราะคำว่า `MAX` ทำให้เบราว์เซอร์เกิด Syntax Error และหลอดจะหดเหลือ 0%
+- **อย่าส่ง `MAX` เป็นค่าความกว้าง:** ใช้ค่าตัวเลขตามรูปแบบที่กำหนด เพราะ `width:MAX%` ไม่ใช่ค่าความกว้าง CSS ที่ถูกต้อง; เมื่อ declaration นี้ถูกละทิ้ง แถบอาจคงค่าก่อนหน้าหรือไม่มีค่าความกว้างตามที่ต้องการ
 - **ใส่ `max-width: 100%;` เสมอ:** ป้องกันไม่ให้หลอดล้นทะลุการ์ดเมื่อ AI ส่งค่าเกิน 100%
 - **ใส่ `overflow: hidden;` และ `border-radius: 99px;`:** ที่กล่องด้านนอก เพื่อให้ปลายหลอดโค้งมนสวยงามตามกรอบ
 
@@ -177,7 +175,7 @@ flowchart TD
 ## 6. กลไกที่ 4: สถาปัตยกรรม CSS พื้นหลังและการจัดวางภาพเต็มผืนผ้า
 
 ### 6.1 Clean CSS Standard สำหรับพื้นหลัง
-เพื่อป้องกันปัญหา Shorthand Reset และเลเยอร์ Gradient บดบังภาพบน Mobile WebView ให้ใช้คุณสมบัติแยกเฉพาะ:
+เพื่อให้เห็นค่าพื้นหลังแต่ละส่วนชัดและลดการเขียนทับโดยไม่ตั้งใจ ใช้ property แยกได้ตามตัวอย่างนี้ แนวทางนี้ไม่ได้ยืนยันพฤติกรรมเฉพาะของ Mobile WebView:
 
 ```css
 background-image: url('https://media.giphy.com/sample.gif');
@@ -187,7 +185,7 @@ background-repeat: no-repeat;
 ```
 
 ### 6.2 มาตรฐาน Full-Bleed Landscape สำหรับแบนเนอร์ภาพ
-ภาพแบนเนอร์ด้านบนของการ์ดต้องแผ่เต็มผืนผ้า 100% ไม่ให้เกิดขอบดำด้านข้าง (Letterbox Void):
+สำหรับภาพแบนเนอร์ในกรอบคงที่ ใช้ `cover` เพื่อเติมกรอบ โดยยอมรับว่าขอบภาพอาจถูกครอป สีของพื้นที่ว่างจาก `contain` ขึ้นกับสีพื้นหลัง ไม่จำเป็นต้องเป็นสีดำ:
 
 ```css
 /* ถูกต้อง: ภาพแผ่เต็มกรอบ Edge-to-Edge */
@@ -202,7 +200,7 @@ display: block;
 
 ## 7. กลไกที่ 5: วิศวกรรมความคมชัดของข้อความด้วย Text Shadow
 
-เมื่อเปิดใช้งานรูปพื้นหลัง ฟังก์ชัน `htmlWithBackground(snippet, html)` จะฉีด CSS Text Shadow เข้าไปที่ Root Tag เพื่อยกระดับความคมชัดของตัวหนังสือสีขาว:
+เมื่อเปิดใช้ตัวเลือก ฟังก์ชัน `htmlWithBackground(snippet, html)` จะเพิ่ม CSS Text Shadow ที่ Root Tag เพื่อช่วยแยกข้อความจากภาพพื้นหลัง ผลต่อความอ่านง่ายขึ้นกับภาพจริง:
 
 ```mermaid
 flowchart TD
@@ -215,19 +213,21 @@ flowchart TD
     end
 
     L1 --> L2 --> L3 --> L4 --> L5
-    L4 -.->|"Elevates Contrast Ratio from 1.2:1 to 6.8:1+ (WCAG AAA)"| L5
+    L4 -.->|"May improve local legibility; measure actual contrast"| L5
 ```
 
-> **สรุปขั้นตอน Workflow (Text Shadow Contrast Architecture):**
+> **สรุปการทำงาน (Text Shadow):**
 > 1. **ลำดับชั้นเลเยอร์การแสดงผล:** เลเยอร์ข้อความอยู่บนสุดเหนือผิวกระจกและภาพพื้นหลัง
 > 2. **การทำงานของ Contrast Buffer:** การใส่ `text-shadow` ทำหน้าที่เป็นกันชนความมืดรอบตัวหนังสือสีขาว
-> 3. **ยกระดับความคมชัด:** ช่วยเพิ่มค่า Contrast Ratio จาก 1.2:1 (ซึ่งอ่านยากบนพื้นสว่าง) ขึ้นเป็น 6.8:1+ ผ่านมาตรฐาน WCAG AAA ทำให้อ่านง่ายบนทุกภาพพื้นหลัง
+> 3. **ตรวจผลจริง:** Text Shadow ไม่รับประกันอัตราส่วนคอนทราสต์ตาม WCAG; วัดกับสี/ภาพบริเวณหลังตัวอักษรหลังจัดวาง
 
 ### พรีเซ็ตเงาข้อความ 4 รูปแบบ
-1. **None:** `text-shadow: none;` (Contrast 1.2:1) - เหมาะกับพื้นหลังมืดสนิท
-2. **Soft Dark (แนะนำ):** `text-shadow: 0 1px 3px rgba(0,0,0,0.85), 0 0 1px rgba(0,0,0,0.9);` (Contrast 6.8:1) - เงามืดนุ่มนวลเป็นธรรมชาติ
-3. **Sharp Outline:** `text-shadow: -1px -1px 0 rgba(0,0,0,0.9), 1px -1px 0 rgba(0,0,0,0.9), -1px 1px 0 rgba(0,0,0,0.9), 1px 1px 0 rgba(0,0,0,0.9);` (Contrast 11.5:1) - เส้นขอบคมชัดสไตล์การ์ตูน/HUD
-4. **Neon Glow:** `text-shadow: 0 0 8px rgba(0,255,255,0.9), 0 0 16px rgba(0,190,230,0.6), 0 1px 2px rgba(0,0,0,0.9);` (Contrast 8.2:1) - เรืองแสงนีออนสไตล์ Cyberpunk
+1. **None:** `text-shadow: none;` — ใช้เมื่อภาพ/พื้นหลังมีคอนทราสต์พออยู่แล้ว
+2. **Soft Dark (ค่าเริ่มต้น):** `text-shadow: 0 1px 3px rgba(0,0,0,0.85), 0 0 1px rgba(0,0,0,0.9);` — เงามืดนุ่มนวล
+3. **Sharp Outline:** `text-shadow: -1px -1px 0 rgba(0,0,0,0.9), 1px -1px 0 rgba(0,0,0,0.9), -1px 1px 0 rgba(0,0,0,0.9), 1px 1px 0 rgba(0,0,0,0.9);` — เส้นขอบคมสไตล์การ์ตูน/HUD
+4. **Neon Glow:** `text-shadow: 0 0 8px rgba(0,255,255,0.9), 0 0 16px rgba(0,190,230,0.6), 0 1px 2px rgba(0,0,0,0.9);` — แสงนีออนสไตล์ Cyberpunk
+
+เกณฑ์ WCAG 2.2 สำหรับข้อความทั่วไปคือ 4.5:1 ระดับ AA และ 7:1 ระดับ AAA; ข้อความขนาดใหญ่ใช้ 3:1 และ 4.5:1 ตามลำดับ ([W3C WCAG 2.2](https://www.w3.org/TR/wcag/)). เงาเป็นเพียงการตกแต่งและไม่ใช่ผลตรวจผ่านมาตรฐาน
 
 ---
 
@@ -302,7 +302,7 @@ sequenceDiagram
 
   <!-- หลอดสถานะไดนามิก -->
   <div style="background: rgba(255, 255, 255, 0.15); border-radius: 99px; height: 8px; width: 100%; overflow: hidden;">
-    <div style="background: linear-gradient(90deg, #339af0, #51cf66); height: 100%; width: (85%); max-width: 100%; border-radius: 99px;"></div>
+    <div style="background: linear-gradient(90deg, #339af0, #51cf66); height: 100%; width: 85%; max-width: 100%; border-radius: 99px;"></div>
   </div>
 </div>
 ```
@@ -342,9 +342,9 @@ flowchart TD
     Start["Card Rendering Issue Detected"] --> Q1{"Identify Failure Symptom"}
 
     Q1 -->|"1. AI output not matching card slots"| D1["Verify delimiter consistency (e.g. ||) and tag naming exact match"]
-    Q1 -->|"2. Progress bar collapsed or static"| D2["Replace 'width: MAX%' with 'width: 100%' and ensure numeric inputs"]
+    Q1 -->|"2. Progress bar collapsed or static"| D2["Send a numeric value and verify the slot-to-width mapping"]
     Q1 -->|"3. Banner image has black letterbox voids"| D3["Switch CSS to 'object-fit: cover; width: 100%; height: 100%;'"]
-    Q1 -->|"4. Text illegible over dynamic background"| D4["Enable Text Shadow preset (Soft Dark or Sharp Outline) for WCAG AAA contrast"]
+    Q1 -->|"4. Text illegible over dynamic background"| D4["Try a shadow, then check contrast against the rendered background"]
     Q1 -->|"5. Macro {{char}} replaced with static character name"| D5["Extract {{char}} outside parenthesis marker: e.g. {{char}} (Account: xxx)"]
 ```
 
@@ -354,4 +354,4 @@ flowchart TD
 > 3. **ดำเนินการแก้ไขตามมาตรฐาน:** ปรับแก้โค้ด HTML/CSS และ Prompt ให้สอดคล้องกับแนวทางวิศวกรรมมาตรฐาน
 
 ---
-*เอกสารฉบับนี้เป็นคู่มืออ้างอิงเชิงวิศวกรรมระดับสมบูรณ์สำหรับสถาปัตยกรรม Snippet Studio และแพลตฟอร์ม Rubii AI*
+*เอกสารนี้เป็นคู่มือศึกษา Snippet Studio และแนวทางออกแบบการ์ดสำหรับ Rubii; คำอธิบาย implementation ภายใน Rubii เป็นแบบจำลองจนกว่าจะยืนยันจากเอกสารหรือการทดสอบบนแพลตฟอร์ม*

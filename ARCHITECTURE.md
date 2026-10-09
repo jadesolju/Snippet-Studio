@@ -2,11 +2,13 @@
 
 **Snippet Studio** เป็นระบบคลังตัวอย่างและสร้างแม่แบบโค้ด (Code & Template Generator) สำหรับนำไปใช้กับ **Rubii Style Tags & Regex** บนแพลตฟอร์ม Rubii (รองรับทั้ง Web และ Mobile App บน iOS/Android)
 
+> **ขอบเขต:** ส่วนที่อธิบาย Snippet Studio อ้างอิงโค้ดและข้อมูลใน repository นี้ ส่วนการแสดงผลสุดท้ายเกิดใน Rubii ซึ่งอยู่นอกแอปนี้ จึงควรตรวจบนเว็บและแอปจริง เอกสาร Rubii ระบุว่า Style Tags/Regex ใช้ได้บนเว็บและแอปเวอร์ชัน 2.4.2 ขึ้นไป และแอปแสดงผลใกล้เคียงเว็บในเกือบทุกกรณี ([เอกสาร Rubii](https://rubii.ai/blog/styles-and-regex))
+
 ---
 
 ## 1. ภาพรวมสถาปัตยกรรม (Architecture Overview)
 
-ระบบถูกออกแบบเป็น **Client-Side Static Application** 100% ทำงานได้รวดเร็ว ปลอดภัย และ Deploy บน Vercel หรือ Static Host ได้ทันทีโดยไม่ต้องพึ่งพาเซิร์ฟเวอร์ Backend
+ระบบเป็น **Client-Side Static Application** ไม่มี Backend ที่โปรเจกต์นี้ต้องรันเอง และ Deploy บน Vercel หรือ Static Host ได้
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -24,7 +26,7 @@
 │ 2. Modular HTML Parts Engine (แยกชิ้นส่วนการ์ด / แก้ข้อความ) │
 │ 3. Rubii Regex & Slot Engine (จับตัวแปร $1-$33 / Fallback)  │
 │ 4. Two-Way Preview & Visual Edit (Iframe / PostMessage)    │
-│ 5. Code & Config Generator   (สร้าง Output 6 รูปแบบพร้อมคัดลอก)│
+│ 5. Code & Config Generator   (แสดง Output 6 ส่วนพร้อมคัดลอก) │
 └─────────────────────────────────────────────────────────────┘
 ```
 

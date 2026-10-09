@@ -561,6 +561,62 @@ body { font-size: 14px; }
   color: #87e6e4;
 }
 
+/* Quick Edit Typography & Shadow Controls */
+.quick-typography-controls {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: rgba(204, 93, 232, 0.06);
+  border: 1px solid rgba(204, 93, 232, 0.22);
+  border-radius: 9px;
+}
+
+.quick-typography-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  color: #d88cf8;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.quick-typography-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+}
+
+.quick-typography-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.quick-typography-field > span {
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.quick-typography-field select {
+  width: 100%;
+  min-height: 32px;
+  padding: 5px 8px;
+  background: #10131b;
+  border: 1px solid var(--line-strong);
+  border-radius: 7px;
+  color: #f2f4fa;
+  font-size: 11px;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+}
+
+.quick-typography-field select:focus {
+  border-color: rgba(204, 93, 232, 0.6);
+  box-shadow: 0 0 0 1px rgba(204, 93, 232, 0.25);
+}
+
 /* Code Editor & Config Customization */
 .code-header-actions { display: flex; align-items: center; gap: 10px; }
 .code-toolbar-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
