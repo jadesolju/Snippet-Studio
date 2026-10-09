@@ -60,25 +60,25 @@ assert(appJsContent.includes('mini-toggle-italic'), 'app.js previewDocument cont
 assert(appJsContent.includes('mini-toggle-underline'), 'app.js previewDocument contains mini-toggle-underline');
 assert(appJsContent.includes('mini-toggle-upper'), 'app.js previewDocument contains mini-toggle-upper');
 
-// Variable Granular Styling Suite
+// Variable Granular Styling Suite (Clean Minimal Pickers)
 assert(appJsContent.includes('fieldStylesBySnippet'), 'app.js contains fieldStylesBySnippet state');
 assert(appJsContent.includes('getFieldStyle'), 'app.js contains getFieldStyle helper');
 assert(appJsContent.includes('setFieldStyle'), 'app.js contains setFieldStyle helper');
 assert(appJsContent.includes('field-text-style-bar'), 'app.js renders .field-text-style-bar');
 assert(appJsContent.includes('var-color-picker'), 'app.js renders .var-color-picker');
 assert(appJsContent.includes('var-bg-picker'), 'app.js renders .var-bg-picker');
-assert(appJsContent.includes('var-swatch-btn'), 'app.js renders .var-swatch-btn');
-assert(appJsContent.includes('var-bg-swatch-btn'), 'app.js renders .var-bg-swatch-btn');
 assert(appJsContent.includes('var-bold-btn'), 'app.js renders .var-bold-btn');
 assert(appJsContent.includes('var-reset-btn'), 'app.js renders .var-reset-btn');
 
 assert(cssContent.includes('.field-text-style-bar'), 'styles.css contains .field-text-style-bar');
 assert(cssContent.includes('.var-color-picker'), 'styles.css contains .var-color-picker');
 assert(cssContent.includes('.var-bg-picker'), 'styles.css contains .var-bg-picker');
-assert(cssContent.includes('.var-swatch-btn'), 'styles.css contains .var-swatch-btn');
-assert(cssContent.includes('.var-bg-swatch-btn'), 'styles.css contains .var-bg-swatch-btn');
 assert(cssContent.includes('.var-bold-btn'), 'styles.css contains .var-bold-btn');
 assert(cssContent.includes('.var-reset-btn'), 'styles.css contains .var-reset-btn');
+
+// Verify neon swatches have been removed
+assert(!appJsContent.includes('textColorPresets'), 'app.js neon text color swatches removed');
+assert(!appJsContent.includes('textBgPresets'), 'app.js neon background swatches removed');
 
 // 4. Test Zero Emojis in UI / code strings
 const emojiRegex = /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u;

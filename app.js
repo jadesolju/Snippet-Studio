@@ -987,111 +987,47 @@ function buildFieldEditor(snippet) {
         if (currentStyle.bgColor) input.style.backgroundColor = currentStyle.bgColor;
         if (currentStyle.bold) input.style.fontWeight = "bold";
 
-        // Text Color Group
-        const colorGroup = document.createElement("div");
-        colorGroup.className = "style-bar-group";
+        // Text Color Item
+        const colorItem = document.createElement("label");
+        colorItem.className = "style-bar-item";
+        colorItem.title = "เลือกสีข้อความตัวแปร (มี EyeDropper)";
 
         const colorLabel = document.createElement("span");
         colorLabel.className = "style-bar-label";
-        colorLabel.innerHTML = `<svg class="ui-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg><span>สีอักษร:</span>`;
+        colorLabel.innerHTML = `<svg class="ui-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg><span>สีอักษร</span>`;
 
         const colorWrap = document.createElement("div");
         colorWrap.className = "var-color-wrap";
+        if (currentStyle.color) colorWrap.style.backgroundColor = currentStyle.color;
+
         const colorPicker = document.createElement("input");
         colorPicker.type = "color";
         colorPicker.className = "var-color-picker";
         colorPicker.value = currentStyle.color && currentStyle.color.startsWith("#") ? currentStyle.color : "#ffffff";
-        colorPicker.title = "เลือกสีข้อความตัวแปร (มี EyeDropper)";
         colorPicker.setAttribute("aria-label", `เลือกสีข้อความสำหรับ ${field.label}`);
         colorWrap.append(colorPicker);
+        colorItem.append(colorLabel, colorWrap);
 
-        const colorSwatchList = document.createElement("div");
-        colorSwatchList.className = "var-swatch-list";
-
-        const textColorPresets = [
-          { color: "", title: "ตามค่าเริ่มต้น (Default)", label: "Auto" },
-          { color: "#ffffff", title: "ขาวสว่าง (White)" },
-          { color: "#fef08a", title: "ทองสว่าง (Gold)" },
-          { color: "#38bdf8", title: "ฟ้านีออน (Cyan)" },
-          { color: "#c084fc", title: "ม่วงนีออน (Purple)" },
-          { color: "#4ade80", title: "เขียวมินต์ (Mint)" },
-          { color: "#f87171", title: "แดงคอรัล (Coral)" },
-          { color: "#18181b", title: "ดำเข้ม (Dark)" },
-        ];
-
-        const colorButtons = [];
-        textColorPresets.forEach((preset) => {
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "var-swatch-btn";
-          btn.dataset.color = preset.color;
-          btn.title = preset.title;
-          if (preset.color) {
-            btn.style.setProperty("--swatch-color", preset.color);
-          } else {
-            btn.textContent = preset.label || "Auto";
-          }
-          if ((currentStyle.color || "") === preset.color) {
-            btn.classList.add("active");
-          }
-          colorButtons.push(btn);
-          colorSwatchList.append(btn);
-        });
-
-        colorGroup.append(colorLabel, colorWrap, colorSwatchList);
-
-        // Background Highlight Group
-        const bgGroup = document.createElement("div");
-        bgGroup.className = "style-bar-group";
+        // Highlight Item
+        const bgItem = document.createElement("label");
+        bgItem.className = "style-bar-item";
+        bgItem.title = "เลือกสีไฮไลต์พื้นหลังตัวแปร";
 
         const bgLabel = document.createElement("span");
         bgLabel.className = "style-bar-label";
-        bgLabel.innerHTML = `<svg class="ui-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/></svg><span>ไฮไลต์:</span>`;
+        bgLabel.innerHTML = `<svg class="ui-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/></svg><span>ไฮไลต์</span>`;
 
         const bgWrap = document.createElement("div");
-        bgWrap.className = "var-color-wrap";
+        bgWrap.className = "var-color-wrap var-bg-wrap";
+        if (currentStyle.bgColor) bgWrap.style.backgroundColor = currentStyle.bgColor;
+
         const bgPicker = document.createElement("input");
         bgPicker.type = "color";
         bgPicker.className = "var-bg-picker";
         bgPicker.value = "#38bdf8";
-        bgPicker.title = "เลือกสีไฮไลต์พื้นหลังตัวแปร";
         bgPicker.setAttribute("aria-label", `เลือกสีไฮไลต์สำหรับ ${field.label}`);
         bgWrap.append(bgPicker);
-
-        const bgSwatchList = document.createElement("div");
-        bgSwatchList.className = "var-swatch-list";
-
-        const textBgPresets = [
-          { bg: "", title: "ไม่มีไฮไลต์ (None)", label: "None" },
-          { bg: "rgba(0, 0, 0, 0.55)", color: "#000000", title: "กระจกมืด (Dark Glass)" },
-          { bg: "rgba(56, 189, 248, 0.22)", color: "#38bdf8", title: "ฟ้าใส (Cyan Tint)" },
-          { bg: "rgba(192, 132, 252, 0.22)", color: "#c084fc", title: "ม่วงใส (Purple Tint)" },
-          { bg: "rgba(254, 240, 138, 0.25)", color: "#fef08a", title: "ทองใส (Gold Tint)" },
-          { bg: "rgba(74, 222, 128, 0.22)", color: "#4ade80", title: "มินต์ใส (Mint Tint)" },
-          { bg: "rgba(248, 113, 113, 0.22)", color: "#f87171", title: "คอรัลใส (Coral Tint)" },
-          { bg: "rgba(255, 255, 255, 0.18)", color: "#ffffff", title: "ขาวใส (White Glass)" },
-        ];
-
-        const bgButtons = [];
-        textBgPresets.forEach((preset) => {
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "var-bg-swatch-btn";
-          btn.dataset.bg = preset.bg;
-          btn.title = preset.title;
-          if (preset.bg) {
-            btn.style.setProperty("--swatch-color", preset.color || preset.bg);
-          } else {
-            btn.textContent = preset.label || "None";
-          }
-          if ((currentStyle.bgColor || "") === preset.bg) {
-            btn.classList.add("active");
-          }
-          bgButtons.push(btn);
-          bgSwatchList.append(btn);
-        });
-
-        bgGroup.append(bgLabel, bgWrap, bgSwatchList);
+        bgItem.append(bgLabel, bgWrap);
 
         // Actions: Bold & Reset
         const actionsGroup = document.createElement("div");
@@ -1111,7 +1047,7 @@ function buildFieldEditor(snippet) {
 
         actionsGroup.append(boldBtn, resetBtn);
 
-        styleBar.append(colorGroup, bgGroup, actionsGroup);
+        styleBar.append(colorItem, bgItem, actionsGroup);
         row.append(styleBar);
 
         const applyStyleUpdate = (diff) => {
@@ -1122,14 +1058,10 @@ function buildFieldEditor(snippet) {
           input.style.backgroundColor = updated.bgColor || "";
           input.style.fontWeight = updated.bold ? "bold" : "";
 
-          colorButtons.forEach((b) => {
-            b.classList.toggle("active", (b.dataset.color || "") === (updated.color || ""));
-          });
+          colorWrap.style.backgroundColor = updated.color || "";
           if (updated.color && updated.color.startsWith("#")) colorPicker.value = updated.color;
 
-          bgButtons.forEach((b) => {
-            b.classList.toggle("active", (b.dataset.bg || "") === (updated.bgColor || ""));
-          });
+          bgWrap.style.backgroundColor = updated.bgColor || "";
 
           boldBtn.classList.toggle("active", Boolean(updated.bold));
 
@@ -1137,20 +1069,8 @@ function buildFieldEditor(snippet) {
           renderPreview(snippet);
         };
 
-        colorSwatchList.addEventListener("click", (e) => {
-          const btn = e.target.closest(".var-swatch-btn");
-          if (!btn) return;
-          applyStyleUpdate({ color: btn.dataset.color || "" });
-        });
-
         colorPicker.addEventListener("input", () => {
           applyStyleUpdate({ color: colorPicker.value });
-        });
-
-        bgSwatchList.addEventListener("click", (e) => {
-          const btn = e.target.closest(".var-bg-swatch-btn");
-          if (!btn) return;
-          applyStyleUpdate({ bgColor: btn.dataset.bg || "" });
         });
 
         bgPicker.addEventListener("input", () => {
