@@ -1427,14 +1427,22 @@ function renderRubiiSlotControls(snippet) {
 
   const { slots } = rubiiTextSlots(assembleRawHtml(snippet));
   const state = rubiiSettingsBySnippet.get(snippet.id) ?? {};
-  const preferred = typeof state.slotId === "string"
+  const preferred = typeof state.slotId === "string" && state.slotId
     ? (slots.some((slot) => slot.id === state.slotId) ? state.slotId : "")
-    : (slots.find((slot) => slot.explicit)?.id ?? "");
+    : (
+        [...slots]
+          .filter((slot) => !/^\{\{.*\}\}$/.test(slot.target))
+          .sort((a, b) => b.score - a.score)[0]?.id
+        ?? slots.find((slot) => slot.explicit)?.id
+        ?? ""
+      );
   state.slotId = preferred ?? "";
   if (!Array.isArray(state.regexSlotIds)) {
     const explicitSlots = [];
     const seenTargets = new Set();
-    for (const slot of slots) {
+    const validCandidateSlots = slots.filter((slot) => !/^\{\{.*\}\}$/.test(slot.target));
+    const pool = validCandidateSlots.length ? validCandidateSlots : slots;
+    for (const slot of pool) {
       if (slot.explicit && slot.score > 0 && !seenTargets.has(slot.target)) {
         seenTargets.add(slot.target);
         explicitSlots.push(slot);
@@ -1618,15 +1626,15 @@ function buildRubiiTemplate(snippet, chosenSlots) {
   const replacementsByNode = new Map();
   const progressBarMap = new Map();
 
-  const targetToReplacement = new Map();
+  const slotById = new Map();
   selectedSlots.forEach((slot, index) => {
-    const varName = isRubiiPercentageSlot(slot) ? `$${index + 1}%` : `$${index + 1}`;
-    targetToReplacement.set(slot.target, { varName, slotIndex: index, slot });
+    const varName = isRubiiPercentageSlot(slot) ? "$" + (index + 1) + "%" : "$" + (index + 1);
+    slotById.set(slot.id, { varName, slotIndex: index, slot });
   });
 
   slots.forEach((slot) => {
-    if (targetToReplacement.has(slot.target)) {
-      const { varName, slotIndex } = targetToReplacement.get(slot.target);
+    if (slotById.has(slot.id)) {
+      const { varName, slotIndex } = slotById.get(slot.id);
       if (!replacementsByNode.has(slot.nodeIndex)) replacementsByNode.set(slot.nodeIndex, []);
       replacementsByNode.get(slot.nodeIndex).push({ slot, replacement: varName });
 
@@ -1651,7 +1659,7 @@ function buildRubiiTemplate(snippet, chosenSlots) {
         }
 
         if (matchedBar) {
-          progressBarMap.set(matchedBar, `$${slotIndex + 1}%`);
+          progressBarMap.set(matchedBar, "$" + (slotIndex + 1) + "%");
         }
       }
     }
