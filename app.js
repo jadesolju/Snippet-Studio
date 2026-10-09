@@ -574,11 +574,13 @@ function collectFields(snippet) {
   // 3. Scan HTML text nodes for user placeholders (วัน, เวลา, ข้อความ, สถานที่, ฯลฯ)
   const literalPattern = /\((?:[^()\n]{1,120})\)/g;
   const htmlWithoutStyles = codeText.replace(/\bstyle\s*=\s*(["'])[\s\S]*?\1/gi, '');
+  const staticBlacklist = new Set(["THB", "TH", "USD", "GBP", "EUR", "ผู้โอน", "ผู้รับ", "Wallet", "PromptPay"]);
   for (const match of htmlWithoutStyles.matchAll(literalPattern)) {
     const token = match[0];
     if (seenPlaceholders.has(token)) continue;
-    seenPlaceholders.add(token);
     const content = token.slice(1, -1).trim();
+    if (staticBlacklist.has(content)) continue;
+    seenPlaceholders.add(token);
 
     let label = "ข้อความตัวอย่าง";
     if (content === "HH:MM" || content.startsWith("เวลา")) label = "เวลา (Time)";
@@ -589,7 +591,7 @@ function collectFields(snippet) {
     else if (content.startsWith("สถานการณ์")) label = "สถานการณ์ / แจ้งเตือน (Status)";
     else if (content.startsWith("ข้อความ")) label = "ข้อความหลัก (Message)";
     else if (content.startsWith("ความคิด") || content.startsWith("มุมมอง")) label = "ความคิดเห็นเสริม (Comment)";
-    else if (content.startsWith("จำนวนเงิน") || content.startsWith("ราคา")) label = "จำนวนเงิน (Amount)";
+    else if (content.startsWith("จำนวนเงิน") || content.startsWith("ราคา") || /^[฿$£€¥]?\s*\d{1,3}(?:,\d{3})*(?:\.\d{2})?$/.test(content)) label = "จำนวนเงิน (Amount)";
     else if (content.length <= 25) label = content;
 
     fields.push({
@@ -1364,9 +1366,10 @@ function rubiiTextSlots(source) {
 
   const slots = [];
   const dynamicPattern = /\([^()]*\)|\{\{[^{}]+\}\}%?|\b\d{1,3}%(?!\w)/g;
+  const staticSlotBlacklist = new Set(["(THB)", "(TH)", "(USD)", "(GBP)", "(EUR)", "(ผู้โอน)", "(ผู้รับ)", "(Wallet)", "(PromptPay)"]);
   for (const [nodeIndex, textNode] of nodes.entries()) {
     const text = textNode.nodeValue;
-    const matches = [...text.matchAll(dynamicPattern)];
+    const matches = [...text.matchAll(dynamicPattern)].filter((m) => !staticSlotBlacklist.has(m[0].trim()));
     const candidates = matches.map((match) => ({
       target: match[0],
       start: match.index,
@@ -1739,12 +1742,15 @@ function rubiiSlotLabel(slot, index, snippet) {
   if (slot?.suggested) return suggestedVariableLabel(slot.suggestionType);
   const text = `${slot?.target ?? ""} ${slot?.label ?? ""}`.toLocaleLowerCase("th");
   const title = String(snippet?.title ?? "").toLocaleLowerCase("th");
+  if (/ต\.ค\.|พ\.ย\.|ธ\.ค\.|ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\./.test(raw) && /•|:/.test(raw)) return "วันที่ • เวลา";
   if (/hh:mm|เวลา|time|\b\d{1,2}:\d{2}\b|\b\d{1,2}'\d{2}"\d{2}\b/.test(text)) return "เวลา";
-  if (/วันที่|date/.test(text)) return "วันที่";
+  if (/วันที่|date|\d{1,2}\s+(?:ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)/.test(text)) return "วันที่";
   if (/เดือน|month/.test(text)) return "เดือน/ปี";
   if (/วัน|weekday|day/.test(text)) return "วัน";
   if (/สถานที่|location/.test(text)) return "สถานที่";
-  if (/ยอดโอน|จำนวนเงิน|ราคา|price|amount|ปลดล็อก/.test(text)) return "ราคา/ยอดเงิน";
+  if (/xxx|บัญชี|wallet|วอลเล็ท|เบอร์/i.test(raw)) return "เลขบัญชี/วอลเล็ท";
+  if (/^\(?[฿$£€¥]?\s*\d{1,3}(?:,\d{3})*(?:\.\d{2})?\)?$/.test(raw) || /ยอดโอน|จำนวนเงิน|ราคา|price|amount|ปลดล็อก/.test(text)) return "จำนวนเงิน";
+  if (/ref|อ้างอิง|reference|เลขที่|รหัส/i.test(text)) return "เลขอ้างอิง";
   if (/เครดิต|credits/.test(text)) return "เครดิต";
   if (/likes|ไลก์/.test(text)) return "ยอดไลก์";
   if (/comments|คอมเมนต์/.test(text)) return "ยอดคอมเมนต์";
@@ -1778,27 +1784,32 @@ function rubiiSlotLabel(slot, index, snippet) {
 
 function rubiiSampleValue(slot) {
   const raw = String(slot?.target ?? "").trim();
+  const clean = raw.replace(/^\((.*)\)$/s, "$1").trim();
   if (isRubiiPercentageSlot(slot)) return raw || "88%";
   if (!slot?.explicit) return raw || "ตัวอย่างทดสอบ";
   const text = `${raw} ${slot?.label ?? ""}`.toLocaleLowerCase("th");
+
+  if (/ต\.ค\.|พ\.ย\.|ธ\.ค\.|ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\./.test(raw) && /•|:/.test(raw)) return clean;
+  if (/^\(?[฿$£€¥]?\s*\d{1,3}(?:,\d{3})*(?:\.\d{2})?\)?$/.test(raw)) return clean;
+  if (/^[A-Z\d-]{6,}$/i.test(clean) || /ref|อ้างอิง|reference|เลขที่|รหัส/i.test(text)) return clean || "202610068841KB";
+  if (/xxx|บัญชี|wallet|วอลเล็ท|เบอร์/i.test(raw)) return clean || "xxx-x-x8841-x";
   if (/\{\{char\}\}|ชื่อตัวละคร/.test(text)) return "Mira";
   if (/\{\{user\}\}|ชื่อผู้ใช้/.test(text)) return "คุณ";
-  if (/hh:mm|เวลา|time|\b\d{1,2}:\d{2}\b|\b\d{1,2}'\d{2}"\d{2}\b/.test(text)) return raw && /\b\d{1,2}[:']\d{2}/.test(raw) ? raw : "21:45";
+  if (/hh:mm|เวลา|time|\b\d{1,2}:\d{2}\b|\b\d{1,2}'\d{2}"\d{2}\b/.test(text)) return raw && /\b\d{1,2}[:']\d{2}/.test(raw) ? clean : "20:39 น.";
   if (/สไตล์|เสื้อผ้า|ชุด|อุปกรณ์|outfit|style/i.test(text)) return "เสื้อยืดโอเวอร์ไซส์และกางเกงคาร์โก้";
   if (/^(\(\s*วันที่\s*\)|\(\s*วัน\/เลขวันที่\s*\))$/i.test(raw)) return "7";
   if (/เดือน.*ปี|เดือน\/ปี|พ\.ศ\.|month.*year/.test(text)) return "ตุลาคม 2569";
-  if (/วันที่|date/.test(text)) return "7 ตุลาคม 2569";
+  if (/วันที่|date/.test(text)) return "06 ต.ค. 2569";
   if (/เดือน|month/.test(text)) return "ตุลาคม";
   if (/วัน|weekday|day/.test(text)) return "วันพุธ";
   if (/สถานที่|location/.test(text)) return "กรุงเทพฯ";
-  if (/จำนวนเงิน|ยอดโอน|ราคา|price|amount|ปลดล็อก/.test(text)) return "฿1,250.00";
+  if (/จำนวนเงิน|ยอดโอน|ราคา|price|amount|ปลดล็อก/.test(text)) return "50,000.00";
   if (/เครดิต|credits/.test(text)) return "350 Credits";
   if (/likes|ไลก์/.test(text)) return "2,840 Likes";
   if (/comments|คอมเมนต์/.test(text)) return "156 Comments";
   if (/mood|อารมณ์/.test(text)) return "อารมณ์ดี";
   if (/affection|ความสัมพันธ์/.test(text)) return "72";
   if (/status|สถานะ/.test(text)) return "ออนไลน์";
-  if (/ref|อ้างอิง|reference|เลขที่|รหัส/i.test(text)) return "TX-20261009-8812";
   if (/ธนาคาร|bank|wallet|วอลเล็ท|บัญชี|account/i.test(text)) return "พร้อมเพย์ / วอลเล็ท";
   if (/เบอร์|โทร|phone/i.test(text)) return "081-234-5678";
   if (/แทร็ก|track|เพลง|song|music|title/i.test(text)) return "Midnight City Lights";
@@ -1809,7 +1820,7 @@ function rubiiSampleValue(slot) {
   if (/ความคิด|memo|ความคิดในใจ|บันทึก/i.test(text)) return "ช่วงเวลาดีๆ ที่ได้อยู่ด้วยกัน";
   if (/งาน|ภารกิจ|task|todo/i.test(text)) return "ทำรายงานสรุปประจำสัปดาห์";
   if (/caption|โพสต์|สถานการณ์|คำบรรยาย|ข้อความ|content|message/.test(text)) return "วันนี้อากาศดีจนอยากบันทึกไว้ ☀️";
-  return "ตัวอย่างข้อมูล";
+  return clean || "ตัวอย่างข้อมูล";
 }
 
 function buildRubiiSections(snippet) {
