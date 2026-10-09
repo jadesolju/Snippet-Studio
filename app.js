@@ -179,6 +179,13 @@ const codeFormatCount = document.querySelector("#code-format-count");
 const codeNote = document.querySelector("#code-note");
 const fieldList = document.querySelector("#field-list");
 const noFields = document.querySelector("#no-fields");
+const quickEditTabs = document.querySelector("#quick-edit-tabs");
+const tabCountAll = document.querySelector("#tab-count-all");
+const tabCountText = document.querySelector("#tab-count-text");
+const tabCountStyle = document.querySelector("#tab-count-style");
+const tabCountMedia = document.querySelector("#tab-count-media");
+const quickTabMedia = document.querySelector("#quick-tab-media");
+let activeQuickEditTab = "all";
 const previewFrame = document.querySelector("#preview-frame");
 const copyButton = document.querySelector("#copy-button");
 const toast = document.querySelector("#toast");
@@ -649,12 +656,41 @@ function fieldValues(snippet) {
   return stored;
 }
 
+function applyQuickEditFilter(tabKey) {
+  activeQuickEditTab = tabKey;
+  if (quickEditTabs) {
+    const tabs = quickEditTabs.querySelectorAll(".quick-edit-tab");
+    tabs.forEach((tab) => {
+      tab.classList.toggle("active", tab.dataset.quickTab === tabKey);
+    });
+  }
+
+  const rows = fieldList.querySelectorAll(".field-row");
+  let visibleCount = 0;
+  rows.forEach((row) => {
+    const isMatch = tabKey === "all" || row.dataset.fieldCategory === tabKey;
+    row.hidden = !isMatch;
+    if (isMatch) visibleCount++;
+  });
+
+  noFields.hidden = visibleCount > 0;
+  if (visibleCount === 0 && currentFields.length > 0) {
+    noFields.textContent = "ไม่มีรายการในหมวดหมู่นี้";
+  } else if (currentFields.length === 0) {
+    noFields.textContent = "ตัวอย่างนี้ไม่มีค่าที่แก้ไขได้แยกไว้";
+  }
+}
+
 function buildFieldEditor(snippet) {
   currentFields = collectFields(snippet);
   const values = fieldValues(snippet);
   fieldList.replaceChildren();
   noFields.hidden = currentFields.length > 0;
   if (quickEditCount) quickEditCount.textContent = currentFields.length ? `${currentFields.length} ค่า` : "—";
+
+  let countText = 0;
+  let countStyle = 0;
+  let countMedia = 0;
 
   for (const field of currentFields) {
     const row = document.createElement("div");
@@ -687,6 +723,19 @@ function buildFieldEditor(snippet) {
 
     const currentValue = values[field.id] || field.value;
     const colorInfo = parseColorInfo(currentValue);
+
+    let fieldCategory = "text";
+    if (field.kind === "url") {
+      fieldCategory = "media";
+      countMedia++;
+    } else if (colorInfo) {
+      fieldCategory = "style";
+      countStyle++;
+    } else {
+      fieldCategory = "text";
+      countText++;
+    }
+    row.dataset.fieldCategory = fieldCategory;
 
     if (colorInfo) {
       row.classList.add("field-row-color");
@@ -797,6 +846,25 @@ function buildFieldEditor(snippet) {
 
     fieldList.append(row);
   }
+
+  // Update tab counts
+  if (tabCountAll) tabCountAll.textContent = String(currentFields.length);
+  if (tabCountText) tabCountText.textContent = String(countText);
+  if (tabCountStyle) tabCountStyle.textContent = String(countStyle);
+  if (tabCountMedia) tabCountMedia.textContent = String(countMedia);
+  if (quickTabMedia) quickTabMedia.hidden = countMedia === 0;
+
+  // Validate active tab
+  if (
+    (activeQuickEditTab === "text" && countText === 0) ||
+    (activeQuickEditTab === "style" && countStyle === 0) ||
+    (activeQuickEditTab === "media" && countMedia === 0)
+  ) {
+    activeQuickEditTab = "all";
+  }
+
+  applyQuickEditFilter(activeQuickEditTab);
+
   renderHtmlParts(snippet);
   renderRubiiSlotControls(snippet);
   renderBackgroundControls(snippet);
@@ -2184,6 +2252,14 @@ rubiiSlotControls.addEventListener("click", (event) => {
   renderRubiiSlotControls(snippet);
   updateCodePanel(snippet);
 });
+if (quickEditTabs) {
+  quickEditTabs.addEventListener("click", (event) => {
+    const tabBtn = event.target.closest(".quick-edit-tab");
+    if (!tabBtn || !tabBtn.dataset.quickTab) return;
+    const targetTab = tabBtn.dataset.quickTab;
+    applyQuickEditFilter(targetTab);
+  });
+}
 if (visualEditEnabled) {
   visualEditEnabled.addEventListener("change", () => {
     const snippet = snippets.find((item) => item.id === selectedSnippetId);

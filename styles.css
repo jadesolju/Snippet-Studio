@@ -502,6 +502,65 @@ body { font-size: 14px; }
 .quick-edit-body { padding: 0 12px 12px; }
 .quick-edit-body .field-list { margin-top: 6px; }
 
+/* Quick Edit Sub-tabs (Text vs Color/Element vs Media) */
+.quick-edit-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  margin-bottom: 12px;
+  background: rgba(13, 16, 25, 0.7);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  overflow-x: auto;
+}
+
+.quick-edit-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  white-space: nowrap;
+}
+
+.quick-edit-tab:hover {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.quick-edit-tab.active {
+  color: #87e6e4;
+  background: rgba(135, 230, 228, 0.12);
+  border-color: rgba(135, 230, 228, 0.35);
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.quick-edit-tab .tab-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  font-size: 9.5px;
+  font-family: "DM Mono", Consolas, monospace;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+  line-height: 1.2;
+}
+
+.quick-edit-tab.active .tab-badge {
+  background: rgba(135, 230, 228, 0.25);
+  color: #87e6e4;
+}
+
 /* Code Editor & Config Customization */
 .code-header-actions { display: flex; align-items: center; gap: 10px; }
 .code-toolbar-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }

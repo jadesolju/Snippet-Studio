@@ -192,6 +192,27 @@
                         <span id="quick-edit-count" class="part-count">—</span>
                       </summary>
                       <div class="quick-edit-body">
+                        <div class="quick-edit-tabs" id="quick-edit-tabs" role="tablist" aria-label="หมวดหมู่การปรับแต่ง">
+                          <button type="button" class="quick-edit-tab active" data-quick-tab="all">
+                            <span>ทั้งหมด</span>
+                            <span id="tab-count-all" class="tab-badge">0</span>
+                          </button>
+                          <button type="button" class="quick-edit-tab" data-quick-tab="text">
+                            <svg class="ui-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+                            <span>ข้อความ &amp; ตัวแปร</span>
+                            <span id="tab-count-text" class="tab-badge">0</span>
+                          </button>
+                          <button type="button" class="quick-edit-tab" data-quick-tab="style">
+                            <svg class="ui-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/></svg>
+                            <span>สี &amp; องค์ประกอบ</span>
+                            <span id="tab-count-style" class="tab-badge">0</span>
+                          </button>
+                          <button type="button" class="quick-edit-tab" data-quick-tab="media" id="quick-tab-media" hidden>
+                            <svg class="ui-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                            <span>รูปภาพ</span>
+                            <span id="tab-count-media" class="tab-badge">0</span>
+                          </button>
+                        </div>
                         <div id="field-list" class="field-list"></div>
                         <p id="no-fields" class="field-empty" hidden>ตัวอย่างนี้ไม่มีค่าที่แก้ไขได้แยกไว้</p>
                       </div>
