@@ -1292,10 +1292,13 @@ function assembleRawHtml(snippet) {
   const combined = `${state.prefix}${state.parts.map((part) => part.source).join("")}${state.suffix}`; return sanitizeRawHtml(combined);
 }
 
-function applyFieldValues(snippet, source) {
+function applyFieldValues(snippet, source, options = {}) {
   let text = source;
   const values = fieldValues(snippet);
   for (const field of currentFields) {
+    if (options.preserveMacros && (field.token === "{{char}}" || field.token === "{{user}}" || field.token?.startsWith("{{"))) {
+      continue;
+    }
     const value = values[field.id] ?? field.value;
     if (field.kind === "tagName") {
       if (!/^[A-Za-z][A-Za-z0-9_-]*$/.test(value)) continue;
@@ -1698,8 +1701,8 @@ function buildRubiiTemplate(snippet, chosenSlots) {
     }
   }
 
-  const template = applyFieldValues(snippet, doc.body.innerHTML.replace(/\n\s*/g, ""));
-  const css = applyFieldValues(snippet, cssRules.join(""));
+  const template = applyFieldValues(snippet, doc.body.innerHTML.replace(/\n\s*/g, ""), { preserveMacros: true });
+  const css = applyFieldValues(snippet, cssRules.join(""), { preserveMacros: true });
   return { template, css };
 }
 
