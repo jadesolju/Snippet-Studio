@@ -1302,13 +1302,18 @@ function rubiiTextSlots(source) {
       end: match.index + match[0].length,
       explicit: true,
     }));
-    candidates.push(...suggestedTextVariableMatches(text).map((suggestion) => ({
-      target: suggestion.value,
-      start: suggestion.start,
-      end: suggestion.end,
-      suggested: true,
-      suggestionType: suggestion.type,
-    })));
+    const markerTypes = new Set(["time", "prompt", "reference", "date", "amount"]);
+    candidates.push(...suggestedTextVariableMatches(text).map((suggestion) => {
+      const isMarker = markerTypes.has(suggestion.type);
+      return {
+        target: suggestion.value,
+        start: suggestion.start,
+        end: suggestion.end,
+        explicit: isMarker,
+        suggested: !isMarker,
+        suggestionType: suggestion.type,
+      };
+    }));
     candidates.sort((a, b) => a.start - b.start || a.end - b.end);
     if (!candidates.length && text.trim().length >= 3) {
       const start = text.indexOf(text.trim());
@@ -1320,6 +1325,7 @@ function rubiiTextSlots(source) {
       if (!target) continue;
       const words = `${target} ${text}`.toLocaleLowerCase("th");
       let score = candidate.explicit ? 5 : candidate.suggested ? 1 : 0;
+      if (candidate.suggestionType === "time" || candidate.suggestionType === "prompt" || candidate.suggestionType === "reference") score += 5;
       if (/สถานการณ์|ข้อความ|โพสต์|caption|รายละเอียด|message|บทสนทนา|คำบรรยาย|เหตุการณ์|บันทึก|โน้ต/.test(words)) score += 12;
       if (/จำนวนเงิน|ยอดโอน|ยอดเงิน|สินค้า|รายการ|เนื้อหา|คำตอบ|ตอบกลับ/.test(words)) score += 8;
       if (isRubiiPercentageTarget(target)) score += 8;
@@ -1649,10 +1655,12 @@ function describeRubiiSlot(slot) {
 
 function rubiiSlotLabel(slot, index, snippet) {
   const raw = describeRubiiSlot(slot);
+  if (slot?.suggestionType === "prompt" || /^\[.*\]$/.test(raw)) return "สไตล์/รายละเอียด";
+  if (slot?.suggestionType === "reference" || /ref|อ้างอิง|reference|เลขที่|รหัส/i.test(raw)) return "เลขอ้างอิง";
   if (slot?.suggested) return suggestedVariableLabel(slot.suggestionType);
   const text = `${slot?.target ?? ""} ${slot?.label ?? ""}`.toLocaleLowerCase("th");
   const title = String(snippet?.title ?? "").toLocaleLowerCase("th");
-  if (/hh:mm|เวลา|time/.test(text)) return "เวลา";
+  if (/hh:mm|เวลา|time|\b\d{1,2}:\d{2}\b|\b\d{1,2}'\d{2}"\d{2}\b/.test(text)) return "เวลา";
   if (/วันที่|date/.test(text)) return "วันที่";
   if (/เดือน|month/.test(text)) return "เดือน/ปี";
   if (/วัน|weekday|day/.test(text)) return "วัน";
@@ -1696,7 +1704,8 @@ function rubiiSampleValue(slot) {
   const text = `${raw} ${slot?.label ?? ""}`.toLocaleLowerCase("th");
   if (/\{\{char\}\}|ชื่อตัวละคร/.test(text)) return "Mira";
   if (/\{\{user\}\}|ชื่อผู้ใช้/.test(text)) return "คุณ";
-  if (/hh:mm|เวลา|time/.test(text)) return "21:45";
+  if (/hh:mm|เวลา|time|\b\d{1,2}:\d{2}\b|\b\d{1,2}'\d{2}"\d{2}\b/.test(text)) return raw && /\b\d{1,2}[:']\d{2}/.test(raw) ? raw : "21:45";
+  if (/สไตล์|เสื้อผ้า|ชุด|อุปกรณ์|outfit|style/i.test(text)) return "เสื้อยืดโอเวอร์ไซส์และกางเกงคาร์โก้";
   if (/^(\(\s*วันที่\s*\)|\(\s*วัน\/เลขวันที่\s*\))$/i.test(raw)) return "7";
   if (/เดือน.*ปี|เดือน\/ปี|พ\.ศ\.|month.*year/.test(text)) return "ตุลาคม 2569";
   if (/วันที่|date/.test(text)) return "7 ตุลาคม 2569";
