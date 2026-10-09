@@ -66,15 +66,23 @@
 
 ## 4. มาตรฐานความเข้ากันได้ของการ์ด Rubii (Compatibility Standards)
 
-จากการทดสอบจริงบนแอปมือถือและหน้าเว็บ Rubii ระบบได้กำหนดมาตรฐานดังนี้:
+ข้อแนะนำต่อไปนี้แยกสิ่งที่ตรวจจากโค้ด Studio ออกจากสิ่งที่เอกสาร Rubii ยืนยัน การพรีวิวใน Studio เป็น browser iframe จึงไม่ใช้ยืนยันผลบนแอปมือถือ
 
 ### 1. การแสดงผลรูปภาพและ GIF (Images & GIFs)
-> [!IMPORTANT]
-> **ใช้แท็ก `<img>` เสมอสำหรับรูปภาพและ GIF:**
+> [!TIP]
+> ใช้แท็ก `<img>` สำหรับรูปภาพหรือ GIF ที่เป็นเนื้อหาของการ์ด:
 > ```html
-> <img src="https://media.giphy.com/.../giphy.gif" alt="คำอธิบาย" style="display:block;width:100%;object-fit:contain;">
+> <img src="https://media.giphy.com/.../giphy.gif" alt="คำอธิบาย" class="card-image">
 > ```
-> **เหตุผล:** ในแอปมือถือ Rubii การใช้แท็ก `<img>` มีความเสถียร 100% ทั้งบน iOS, Android และ Web ในขณะที่การใช้ CSS `background-image: url(...)` อาจถูก WebView ของแอปตัดทิ้งหรือไม่แสดงผล
+> กำหนดขนาดผ่าน inline style หรือ Global CSS เช่น `.card-image{display:block;width:100%;height:auto}` ส่วน `background-image` เหมาะกับภาพตกแต่งพื้นหลังเมื่อ selector ตรงกับ element ที่แสดงผล
+
+เอกสาร Rubii ระบุว่า Style Tags และ Global CSS ทำงานบนเว็บและแอป Rubii รุ่น 2.4.2 ขึ้นไป และแอปรองรับ HTML/CSS มากขึ้น แต่ยังแนะนำให้ตรวจบนเว็บและแอป จึงไม่มีหลักฐานให้รับรองว่า `<img>` หรือ CSS property ทุกตัวเสถียร 100%: [Rubii: Styles & regex](https://rubii.ai/blog/styles-and-regex)
+
+การทดลองกับ `Cozy Room Shot` (`snippet-54`) ตรวจจากโค้ดสร้างจริงพบว่าแท็ก `<img>` คงอยู่ใน HTML template; ส่วนช่องพื้นหลังเพิ่ม `background-image` บน element รากและย้าย style ไปเป็น class rule `.rubii-snippet-54-01{…}` ในแท็บ CSS ส่วนกลาง พรีวิวใน Studio ใช้ browser iframe ผลนี้ยืนยันว่าตัวสร้างส่ง CSS ออกมา แต่ยังไม่ยืนยันว่า Rubii app รับหรือแสดงกฎดังกล่าวบนอุปกรณ์
+
+ตัวดึง CSS ของ Studio อ่านเฉพาะ inline `style="…"` จาก HTML ที่สร้าง ไม่ได้ดาวน์โหลด stylesheet ภายนอก, `<link rel="stylesheet">`, `<style>` block หรือ computed style ของเว็บต้นทาง ถ้าการ์ดอาศัย class จากเว็บ ต้องเพิ่มกฎนั้นใน CSS เองและคง class ไว้ใน HTML template
+
+ถ้า CSS ไม่ขึ้น ให้ตรวจว่าได้วาง CSS ใน Global CSS ของ Moment, class ใน selector ตรงกับ class บน root ของ HTML template, ใช้แอปรุ่นที่รองรับ และ URL รูปเปิดได้จากอุปกรณ์ CSS จากเว็บทั้งหน้า เช่น `body`, `:root` หรือ class เฉพาะเว็บไซต์ อาจไม่มี element เป้าหมายในหน้าข้อความของ Rubii จึงไม่ควรคัดลอกทั้ง stylesheet มาใช้โดยไม่ปรับ selector การแก้ CSS ในช่องโค้ดของ Studio จะเก็บเป็น manual override; พรีวิวอาจยังเห็นพื้นหลังที่แทรกใน HTML แต่ CSS ที่คัดลอกอาจไม่มี rule พื้นหลังนั้น
 
 ### 2. เลย์เอาต์ Flexbox หลายคอลัมน์ (Multi-Column Flexbox Safety)
 > [!TIP]
@@ -97,6 +105,10 @@
 4. **Regex:** กฎ Pattern และ Replacement สำหรับแทนที่ข้อความอัตโนมัติ
 5. **ข้อความทดสอบ (Output):** ตัวอย่างผลลัพธ์ข้อความสำหรับทดสอบการทำงาน
 6. **ตั้งค่าตัวละคร · System Prompt:** คำสั่ง Prompt สำหรับสอนให้ AI ตอบกลับด้วยโครงสร้างแท็กที่ถูกต้อง
+
+### บันทึกการตรวจ Marker และ Output
+
+สำหรับ `Cozy Room Shot` ระบบตรวจ `{{user}}` เป็น Marker และสร้างตัวอย่าง `<cozy-room>คุณ</cozy-room>` ค่า Output นี้คือข้อความที่โมเดลส่งก่อน Rubii แทน HTML/CSS ไม่ใช่การ์ดผลลัพธ์เต็ม ข้อมูลอื่นจะปรากฏในการ์ดตามที่อยู่ในแม่แบบ หากต้องการให้วันที่หรือกิจกรรมเปลี่ยนทุกครั้ง ควรกำหนดเป็น Marker แยกและเลือก capture ให้ชัด แทนการปล่อยเป็นข้อความตัวอย่างคงที่
 
 ---
 

@@ -81,7 +81,7 @@
               <h2>เลือก Raw HTML แล้วให้ Studio แยกส่วน</h2>
               <p>เลือกตัวอย่างจาก dropdown หมวดและรายการโค้ด ระบบจะแบ่ง HTML ตาม element หลักให้แก้เป็นส่วน ๆ ได้ ส่วน Quick Edit ใช้เปลี่ยนข้อความและ URL รูป ส่วนตัวเลือกสีมีทั้ง color picker, ช่องโค้ดสี และแถบ opacity พร้อมพรีวิวการ์ดทันที</p>
               <p>ช่อง “ข้อความที่จะใส่เป็นช่อง $1” เลือกเนื้อหาที่เปลี่ยนตามคำตอบ Studio เลือกข้อความที่น่าจะเป็นเนื้อหาหลักให้อัตโนมัติ และสร้าง Style tag template จาก Raw HTML ทั้งก้อน</p>
-              <p class="guide-tip">พื้นหลังเริ่มต้นถูกใส่ใน element หลักของการ์ด และถูกแยกเข้า CSS ที่สร้างให้ ไม่ได้ใส่บนพื้นหลังหน้าพรีวิว</p>
+              <p class="guide-tip">พื้นหลังจากช่องตั้งค่าถูกใส่บน element หลักและย้ายเข้า CSS ส่วนกลางที่สร้างให้ ส่วนพรีวิวเป็น browser iframe จึงยืนยันได้เฉพาะผลใน browser</p>
             </section>
 
             <section id="style-tag" class="guide-card">
@@ -96,8 +96,9 @@
             <section id="global-css" class="guide-card">
               <p class="eyebrow">03 · GLOBAL CSS</p>
               <h2>CSS ส่วนกลางถูกดึงจาก inline style</h2>
-              <p>แท็บ <strong>CSS ส่วนกลาง</strong> รวมกฎจาก <code>style="…"</code> ของทุก element ให้เป็น class selector พร้อมใส่ class ที่ตรงกันไว้ใน HTML แม่แบบ การแก้สี พื้นหลัง หรือส่วนย่อยจะสร้าง CSS ใหม่ตามการแก้ไข</p>
-              <p class="guide-tip">ใช้ CSS ที่ Studio สร้างได้เลย ไม่ต้องคัดกฎออกจาก HTML เอง และไม่ต้องใส่แท็ก <code>&lt;style&gt;</code> ครอบ</p>
+              <p>แท็บ <strong>CSS ส่วนกลาง</strong> รวมกฎจาก <code>style="…"</code> ของทุก element ให้เป็น class selector พร้อมใส่ class ที่ตรงกันไว้ใน HTML แม่แบบ การแก้สี พื้นหลัง หรือส่วนย่อยจะสร้าง CSS ใหม่ตามการแก้ไข สำหรับภาพหรือ GIF ที่เป็นเนื้อหา ให้ใช้ <code>&lt;img src="…" alt="…" class="my-gif"&gt;</code> แล้วกำหนดขนาดด้วย CSS</p>
+              <p class="guide-tip">ใน Rubii ให้วางกฎที่สร้างในช่อง Global CSS และใช้ selector ที่ตรงกับ class ใน HTML template ไม่ต้องใส่แท็ก <code>&lt;style&gt;</code> ครอบ CSS จากเว็บทั้งหน้า เช่น <code>body</code> หรือ class เฉพาะเว็บ อาจไม่มีเป้าหมายในข้อความแชต จึงต้องปรับให้ชี้ไปยัง element ของการ์ด</p>
+              <p>ตัวดึง CSS อ่านเฉพาะ inline <code>style="…"</code> ใน HTML ที่ Studio สร้าง ไม่ได้ดึง CSS จากเว็บต้นทาง, <code>&lt;link rel="stylesheet"&gt;</code> หรือ <code>&lt;style&gt;</code> block หากพิมพ์แก้ CSS ในช่องโค้ดเอง ช่องนั้นจะกลายเป็น manual override: พรีวิวอาจยังเห็นพื้นหลังจาก style ใน HTML แต่ CSS ที่คัดลอกอาจไม่มี rule นี้ และจะไม่สร้างทับให้อัตโนมัติเมื่อเปลี่ยนพื้นหลังหรือ Quick Edit</p>
             </section>
 
             <section id="regex" class="guide-card">
@@ -118,10 +119,12 @@
             <section id="workflow" class="guide-card">
               <p class="eyebrow">05 · GENERATED OUTPUT</p>
               <h2>ข้อความทดสอบและคำสั่งตัวละคร</h2>
+              <p class="guide-tip">Output แสดงเฉพาะค่าที่โมเดลใส่ในแท็กก่อนแปลง ไม่ใช่การ์ดสำเร็จรูป เช่นเลือก <code>{{user}}</code> แล้วอาจเห็นเพียง <code>&lt;cozy-room&gt;คุณ&lt;/cozy-room&gt;</code></p>
               <p><strong>ข้อความทดสอบ (Output)</strong> คือข้อความต้นทางที่โมเดลส่งในแชตก่อน Rubii แปลงเป็นการ์ด ระบบเติมค่าทดสอบที่อ่านได้ให้แล้ว: marker ใช้ค่าตัวอย่างตามชนิด ส่วนข้อความคงที่ใช้ข้อความจาก HTML ที่เลือก แทนค่าทดสอบด้วยข้อมูลจริงก่อนใช้งาน และคั่นหลายช่องด้วย <code>||</code></p>
               <p><strong>ตั้งค่าตัวละคร · System Prompt</strong> เป็น Markdown แบบหัวข้อและ bullet สั้น ๆ บอกว่าจะใช้แท็กเมื่อใด ใส่ข้อมูลอะไร และเรียงช่อง Regex อย่างไร โดยไม่สั่งให้เขียน HTML/CSS</p>
               <p>ข้อความนี้เป็นคำสั่งธรรมดาสำหรับต่อท้าย System Prompt ของตัวละคร ไม่ใช่ JSON หรือไฟล์นำเข้า และจะเปลี่ยนตามชื่อแท็กกับช่องข้อมูลที่เลือก</p>
               <p>Rubii ประมวลผล Regex ในเนื้อหาต้นฉบับก่อนขยาย Style tag และ Markdown จากนั้นจึงทำ Regex ในข้อความที่แสดงและใช้ CSS ส่วนกลาง ดูลำดับนี้ประกอบก่อนเลือกใช้ Regex กับ Style tag พร้อมกัน</p>
+              <p>Rubii ระบุว่า Style Tags และ Global CSS รองรับบนเว็บและแอปรุ่น 2.4.2 ขึ้นไป และยังแนะนำให้ตรวจผลบนทั้งสองแพลตฟอร์ม ผลพรีวิวใน Studio ซึ่งเป็น browser iframe จึงไม่รับรองพฤติกรรมบนแอปมือถือ</p>
               <p class="guide-source">อ้างอิง: <a href="https://rubii.ai/blog/styles-and-regex" target="_blank" rel="noreferrer">Rubii · Styles &amp; regex</a></p>
             </section>
           </div>

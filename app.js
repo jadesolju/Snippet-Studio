@@ -1673,6 +1673,8 @@ function rubiiSlotLabel(slot, index, snippet) {
     if (/ความใคร่|lust|passion/i.test(text)) return "ความใคร่ (%)";
     if (/หึง|jealousy/i.test(text)) return "ความหึงหวง (%)";
     if (/ผูกพัน|bond|sync/i.test(text)) return "ผูกพันลึกซึ้ง (%)";
+    if (/พลังงาน|energy/i.test(text)) return "พลังงาน (%)";
+    if (/ความสุข|สุข|happy|happiness/i.test(text)) return "ระดับความสุข (%)";
     if (/hp|health|พลังชีวิต/i.test(text)) return "HP (%)";
     if (/mp|mana|พลังเวท/i.test(text)) return "MP (%)";
     if (/exp|level/i.test(text)) return "EXP (%)";
@@ -1921,15 +1923,15 @@ function updateCodePanel(snippet) {
   } else if (isRubiiHtmlSnippet(snippet) && activeCodeKey === "regex") {
     codeNote.textContent = "กฎแสดงตามลำดับที่ตั้งไว้; ช่อง $1–$33 มาจากรายการที่เลือก และ Regex เพิ่มเติมทำงานในจุดที่ระบุ";
   } else if (isRubiiHtmlSnippet(snippet) && activeCodeKey === "template") {
-    codeNote.textContent = "HTML แม่แบบสำหรับ Style tag; $1 แทนข้อมูลหนึ่งช่องที่เลือกไว้";
+    codeNote.textContent = "HTML แม่แบบสำหรับ Style tag (ใช้คู่กับ CSS ส่วนกลางใน Rubii); $1 แทนข้อมูลช่องที่เลือก";
   } else if (isRubiiHtmlSnippet(snippet) && activeCodeKey === "output") {
-    codeNote.textContent = "ข้อความต้นทางก่อนแปลงเป็นการ์ด; แทนค่าทดสอบด้วยข้อมูลจริงตามช่อง และคั่นหลายค่าด้วย ||";
+    codeNote.textContent = "แสดงเฉพาะค่าที่โมเดลใส่ในแท็กก่อนแปลง ไม่ใช่การ์ดสำเร็จรูป; แทนค่าทดสอบด้วยข้อมูลจริงและคั่นหลายค่าด้วย ||";
   } else if (isRubiiHtmlSnippet(snippet) && activeCodeKey === "html") {
-    codeNote.textContent = "HTML ต้นฉบับยังมี inline style; ใช้ HTML แม่แบบกับ CSS ส่วนกลางเมื่อนำไปตั้งค่า Rubii";
+    codeNote.textContent = "HTML ต้นฉบับที่มี inline style ครบถ้วน; สามารถคัดลอกไปใช้เป็น Style tag เดี่ยว ๆ ใน Rubii ได้โดยไม่ต้องใส่ CSS ส่วนกลาง";
   } else if (activeCodeKey === "html" && !snippet.code.css && /\bstyle\s*=/.test(snippet.code.html ?? "")) {
     codeNote.textContent = "สไตล์ของตัวอย่างนี้อยู่ใน inline style ภายใน HTML ที่คัดลอกได้";
   } else if (isRubiiHtmlSnippet(snippet) && activeCodeKey === "css") {
-    codeNote.textContent = "ระบบดึง inline style จากทุกส่วนของการ์ดมาเป็น CSS ส่วนกลาง และอัปเดตตามการปรับสี/พื้นหลัง";
+    codeNote.textContent = "CSS สร้างจาก inline style; การแก้ช่องนี้เป็น override พรีวิวอาจเห็นพื้นหลังจาก inline style แต่ CSS ที่คัดลอกอาจไม่มี rule นั้น";
   } else {
     codeNote.textContent = "แก้ค่าด่วนหรือโค้ดในส่วนย่อยแล้ว โค้ดรวมที่คัดลอกจะอัปเดตตามทันที";
   }
