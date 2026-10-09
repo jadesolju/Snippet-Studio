@@ -1,6 +1,6 @@
 # 🏛️ สถาปัตยกรรมและการทำงานของ Snippet Studio
 
-**Snippet Studio** เป็นระบบคลังตัวอย่างและสร้างแม่แบบโค้ด (Code & Template Generator) สำหรับนำไปใช้กับ **Rubii Style Tags & Regex** บนแพลตฟอร์ม Rubii (รองรับทั้ง Web และ Mobile App บน iOS/Android)
+**Snippet Studio** เป็นระบบคลังตัวอย่างและสร้างแม่แบบโค้ด (Code & Template Generator) สำหรับนำไปใช้กับ **Rubii Style Tags & Regex** บนเว็บและแอป Rubii
 
 > **ขอบเขต:** ส่วนที่อธิบาย Snippet Studio อ้างอิงโค้ดและข้อมูลใน repository นี้ ส่วนการแสดงผลสุดท้ายเกิดใน Rubii ซึ่งอยู่นอกแอปนี้ จึงควรตรวจบนเว็บและแอปจริง เอกสาร Rubii ระบุว่า Style Tags/Regex ใช้ได้บนเว็บและแอปเวอร์ชัน 2.4.2 ขึ้นไป และแอปแสดงผลใกล้เคียงเว็บในเกือบทุกกรณี ([เอกสาร Rubii](https://rubii.ai/blog/styles-and-regex))
 
@@ -52,7 +52,7 @@
 ### 3.1 ระบบแยกชิ้นส่วนโค้ดย่อย (Modular HTML Parts Engine)
 - ฟังก์ชัน `splitHtmlIntoParts` จะสแกนแท็ก HTML ในการ์ด แล้วแยกกล่องย่อยภายใน (Direct Child Components) ออกมาเป็นการ์ดแยกชิ้น
 - ให้ผู้ใช้สามารถดู, แก้ไขข้อความ/สีเฉพาะส่วน, หรือกด **"คัดลอกชิ้นนี้"** เพื่อนำเฉพาะส่วนที่ต้องการไปประกอบใหม่ได้
-- ฟังก์ชัน `assembleRawHtml` จะประกอบชิ้นส่วนย่อยกลับมาเป็น HTML ก้อนเดียวที่มีความแม่นยำ 100%
+- ฟังก์ชัน `assembleRawHtml` จะประกอบชิ้นส่วนย่อยกลับมาเป็น HTML ก้อนเดียวตามลำดับที่กำหนด
 
 ### 3.2 ระบบตรวจจับตัวแปรและสร้าง Regex (Regex & Style Tag Engine)
 - **Automatic Text Slot Detection (`rubiiTextSlots`):** สแกนข้อความไดนามิก เช่น `(วันที่)`, `(สถานที่)`, `{{char}}` และค่าเปอร์เซ็นต์

@@ -1,4 +1,4 @@
-# Rubii AI Platform: System Architecture and Card UI Engineering Specification
+# Rubii AI Style Tags & Regex: Engineering Guidance
 
 **Document Classification:** Engineering Reference and Design Guidance  
 **Target Platform:** Snippet Studio outputs for Rubii AI  
@@ -50,20 +50,19 @@ flowchart TD
         B1 -->|"Style Tag Mode"| B2["Single-Slot Ingestion: Entire Payload -> $1"]
         B1 -->|"Regex Engine Mode"| B3["Multi-Capture Delimiter Splitter (e.g. ||)"]
         B3 --> B4["Slot Array Mapping: $1, $2, $3, ... $N"]
-        B4 --> B5["Type Sanitizer & Numeric Extractor"]
+        B4 --> B5["Configured replacement rules (internal details not public)"]
     end
 
     subgraph Stage3["Stage 3: DOM Tree Assembly & CSS Scoping"]
         B2 --> C1["DOM Synthesizer"]
         B5 --> C1
-        C1 --> C2["CSS Rule Isolator & Style Scoper"]
-        C2 --> C3["Progress Bar Width Clamping (max-width: 100%)"]
+        C1 --> C2["Apply configured HTML/CSS (internal details not public)"]
+        C2 --> C3["Render configured card in Rubii client"]
     end
 
     subgraph Stage4["Stage 4: WebView Presentation & Composition"]
-        C3 --> D1["Embedded WebView Compositor (WebKit / Blink)"]
-        D1 --> D2["GPU Backdrop Filter & Text Shadow Contrast Buffer"]
-        D2 --> D3["Rendered Interactive Card in Conversation Stream"]
+        C3 --> D1["Rubii Web or App client"]
+        D1 --> D2["Displayed card; verify on target client"]
     end
 ```
 
@@ -88,8 +87,8 @@ flowchart LR
     end
 
     subgraph StyleTagTemplate["Snippet Studio outputs"]
-        T["HTML template: <div class='rubii-quest'>$1</div>"]
-        CSS["Global CSS: .rubii-quest { background: rgba(255,255,255,0.08); ... }"]
+        T["HTML template: one card root with $1"]
+        CSS["Global CSS: class rules for the card"]
     end
 
     subgraph RenderedDOM["Final Document Object Model"]
@@ -253,9 +252,9 @@ For progress indicators (HP, MP, affection meters, battery bars, progress meters
 - **Dynamic Variable Injection:** `width: $X%;`
 - **Boundary Clamping:** To limit a bar if a value exceeds $100\%$ (e.g. `125%`), a template can include:
   `style="width: $X%; max-width: 100%; min-width: 0%;"`
-- **Syntax Fault Defense:** LLMs occasionally output non-numeric descriptive strings like `MAX` instead of `100`. In CSS, `width: MAX%;` is an invalid property declaration, causing the browser engine to discard the rule and collapse the gauge to $0\%$. Templates should handle numeric extraction cleanly.
+- **Syntax Fault Defense:** A value such as `MAX` does not form a valid CSS width. The browser discards that declaration, so the bar may retain an earlier width or lack the expected value. Require a numeric slot and verify the generated replacement.
 
-### 5.4 Typography and WCAG 2.1 Contrast Buffering
+### 5.4 Text Legibility and WCAG Contrast
 
 Text contrast ratio ($C$) is defined as:
 
@@ -294,7 +293,7 @@ flowchart TD
 | :--- | :--- | :--- | :--- |
 | **Delimiter Omission** | Model omits or adds a `||` separator. | Slots may shift or fail to match. | State the exact order; use a single slot when separate fields are unnecessary. |
 | **Regex backtracking** | Patterns with nested quantifiers (e.g. `(.*)+`) may do excessive work on non-matching input. | Slow matching for some patterns and inputs. | Prefer simple patterns such as `([\s\S]*?)` and avoid nested repetition. |
-| **Syntax Invalidation** | Model emits non-numeric strings (`Full`, `MAX`, `Unknown`) into numeric CSS slots. | Progress bars render at $0\%$ width because the browser rejects invalid unit syntax. | Add client-side numeric sanitization regex `(\d{1,3}(?:\.\d+)?)` prior to style injection. |
+| **Syntax Invalidation** | Model emits non-numeric strings (`Full`, `MAX`, `Unknown`) into numeric CSS slots. | The invalid width declaration is discarded; the resulting width depends on other rules. | Require numeric input and verify the slot-to-width mapping. |
 | **Blur performance** | Several large `backdrop-filter` regions may increase rendering cost. | Check for visible lag on target devices. | Reduce blur area or layers if testing shows a problem. |
 | **Text Clipping** | Fixed containers with `overflow: hidden` receive $500+$ word generations. | Truncated message payloads without scroll affordance. | Apply `min-height` with auto-expanding layout or controlled `line-clamp` rules. |
 
@@ -306,8 +305,8 @@ To ensure maximum visual quality, rendering performance, and runtime resilience,
 
 1. **Maintain Single-Root DOM Trees:** Wrap all card elements within a single enclosing `<div>` with `box-sizing: border-box;`.
 2. **Adopt Double Pipe Delimiters:** Use `||` as the canonical delimiter for multi-slot templates.
-3. **Enforce Width Clamping on Meters:** Always include `max-width: 100%; min-width: 0%;` alongside dynamic percentage values.
-4. **Use Full-Bleed Media Declarations:** Configure all embedded imagery with `display: block; width: 100%; height: 100%; object-fit: cover;`.
+3. **Limit Meter Width When Needed:** Consider `max-width: 100%` for values that may exceed the bar; `min-width: 0` can help flex items shrink.
+4. **Fit Media by Role:** Use `object-fit: cover` for fixed banners; use `height: auto` when the full image and its aspect ratio should remain visible.
 5. **Declare Robust Font Fallbacks:** Specify standard system font stacks:  
    `font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;`
 6. **Apply Defensive Word Breaking:** Declare `word-break: break-word; overflow-wrap: break-word;` on all user-facing text nodes.
@@ -319,6 +318,8 @@ To ensure maximum visual quality, rendering performance, and runtime resilience,
 ---
 
 ## 8. Standard Production Reference Templates
+
+> The combined `<style>` example below is for a standalone HTML preview. In Rubii, place CSS rules in Global CSS and keep the HTML template in the Style Tag setting.
 
 ### 8.1 Reference Template 1: Style Tag Single-Slot Narrative Card
 

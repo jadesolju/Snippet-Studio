@@ -1,4 +1,4 @@
-# รายงานการวิจัยและคู่มือสถาปัตยกรรมระบบ: กลไกการทำงานของ Rubii AI และแนวทางการพัฒนาการ์ดส่วนต่อประสานผู้ใช้ (HTML, CSS และ Regex)
+# คู่มือแนวคิดและแนวทางพัฒนาการ์ดสำหรับ Rubii (HTML, CSS และ Regex)
 
 **สถานะเอกสาร:** คู่มือแนวคิดและแนวทางอ้างอิงทางเทคนิค  
 **ขอบเขตเนื้อหา:** Style Tag, Regex Replacement, HTML/CSS, ตัวอย่างการ์ด และความเสี่ยงที่ควรตรวจ  
@@ -45,7 +45,7 @@ flowchart TD
         B1 -->|"Style Tag Mode"| B2["Single-Slot Ingestion: Entire Payload -> $1"]
         B1 -->|"Regex Engine Mode"| B3["Multi-Capture Delimiter Splitter (e.g. ||)"]
         B3 --> B4["Slot Array Mapping: $1, $2, $3, ... $N"]
-        B4 --> B5["Type Sanitizer & Numeric Extractor"]
+        B4 --> B5["Configured replacement rules (internal details not public)"]
     end
 
     subgraph Stage3["Stage 3: DOM Tree Assembly & CSS Scoping"]
@@ -84,8 +84,8 @@ flowchart LR
     end
 
     subgraph StyleTagTemplate["Snippet Studio outputs"]
-        T["HTML template: <div class='rubii-diary'>$1</div>"]
-        CSS["Global CSS: .rubii-diary { background: rgba(255,255,255,0.08); ... }"]
+        T["HTML template: one card root with $1"]
+        CSS["Global CSS: class rules for the card"]
     end
 
     subgraph RenderedDOM["Final Document Object Model"]
@@ -230,24 +230,24 @@ flowchart LR
 
 ### 5.2 การควบคุมสัดส่วนภาพและแบนเนอร์ (Full-Bleed Image Handling)
 
-ปัญหาสำคัญที่พบบ่อยในการ์ดที่มีภาพแบนเนอร์คือการเกิด **Letterboxing Void (ขอบดำด้านข้าง)** เมื่อใช้ `object-fit: contain`:
+ภาพในกรอบที่มีสัดส่วนต่างกันอาจเหลือพื้นที่ว่างเมื่อใช้ `object-fit: contain`; สีของพื้นที่ว่างขึ้นกับพื้นหลังกรอบ ไม่จำเป็นต้องเป็นสีดำ:
 
 ```mermaid
 flowchart TD
     subgraph Defect["Defective Rendering: object-fit: contain"]
-        D1["Banner Container: 400px x 130px (3.08:1)"] --> D2["1:1 Square Image Scales to 130px x 130px"]
-        D2 --> D3["Creates 135px Empty Black Voids on Left and Right"]
+        D1["Fixed banner frame"] --> D2["Square image fits inside the frame"]
+        D2 --> D3["Empty space remains; color comes from the frame"]
     end
 
     subgraph FullBleed["Full-Bleed Standard: object-fit: cover"]
-        F1["Banner Container: 400px x 130px (3.08:1)"] --> F2["Image Expands to Cover 400px x 130px Area"]
-        F2 --> F3["Balanced Center-Crop Eliminates All Void Gaps"]
+        F1["Fixed banner frame"] --> F2["Image fills the frame"]
+        F2 --> F3["Some image edges may be cropped"]
     end
 ```
 
 > **สรุปขั้นตอนการจัดการภาพแบนเนอร์ (Full-Bleed Media Workflow):**
-> 1. **ปัญหาขอบดำ (Defect):** การใช้ `object-fit: contain` กับภาพจัตุรัสบนกรอบแนวนอน จะทำให้เกิดช่องว่างสีดำโบ๋ด้านข้างขนาดใหญ่
-> 2. **วิธีแก้ไขมาตรฐาน (Solution):** กำหนด `object-fit: cover` ร่วมกับ `object-position: center` บน `img` และกำหนด `overflow: hidden` บนคอนเทนเนอร์ เพื่อให้ภาพขยายเต็มผืนผ้าอย่างสมดุลไร้รอยต่อ
+> 1. **ผลของ `contain`:** ภาพยังเห็นครบ แต่อาจเหลือพื้นที่ว่างในกรอบ
+> 2. **ผลของ `cover`:** ภาพเต็มกรอบแต่อาจถูกครอป; ใช้ `object-position` เพื่อควบคุมส่วนที่เห็น
 
 **มาตรฐาน CSS สำหรับภาพแบนเนอร์:**
 ```css
@@ -270,7 +270,7 @@ display: block;
 เมื่อต้องการสร้างหลอดพลัง หลอดความสัมพันธ์ หรือแถบความคืบหน้า:
 1. **การกำหนดความกว้าง:** ผูกค่าตัวแปรเปอร์เซ็นต์เข้ากับ `width: $X%;`
 2. **การจำกัดความกว้าง (`Clamping`):** พิจารณาใช้ `max-width: 100%;` เมื่อค่าจาก AI อาจเกิน 100%; `min-width: 0` อาจช่วยให้ flex item หดได้ในบาง layout
-3. **การหลีกเลี่ยงข้อความที่ไม่ใช่ตัวเลข:** หลีกเลี่ยงการให้ AI ตอบคำว่า `MAX` ลงในช่อง Style Width เพราะใน CSS คำว่า `MAX` ไม่ใช่ค่าความยาวที่ถูกต้อง จะส่งผลให้เบราว์เซอร์ตัดคำสั่งทิ้งและหลอดหดเหลือ 0%
+3. **การหลีกเลี่ยงข้อความที่ไม่ใช่ตัวเลข:** อย่าส่งคำว่า `MAX` ลงในช่องความกว้าง เพราะ `width:MAX%` ไม่ถูกต้องและ declaration จะถูกละทิ้ง; แถบอาจคงค่าก่อนหน้าหรือไม่มีค่าตามที่ต้องการ
 
 ```html
 <!-- คอนเทนเนอร์ครอบหลอด -->
@@ -280,7 +280,7 @@ display: block;
 </div>
 ```
 
-### 5.4 การเพิ่มความคมชัดของข้อความด้วย Text Shadow (WCAG 2.1 Contrast Buffer)
+### 5.4 ความอ่านง่ายของข้อความและ WCAG Contrast
 
 เมื่อข้อความวางบนภาพหรือพื้นหลังที่เปลี่ยนไปตามเนื้อหา คอนทราสต์อาจไม่พออ่าน การใส่ `text-shadow` อาจช่วยให้ตัวอักษรแยกจากพื้นหลัง แต่เงาเพียงอย่างเดียว **ไม่ได้รับรอง** ว่าผ่าน WCAG ต้องตรวจอัตราส่วนกับพื้นหลังจริง ณ บริเวณตัวอักษร เกณฑ์ WCAG 2.2 สำหรับข้อความทั่วไปคือ 4.5:1 ระดับ AA และ 7:1 ระดับ AAA; ข้อความขนาดใหญ่ใช้ 3:1 และ 4.5:1 ตามลำดับ ([W3C WCAG 2.2](https://www.w3.org/TR/wcag/))
 
@@ -315,7 +315,7 @@ flowchart TD
 | :--- | :--- | :--- | :--- |
 | **Delimiter Mismatch (ตัวคั่นขาดหรือเกิน)** | โมเดล LLM อาจละเลยตัวคั่น `\|\|` หรือสร้างเกินจำนวนที่ Regex กำหนด | Regex จับกลุ่มผิดตำแหน่ง ทำให้ข้อมูลสลับช่อง หรือไม่แสดงผลทั้งการ์ด | กำหนด Prompt System ให้ชัดเจน พร้อมออกแบบ Fallback Rule เพื่อรองรับ |
 | **Content Overflow (ข้อความทะลัก)** | ข้อความในช่องตัวแปรมีความยาวมากเป็นพิเศษ | การ์ดยาวล้นหน้าต่างแชต หรือบดบังองค์ประกอบอื่น | กำหนด `max-height` ร่วมกับ `overflow-y: auto;` หรือใช้ `line-clamp` |
-| **Progress Bar Syntax Error** | AI ตอบคำบรรยายแทนตัวเลข เช่น `เต็มหลอด` หรือ `MAX` | ค่า CSS ไวยากรณ์ผิดพลาด ส่งผลให้หลอดพลังหดเหลือความกว้าง 0% | ใช้ Regex Filter สกัดเฉพาะตัวเลข `(\d+)` ก่อนนำไปประกอบใน CSS |
+| **Progress Bar Syntax Error** | AI ตอบคำบรรยายแทนตัวเลข เช่น `เต็มหลอด` หรือ `MAX` | declaration ความกว้างไม่ถูกต้องและถูกละทิ้ง; ผลขึ้นกับกฎ CSS อื่นที่ยังใช้ได้ | กำหนดให้ส่งตัวเลขและตรวจลำดับ slot ที่ผูกกับ width |
 | **Catastrophic Backtracking** | การเขียน Regex Pattern ซ้อนลูปแบบไม่ระมัดระวัง เช่น `(.*)+` | เอนจิน Regex ค้างและใช้ CPU สูงมาก | ใช้ Non-Greedy Quantifier `([\s\S]*?)` และหลีกเลี่ยง Nested Quantifiers |
 | **ประสิทธิภาพเอฟเฟกต์เบลอ** | การซ้อน `backdrop-filter: blur()` อาจเพิ่มภาระการเรนเดอร์ | ตรวจอาการหน่วงบนอุปกรณ์เป้าหมาย | ลดจำนวนเลเยอร์/รัศมี blur หากพบอาการ; ต้องวัดบนอุปกรณ์จริง |
 
@@ -336,6 +336,8 @@ flowchart TD
 ---
 
 ## 8. โค้ดแม่แบบมาตรฐานอ้างอิง (Standard Reference Templates)
+
+> ตัวอย่างที่มีแท็ก `<style>` ด้านล่างเป็นตัวอย่าง HTML แบบรวมเพื่อให้เห็นรูปแบบหน้าเดียว เมื่อนำไปตั้งค่าใน Rubii ให้แยกกฎ CSS ไปที่ Global CSS และคงเฉพาะ HTML template ไว้ในช่อง Style Tag
 
 ### 8.1 แม่แบบที่ 1: การ์ดข้อความเดี่ยว (Style Tag Single-Slot Card)
 
