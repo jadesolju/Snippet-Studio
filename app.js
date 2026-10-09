@@ -1358,8 +1358,15 @@ function renderRubiiSlotControls(snippet) {
     : (slots.find((slot) => slot.explicit)?.id ?? "");
   state.slotId = preferred ?? "";
   if (!Array.isArray(state.regexSlotIds)) {
-    const explicitSlots = slots.filter((slot) => slot.explicit && slot.score > 0).slice(0, maxRegexCaptures);
-    state.regexSlotIds = explicitSlots.map((slot) => slot.id);
+    const explicitSlots = [];
+    const seenTargets = new Set();
+    for (const slot of slots) {
+      if (slot.explicit && slot.score > 0 && !seenTargets.has(slot.target)) {
+        seenTargets.add(slot.target);
+        explicitSlots.push(slot);
+      }
+    }
+    state.regexSlotIds = explicitSlots.slice(0, maxRegexCaptures).map((slot) => slot.id);
   }
   state.regexSlotIds = state.regexSlotIds.filter((id) => slots.some((slot) => slot.id === id)).slice(0, maxRegexCaptures);
   if (!Array.isArray(state.extraRegexRules)) state.extraRegexRules = [];
@@ -1537,33 +1544,41 @@ function buildRubiiTemplate(snippet, chosenSlots) {
   const replacementsByNode = new Map();
   const progressBarMap = new Map();
 
+  const targetToReplacement = new Map();
   selectedSlots.forEach((slot, index) => {
-    if (!replacementsByNode.has(slot.nodeIndex)) replacementsByNode.set(slot.nodeIndex, []);
-    const replacement = isRubiiPercentageSlot(slot) ? `$${index + 1}%` : `$${index + 1}`;
-    replacementsByNode.get(slot.nodeIndex).push({ slot, replacement });
+    const varName = isRubiiPercentageSlot(slot) ? `$${index + 1}%` : `$${index + 1}`;
+    targetToReplacement.set(slot.target, { varName, slotIndex: index, slot });
+  });
 
-    if (isRubiiPercentageSlot(slot)) {
-      const textNode = nodes[slot.nodeIndex];
-      const selectedPercentage = String(slot.target).match(/(\d{1,3})%/)?.[1];
+  slots.forEach((slot) => {
+    if (targetToReplacement.has(slot.target)) {
+      const { varName, slotIndex } = targetToReplacement.get(slot.target);
+      if (!replacementsByNode.has(slot.nodeIndex)) replacementsByNode.set(slot.nodeIndex, []);
+      replacementsByNode.get(slot.nodeIndex).push({ slot, replacement: varName });
 
-      let container = textNode?.parentElement?.closest("div");
-      let matchedBar = null;
+      if (isRubiiPercentageSlot(slot)) {
+        const textNode = nodes[slot.nodeIndex];
+        const selectedPercentage = String(slot.target).match(/(\d{1,3})%/)?.[1];
 
-      while (container && container !== doc.body && !matchedBar) {
-        const candidateBars = [...container.querySelectorAll("*")].filter((el) => {
-          const st = el.getAttribute("style") || "";
-          const width = st.match(/(?:^|;)\s*width\s*:\s*(\d{1,3})\s*%/i)?.[1];
-          return width !== undefined && (width === selectedPercentage || (width !== "100" && selectedPercentage === undefined));
-        });
-        if (candidateBars.length > 0) {
-          matchedBar = candidateBars.find((el) => !progressBarMap.has(el)) || candidateBars[0];
-          break;
+        let container = textNode?.parentElement?.closest("div");
+        let matchedBar = null;
+
+        while (container && container !== doc.body && !matchedBar) {
+          const candidateBars = [...container.querySelectorAll("*")].filter((el) => {
+            const st = el.getAttribute("style") || "";
+            const width = st.match(/(?:^|;)\s*width\s*:\s*(\d{1,3})\s*%/i)?.[1];
+            return width !== undefined && (width === selectedPercentage || (width !== "100" && selectedPercentage === undefined));
+          });
+          if (candidateBars.length > 0) {
+            matchedBar = candidateBars.find((el) => !progressBarMap.has(el)) || candidateBars[0];
+            break;
+          }
+          container = container.parentElement?.closest("div");
         }
-        container = container.parentElement?.closest("div");
-      }
 
-      if (matchedBar) {
-        progressBarMap.set(matchedBar, `$${index + 1}%`);
+        if (matchedBar) {
+          progressBarMap.set(matchedBar, `$${slotIndex + 1}%`);
+        }
       }
     }
   });
@@ -1680,8 +1695,9 @@ function rubiiSampleValue(slot) {
   if (/\{\{char\}\}|ชื่อตัวละคร/.test(text)) return "Mira";
   if (/\{\{user\}\}|ชื่อผู้ใช้/.test(text)) return "คุณ";
   if (/hh:mm|เวลา|time/.test(text)) return "21:45";
-  if (/เดือน.*ปี|เดือน\/ปี|month.*year/.test(text)) return "ตุลาคม 2026";
-  if (/วันที่|date/.test(text)) return "7 ตุลาคม 2026";
+  if (/^(\(\s*วันที่\s*\)|\(\s*วัน\/เลขวันที่\s*\))$/i.test(raw)) return "7";
+  if (/เดือน.*ปี|เดือน\/ปี|พ\.ศ\.|month.*year/.test(text)) return "ตุลาคม 2569";
+  if (/วันที่|date/.test(text)) return "7 ตุลาคม 2569";
   if (/เดือน|month/.test(text)) return "ตุลาคม";
   if (/วัน|weekday|day/.test(text)) return "วันพุธ";
   if (/สถานที่|location/.test(text)) return "กรุงเทพฯ";
@@ -1692,8 +1708,18 @@ function rubiiSampleValue(slot) {
   if (/mood|อารมณ์/.test(text)) return "อารมณ์ดี";
   if (/affection|ความสัมพันธ์/.test(text)) return "72";
   if (/status|สถานะ/.test(text)) return "ออนไลน์";
+  if (/ref|อ้างอิง|reference|เลขที่|รหัส/i.test(text)) return "TX-20261009-8812";
+  if (/ธนาคาร|bank|wallet|วอลเล็ท|บัญชี|account/i.test(text)) return "พร้อมเพย์ / วอลเล็ท";
+  if (/เบอร์|โทร|phone/i.test(text)) return "081-234-5678";
+  if (/แทร็ก|track|เพลง|song|music|title/i.test(text)) return "Midnight City Lights";
+  if (/ศิลปิน|artist/i.test(text)) return "Cyber Wave Studio";
+  if (/album|อัลบั้ม/i.test(text)) return "Retro Nostalgia Vol.1";
+  if (/คำค้น|ค้นหา|search|query|keyword/i.test(text)) return "สถานที่เที่ยวพักผ่อนลับๆ";
+  if (/แฮชแท็ก|hashtag|tag/i.test(text)) return "#Lifestyle #NightVibes";
+  if (/ความคิด|memo|ความคิดในใจ|บันทึก/i.test(text)) return "ช่วงเวลาดีๆ ที่ได้อยู่ด้วยกัน";
+  if (/งาน|ภารกิจ|task|todo/i.test(text)) return "ทำรายงานสรุปประจำสัปดาห์";
   if (/caption|โพสต์|สถานการณ์|คำบรรยาย|ข้อความ|content|message/.test(text)) return "วันนี้อากาศดีจนอยากบันทึกไว้ ☀️";
-  return "ค่าทดสอบ";
+  return "ตัวอย่างข้อมูล";
 }
 
 function buildRubiiSections(snippet) {
