@@ -508,10 +508,7 @@ body { font-size: 14px; }
 .preview-controls { display: grid; gap: 12px; padding: 12px 15px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.015); }
 .preview-toggles { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 20px; }
 .background-options-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 12px;
-  align-items: end;
+  display: block;
   width: 100%;
   margin-top: 4px;
 }
@@ -1247,6 +1244,29 @@ body {
 }
 
 .mini-btn:hover {
+  background: rgba(135, 230, 228, 0.2);
+  border-color: rgba(135, 230, 228, 0.5);
+  color: #ffffff;
+}
+
+.mini-icon-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e2e8f0;
+  font-size: 11px;
+  font-weight: 700;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  font-family: inherit;
+}
+
+.mini-icon-btn:hover {
   background: rgba(135, 230, 228, 0.2);
   border-color: rgba(135, 230, 228, 0.5);
   color: #ffffff;

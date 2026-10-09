@@ -209,13 +209,18 @@ const tabCountStyle = document.querySelector("#tab-count-style");
 const tabCountMedia = document.querySelector("#tab-count-media");
 const quickTabMedia = document.querySelector("#quick-tab-media");
 const quickTypographyControls = document.querySelector("#quick-typography-controls");
+const quickTextColor = document.querySelector("#quick-text-color");
+const quickTextColorPicker = document.querySelector("#quick-text-color-picker");
+const quickFontWeight = document.querySelector("#quick-font-weight");
+const quickFontStyle = document.querySelector("#quick-font-style");
+const quickTextTransform = document.querySelector("#quick-text-transform");
+const quickLetterSpacing = document.querySelector("#quick-letter-spacing");
+const quickFontFamily = document.querySelector("#quick-font-family");
 const quickTextShadow = document.querySelector("#quick-text-shadow");
 const quickShadowColor = document.querySelector("#quick-shadow-color");
 const quickShadowColorPicker = document.querySelector("#quick-shadow-color-picker");
 const quickShadowBlur = document.querySelector("#quick-shadow-blur");
 const quickShadowBlurBadge = document.querySelector("#quick-shadow-blur-badge");
-const quickTextColor = document.querySelector("#quick-text-color");
-const quickTextColorPicker = document.querySelector("#quick-text-color-picker");
 let activeQuickEditTab = "all";
 const previewFrame = document.querySelector("#preview-frame");
 const copyButton = document.querySelector("#copy-button");
@@ -226,11 +231,6 @@ const visualEditEnabled = document.querySelector("#visual-edit-enabled");
 const quickEditCount = document.querySelector("#quick-edit-count");
 const backgroundEnabled = document.querySelector("#background-enabled");
 const backgroundUrl = document.querySelector("#background-url");
-const backgroundTextShadow = document.querySelector("#background-text-shadow");
-const backgroundShadowColor = document.querySelector("#background-shadow-color");
-const backgroundShadowColorPicker = document.querySelector("#background-shadow-color-picker");
-const backgroundTextColor = document.querySelector("#background-text-color");
-const backgroundTextColorPicker = document.querySelector("#background-text-color-picker");
 const htmlPartsPanel = document.querySelector("#html-parts-panel");
 const htmlPartsList = document.querySelector("#html-parts-list");
 const htmlPartCount = document.querySelector("#html-part-count");
@@ -1396,7 +1396,12 @@ function backgroundState(snippet) {
       shadowColor: "#000000",
       shadowBlur: 4,
       textColor: "auto",
-      customTextColor: "#ffffff"
+      customTextColor: "#ffffff",
+      fontWeight: "auto",
+      fontStyle: "auto",
+      textTransform: "auto",
+      letterSpacing: "auto",
+      fontFamily: "auto"
     });
   }
   const st = backgroundBySnippet.get(snippet.id);
@@ -1405,6 +1410,11 @@ function backgroundState(snippet) {
   if (st.shadowBlur === undefined) st.shadowBlur = 4;
   if (!st.textColor) st.textColor = "auto";
   if (!st.customTextColor) st.customTextColor = "#ffffff";
+  if (!st.fontWeight) st.fontWeight = "auto";
+  if (!st.fontStyle) st.fontStyle = "auto";
+  if (!st.textTransform) st.textTransform = "auto";
+  if (!st.letterSpacing) st.letterSpacing = "auto";
+  if (!st.fontFamily) st.fontFamily = "auto";
   return st;
 }
 
@@ -1413,33 +1423,29 @@ function renderBackgroundControls(snippet) {
   backgroundEnabled.checked = state.enabled;
   backgroundUrl.value = state.url;
   
-  // Shadow style
-  if (backgroundTextShadow) backgroundTextShadow.value = state.textShadow || "soft";
+  // Quick Edit Typography sync
   if (quickTextShadow) quickTextShadow.value = state.textShadow || "soft";
 
-  // Shadow color
   const effectiveShadowColor = state.shadowColor || "#000000";
   const standardShadows = ["#000000", "#38bdf8", "#c084fc", "#fef08a", "#4ade80", "#f87171", "#ffffff"];
-  if (backgroundShadowColor) {
-    backgroundShadowColor.value = standardShadows.includes(effectiveShadowColor) ? effectiveShadowColor : "custom";
-  }
   if (quickShadowColor) {
     quickShadowColor.value = standardShadows.includes(effectiveShadowColor) ? effectiveShadowColor : "custom";
   }
-  if (backgroundShadowColorPicker) backgroundShadowColorPicker.value = effectiveShadowColor;
   if (quickShadowColorPicker) quickShadowColorPicker.value = effectiveShadowColor;
 
-  // Shadow blur
   const effectiveBlur = state.shadowBlur !== undefined ? state.shadowBlur : 4;
   if (quickShadowBlur) quickShadowBlur.value = effectiveBlur;
   if (quickShadowBlurBadge) quickShadowBlurBadge.textContent = `${effectiveBlur}px`;
 
-  // Text color
-  if (backgroundTextColor) backgroundTextColor.value = state.textColor || "auto";
   if (quickTextColor) quickTextColor.value = state.textColor || "auto";
   const effectiveCustomColor = (state.textColor && state.textColor !== "auto" && state.textColor !== "custom") ? state.textColor : (state.customTextColor || "#ffffff");
-  if (backgroundTextColorPicker) backgroundTextColorPicker.value = effectiveCustomColor;
   if (quickTextColorPicker) quickTextColorPicker.value = effectiveCustomColor;
+
+  if (quickFontWeight) quickFontWeight.value = state.fontWeight || "auto";
+  if (quickFontStyle) quickFontStyle.value = state.fontStyle || "auto";
+  if (quickTextTransform) quickTextTransform.value = state.textTransform || "auto";
+  if (quickLetterSpacing) quickLetterSpacing.value = state.letterSpacing || "auto";
+  if (quickFontFamily) quickFontFamily.value = state.fontFamily || "auto";
   
   const optRow = document.querySelector(".background-options-row");
   if (optRow) optRow.hidden = !state.enabled;
@@ -1527,13 +1533,33 @@ function htmlWithBackground(snippet, html) {
     textOverrideCss = `color:${effectiveColor}!important;`;
   }
 
+  let typographyCss = "";
+  if (state.fontWeight && state.fontWeight !== "auto") {
+    typographyCss += `font-weight:${state.fontWeight}!important;`;
+  }
+  if (state.fontStyle && state.fontStyle !== "auto") {
+    if (state.fontStyle === "italic") typographyCss += `font-style:italic!important;`;
+    else if (state.fontStyle === "underline") typographyCss += `text-decoration:underline!important;`;
+    else if (state.fontStyle === "italic-underline") typographyCss += `font-style:italic!important;text-decoration:underline!important;`;
+    else if (state.fontStyle === "normal") typographyCss += `font-style:normal!important;text-decoration:none!important;`;
+  }
+  if (state.textTransform && state.textTransform !== "auto") {
+    typographyCss += `text-transform:${state.textTransform}!important;`;
+  }
+  if (state.letterSpacing && state.letterSpacing !== "auto") {
+    typographyCss += `letter-spacing:${state.letterSpacing}!important;`;
+  }
+  if (state.fontFamily && state.fontFamily !== "auto") {
+    typographyCss += `font-family:${state.fontFamily}!important;`;
+  }
+
   let bgCss = "";
   if (hasBg) {
     const cssUrl = url.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/[\r\n\f]/g, "");
     bgCss = `background-image:url('${cssUrl}');background-size:cover;background-position:center;background-repeat:no-repeat;`;
   }
 
-  const additions = `${bgCss}${shadowCss}${textOverrideCss}`;
+  const additions = `${bgCss}${shadowCss}${textOverrideCss}${typographyCss}`;
   if (!additions && !effectiveColor) return html;
 
   const root = scanHtmlTags(html).find((tag) => tag.kind === "open");
@@ -2177,6 +2203,13 @@ function previewDocument(snippet) {
       </div>
       <div class="mini-toolbar-divider"></div>
       <div class="mini-toolbar-actions">
+        <button type="button" id="mini-toggle-bold" title="ตัวหนา" class="mini-icon-btn">B</button>
+        <button type="button" id="mini-toggle-italic" title="ตัวเอียง" class="mini-icon-btn" style="font-style:italic;">I</button>
+        <button type="button" id="mini-toggle-underline" title="ขีดเส้นใต้" class="mini-icon-btn" style="text-decoration:underline;">U</button>
+        <button type="button" id="mini-toggle-upper" title="พิมพ์ใหญ่ทั้งหมด" class="mini-icon-btn" style="font-size:9.5px;">AA</button>
+      </div>
+      <div class="mini-toolbar-divider"></div>
+      <div class="mini-toolbar-actions">
         <button type="button" id="mini-toggle-glow" title="เพิ่มแสงนีออน" class="mini-btn">Glow</button>
         <button type="button" id="mini-toggle-shadow" title="เพิ่มเงามืดคมชัด" class="mini-btn">Shadow</button>
         <button type="button" id="mini-clear-format" title="ล้างการจัดรูปแบบ" class="mini-btn">Clear</button>
@@ -2197,7 +2230,7 @@ function previewDocument(snippet) {
           if (text) {
             parent.setAttribute('contenteditable', 'true');
             parent.setAttribute('spellcheck', 'false');
-            parent.title = 'คลิกเพื่อพิมพ์แก้ข้อความนี้ได้โดยตรง (หรือไฮไลต์เพื่อเปลี่ยนสี/ใส่เงา)';
+            parent.title = 'คลิกเพื่อพิมพ์แก้ข้อความนี้ได้โดยตรง (หรือไฮไลต์เพื่อเปลี่ยนสี/ใส่เงา/ทำตัวหนา)';
             
             const matched = fieldsList.find((f) => f.value === text || f.token === text || text.includes(f.value) || (f.token && text.includes(f.token)));
             if (matched && !parent.dataset.fieldId) {
@@ -2268,7 +2301,7 @@ function previewDocument(snippet) {
         }
 
         toolbar.style.display = 'flex';
-        const tbWidth = toolbar.offsetWidth || 280;
+        const tbWidth = toolbar.offsetWidth || 340;
         const top = Math.max(8, rect.top - 46 + window.scrollY);
         const left = Math.max(8, Math.min(window.innerWidth - tbWidth - 8, rect.left + (rect.width / 2) - (tbWidth / 2) + window.scrollX));
         toolbar.style.top = top + 'px';
@@ -2287,6 +2320,10 @@ function previewDocument(snippet) {
         const span = document.createElement('span');
         if (styles.color) span.style.setProperty('color', styles.color, 'important');
         if (styles.textShadow) span.style.setProperty('text-shadow', styles.textShadow, 'important');
+        if (styles.fontWeight) span.style.setProperty('font-weight', styles.fontWeight, 'important');
+        if (styles.fontStyle) span.style.setProperty('font-style', styles.fontStyle, 'important');
+        if (styles.textDecoration) span.style.setProperty('text-decoration', styles.textDecoration, 'important');
+        if (styles.textTransform) span.style.setProperty('text-transform', styles.textTransform, 'important');
 
         try {
           const contents = range.extractContents();
@@ -2321,6 +2358,38 @@ function previewDocument(snippet) {
         if (customColorInput) {
           customColorInput.addEventListener('input', () => {
             applyStyleToSelection({ color: customColorInput.value });
+          });
+        }
+
+        const boldBtn = toolbar.querySelector('#mini-toggle-bold');
+        if (boldBtn) {
+          boldBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            applyStyleToSelection({ fontWeight: 'bold' });
+          });
+        }
+
+        const italicBtn = toolbar.querySelector('#mini-toggle-italic');
+        if (italicBtn) {
+          italicBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            applyStyleToSelection({ fontStyle: 'italic' });
+          });
+        }
+
+        const underlineBtn = toolbar.querySelector('#mini-toggle-underline');
+        if (underlineBtn) {
+          underlineBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            applyStyleToSelection({ textDecoration: 'underline' });
+          });
+        }
+
+        const upperBtn = toolbar.querySelector('#mini-toggle-upper');
+        if (upperBtn) {
+          upperBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            applyStyleToSelection({ textTransform: 'uppercase' });
           });
         }
 
@@ -2568,7 +2637,6 @@ backgroundUrl.addEventListener("input", () => {
 });
 function updateTextShadow(snippet, value) {
   backgroundState(snippet).textShadow = value;
-  if (backgroundTextShadow) backgroundTextShadow.value = value;
   if (quickTextShadow) quickTextShadow.value = value;
   updateCodePanel(snippet);
   renderPreview(snippet);
@@ -2577,10 +2645,8 @@ function updateTextShadow(snippet, value) {
 function updateShadowColorSelect(snippet, value) {
   const state = backgroundState(snippet);
   state.shadowColor = value === "custom" ? (state.shadowColor || "#000000") : value;
-  if (backgroundShadowColor) backgroundShadowColor.value = value;
   if (quickShadowColor) quickShadowColor.value = value;
   if (value !== "custom") {
-    if (backgroundShadowColorPicker) backgroundShadowColorPicker.value = value;
     if (quickShadowColorPicker) quickShadowColorPicker.value = value;
   }
   updateCodePanel(snippet);
@@ -2592,9 +2658,7 @@ function updateShadowColorPicker(snippet, hexValue) {
   state.shadowColor = hexValue;
   const standardShadows = ["#000000", "#38bdf8", "#c084fc", "#fef08a", "#4ade80", "#f87171", "#ffffff"];
   const matchingValue = standardShadows.includes(hexValue) ? hexValue : "custom";
-  if (backgroundShadowColor) backgroundShadowColor.value = matchingValue;
   if (quickShadowColor) quickShadowColor.value = matchingValue;
-  if (backgroundShadowColorPicker) backgroundShadowColorPicker.value = hexValue;
   if (quickShadowColorPicker) quickShadowColorPicker.value = hexValue;
   updateCodePanel(snippet);
   renderPreview(snippet);
@@ -2612,10 +2676,8 @@ function updateShadowBlur(snippet, blurValue) {
 function updateTextColorSelect(snippet, value) {
   const state = backgroundState(snippet);
   state.textColor = value;
-  if (backgroundTextColor) backgroundTextColor.value = value;
   if (quickTextColor) quickTextColor.value = value;
   if (state.textColor !== "auto" && state.textColor !== "custom") {
-    if (backgroundTextColorPicker) backgroundTextColorPicker.value = state.textColor;
     if (quickTextColorPicker) quickTextColorPicker.value = state.textColor;
   }
   updateCodePanel(snippet);
@@ -2626,20 +2688,47 @@ function updateTextColorPicker(snippet, hexValue) {
   const state = backgroundState(snippet);
   state.customTextColor = hexValue;
   state.textColor = "custom";
-  if (backgroundTextColor) backgroundTextColor.value = "custom";
   if (quickTextColor) quickTextColor.value = "custom";
-  if (backgroundTextColorPicker) backgroundTextColorPicker.value = hexValue;
   if (quickTextColorPicker) quickTextColorPicker.value = hexValue;
   updateCodePanel(snippet);
   renderPreview(snippet);
 }
 
-if (backgroundTextShadow) {
-  backgroundTextShadow.addEventListener("change", () => {
-    const snippet = snippets.find((item) => item.id === selectedSnippetId);
-    if (snippet) updateTextShadow(snippet, backgroundTextShadow.value);
-  });
+function updateFontWeight(snippet, value) {
+  backgroundState(snippet).fontWeight = value;
+  if (quickFontWeight) quickFontWeight.value = value;
+  updateCodePanel(snippet);
+  renderPreview(snippet);
 }
+
+function updateFontStyle(snippet, value) {
+  backgroundState(snippet).fontStyle = value;
+  if (quickFontStyle) quickFontStyle.value = value;
+  updateCodePanel(snippet);
+  renderPreview(snippet);
+}
+
+function updateTextTransform(snippet, value) {
+  backgroundState(snippet).textTransform = value;
+  if (quickTextTransform) quickTextTransform.value = value;
+  updateCodePanel(snippet);
+  renderPreview(snippet);
+}
+
+function updateLetterSpacing(snippet, value) {
+  backgroundState(snippet).letterSpacing = value;
+  if (quickLetterSpacing) quickLetterSpacing.value = value;
+  updateCodePanel(snippet);
+  renderPreview(snippet);
+}
+
+function updateFontFamily(snippet, value) {
+  backgroundState(snippet).fontFamily = value;
+  if (quickFontFamily) quickFontFamily.value = value;
+  updateCodePanel(snippet);
+  renderPreview(snippet);
+}
+
 if (quickTextShadow) {
   quickTextShadow.addEventListener("change", () => {
     const snippet = snippets.find((item) => item.id === selectedSnippetId);
@@ -2647,12 +2736,6 @@ if (quickTextShadow) {
   });
 }
 
-if (backgroundShadowColor) {
-  backgroundShadowColor.addEventListener("change", () => {
-    const snippet = snippets.find((item) => item.id === selectedSnippetId);
-    if (snippet) updateShadowColorSelect(snippet, backgroundShadowColor.value);
-  });
-}
 if (quickShadowColor) {
   quickShadowColor.addEventListener("change", () => {
     const snippet = snippets.find((item) => item.id === selectedSnippetId);
@@ -2660,12 +2743,6 @@ if (quickShadowColor) {
   });
 }
 
-if (backgroundShadowColorPicker) {
-  backgroundShadowColorPicker.addEventListener("input", () => {
-    const snippet = snippets.find((item) => item.id === selectedSnippetId);
-    if (snippet) updateShadowColorPicker(snippet, backgroundShadowColorPicker.value);
-  });
-}
 if (quickShadowColorPicker) {
   quickShadowColorPicker.addEventListener("input", () => {
     const snippet = snippets.find((item) => item.id === selectedSnippetId);
@@ -2680,12 +2757,6 @@ if (quickShadowBlur) {
   });
 }
 
-if (backgroundTextColor) {
-  backgroundTextColor.addEventListener("change", () => {
-    const snippet = snippets.find((item) => item.id === selectedSnippetId);
-    if (snippet) updateTextColorSelect(snippet, backgroundTextColor.value);
-  });
-}
 if (quickTextColor) {
   quickTextColor.addEventListener("change", () => {
     const snippet = snippets.find((item) => item.id === selectedSnippetId);
@@ -2693,16 +2764,45 @@ if (quickTextColor) {
   });
 }
 
-if (backgroundTextColorPicker) {
-  backgroundTextColorPicker.addEventListener("input", () => {
-    const snippet = snippets.find((item) => item.id === selectedSnippetId);
-    if (snippet) updateTextColorPicker(snippet, backgroundTextColorPicker.value);
-  });
-}
 if (quickTextColorPicker) {
   quickTextColorPicker.addEventListener("input", () => {
     const snippet = snippets.find((item) => item.id === selectedSnippetId);
     if (snippet) updateTextColorPicker(snippet, quickTextColorPicker.value);
+  });
+}
+
+if (quickFontWeight) {
+  quickFontWeight.addEventListener("change", () => {
+    const snippet = snippets.find((item) => item.id === selectedSnippetId);
+    if (snippet) updateFontWeight(snippet, quickFontWeight.value);
+  });
+}
+
+if (quickFontStyle) {
+  quickFontStyle.addEventListener("change", () => {
+    const snippet = snippets.find((item) => item.id === selectedSnippetId);
+    if (snippet) updateFontStyle(snippet, quickFontStyle.value);
+  });
+}
+
+if (quickTextTransform) {
+  quickTextTransform.addEventListener("change", () => {
+    const snippet = snippets.find((item) => item.id === selectedSnippetId);
+    if (snippet) updateTextTransform(snippet, quickTextTransform.value);
+  });
+}
+
+if (quickLetterSpacing) {
+  quickLetterSpacing.addEventListener("change", () => {
+    const snippet = snippets.find((item) => item.id === selectedSnippetId);
+    if (snippet) updateLetterSpacing(snippet, quickLetterSpacing.value);
+  });
+}
+
+if (quickFontFamily) {
+  quickFontFamily.addEventListener("change", () => {
+    const snippet = snippets.find((item) => item.id === selectedSnippetId);
+    if (snippet) updateFontFamily(snippet, quickFontFamily.value);
   });
 }
 rubiiSlotSelect.addEventListener("change", () => {
