@@ -221,6 +221,8 @@ const quickShadowColor = document.querySelector("#quick-shadow-color");
 const quickShadowColorPicker = document.querySelector("#quick-shadow-color-picker");
 const quickShadowBlur = document.querySelector("#quick-shadow-blur");
 const quickShadowBlurBadge = document.querySelector("#quick-shadow-blur-badge");
+const quickShadowOffset = document.querySelector("#quick-shadow-offset");
+const quickShadowOffsetBadge = document.querySelector("#quick-shadow-offset-badge");
 let activeQuickEditTab = "all";
 const previewFrame = document.querySelector("#preview-frame");
 const copyButton = document.querySelector("#copy-button");
@@ -1571,6 +1573,10 @@ function renderBackgroundControls(snippet) {
   if (quickShadowBlur) quickShadowBlur.value = effectiveBlur;
   if (quickShadowBlurBadge) quickShadowBlurBadge.textContent = `${effectiveBlur}px`;
 
+  const effectiveOffset = state.shadowOffset !== undefined ? state.shadowOffset : 2;
+  if (quickShadowOffset) quickShadowOffset.value = effectiveOffset;
+  if (quickShadowOffsetBadge) quickShadowOffsetBadge.textContent = `${effectiveOffset}px`;
+
   if (quickTextColor) quickTextColor.value = state.textColor || "auto";
   const effectiveCustomColor = (state.textColor && state.textColor !== "auto" && state.textColor !== "custom") ? state.textColor : (state.customTextColor || "#ffffff");
   if (quickTextColorPicker) quickTextColorPicker.value = effectiveCustomColor;
@@ -1667,17 +1673,25 @@ function htmlWithBackground(snippet, html) {
   let shadowCss = "";
   const sColor = state.shadowColor || "#000000";
   const blur = Number(state.shadowBlur !== undefined ? state.shadowBlur : 4);
+  const offset = Number(state.shadowOffset !== undefined ? state.shadowOffset : 2);
 
   if (state.textShadow === "soft") {
-    shadowCss = `text-shadow:0 1px ${blur}px ${hexToRgbaString(sColor, 0.85)},0 0 1px ${hexToRgbaString(sColor, 0.9)};`;
+    shadowCss = `text-shadow:0 ${offset}px ${blur}px ${hexToRgbaString(sColor, 0.88)}, 0 0 1px ${hexToRgbaString(sColor, 0.9)};`;
+  } else if (state.textShadow === "heavy") {
+    const d1 = Math.max(1, offset);
+    const d2 = Math.round(d1 * 2);
+    const d3 = Math.round(d1 * 3);
+    shadowCss = `text-shadow:0 ${d1}px ${Math.max(1, Math.round(blur * 0.5))}px ${hexToRgbaString(sColor, 0.95)}, 0 ${d2}px ${blur}px ${hexToRgbaString(sColor, 0.8)}, 0 ${d3}px ${Math.round(blur * 1.8)}px ${hexToRgbaString(sColor, 0.55)};`;
   } else if (state.textShadow === "outline") {
-    shadowCss = `text-shadow:-1px -1px 0 ${hexToRgbaString(sColor, 0.95)},1px -1px 0 ${hexToRgbaString(sColor, 0.95)},-1px 1px 0 ${hexToRgbaString(sColor, 0.95)},1px 1px 0 ${hexToRgbaString(sColor, 0.95)};`;
+    const o = Math.max(1, offset);
+    shadowCss = `text-shadow:-${o}px -${o}px ${blur}px ${hexToRgbaString(sColor, 0.98)}, ${o}px -${o}px ${blur}px ${hexToRgbaString(sColor, 0.98)}, -${o}px ${o}px ${blur}px ${hexToRgbaString(sColor, 0.98)}, ${o}px ${o}px ${blur}px ${hexToRgbaString(sColor, 0.98)};`;
   } else if (state.textShadow === "neon") {
     const neonBlur = Math.max(2, blur);
-    const neonColor = sColor && sColor !== "#000000" ? sColor : "#38bdf8";
-    shadowCss = `text-shadow:0 0 ${neonBlur}px ${hexToRgbaString(neonColor, 0.95)},0 0 ${neonBlur * 2}px ${hexToRgbaString(neonColor, 0.65)},0 1px 2px rgba(0,0,0,0.9);`;
+    const neonSpread = Math.max(4, neonBlur * 2 + offset);
+    const glowColor = sColor || "#38bdf8";
+    shadowCss = `text-shadow:0 0 ${neonBlur}px ${hexToRgbaString(glowColor, 0.95)}, 0 0 ${neonSpread}px ${hexToRgbaString(glowColor, 0.7)}, 0 1px ${Math.max(2, offset)}px rgba(0,0,0,0.85);`;
   } else if (state.textShadow === "custom") {
-    shadowCss = `text-shadow:0 0 ${blur}px ${hexToRgbaString(sColor, 0.9)},0 1px 3px ${hexToRgbaString(sColor, 0.85)};`;
+    shadowCss = `text-shadow:0 ${offset}px ${blur}px ${hexToRgbaString(sColor, 0.92)}, 0 0 2px ${hexToRgbaString(sColor, 0.85)};`;
   }
 
   let textOverrideCss = "";
@@ -2827,6 +2841,15 @@ function updateShadowBlur(snippet, blurValue) {
   renderPreview(snippet);
 }
 
+function updateShadowOffset(snippet, offsetValue) {
+  const state = backgroundState(snippet);
+  state.shadowOffset = Number(offsetValue);
+  if (quickShadowOffset) quickShadowOffset.value = offsetValue;
+  if (quickShadowOffsetBadge) quickShadowOffsetBadge.textContent = `${offsetValue}px`;
+  updateCodePanel(snippet);
+  renderPreview(snippet);
+}
+
 function updateTextColorSelect(snippet, value) {
   const state = backgroundState(snippet);
   state.textColor = value;
@@ -2908,6 +2931,13 @@ if (quickShadowBlur) {
   quickShadowBlur.addEventListener("input", () => {
     const snippet = snippets.find((item) => item.id === selectedSnippetId);
     if (snippet) updateShadowBlur(snippet, quickShadowBlur.value);
+  });
+}
+
+if (quickShadowOffset) {
+  quickShadowOffset.addEventListener("input", () => {
+    const snippet = snippets.find((item) => item.id === selectedSnippetId);
+    if (snippet) updateShadowOffset(snippet, quickShadowOffset.value);
   });
 }
 

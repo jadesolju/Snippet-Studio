@@ -302,8 +302,9 @@
                               <select id="quick-text-shadow" aria-label="รูปแบบเงาข้อความใน Quick Edit">
                                 <option value="none">ไม่ใส่เงา (None)</option>
                                 <option value="soft" selected>เงามืดนุ่มนวล (Soft Dark - แนะนำ)</option>
-                                <option value="outline">ตัดเส้นขอบคม (Sharp Outline)</option>
-                                <option value="neon">แสงนีออน (Neon Glow)</option>
+                                <option value="heavy">เงาหนาหลายชั้น (Heavy Multi-Layer Shadow)</option>
+                                <option value="outline">ตัดเส้นขอบคม (Sharp Outline / Stroke)</option>
+                                <option value="neon">แสงเรืองนีออน (Neon Glow - ตามสีที่เลือก)</option>
                                 <option value="custom">กำหนดเอง (Custom Shadow / Glow)</option>
                               </select>
                             </label>
@@ -330,6 +331,15 @@
                               </span>
                               <div class="field-range-wrap">
                                 <input type="range" id="quick-shadow-blur" min="0" max="30" value="4" step="1" aria-label="ความฟุ้งของเงา">
+                              </div>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span class="field-title-with-badge">
+                                <span>ความหนา / ระยะเงา (Shadow Thickness &amp; Offset)</span>
+                                <strong id="quick-shadow-offset-badge" class="field-blur-badge">2px</strong>
+                              </span>
+                              <div class="field-range-wrap">
+                                <input type="range" id="quick-shadow-offset" min="0" max="15" value="2" step="1" aria-label="ความหนาหรือระยะของเงา">
                               </div>
                             </label>
                           </div>

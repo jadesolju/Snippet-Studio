@@ -33,10 +33,13 @@ assert(htmlContent.includes('id="quick-text-transform"'), 'index.html contains q
 assert(htmlContent.includes('id="quick-letter-spacing"'), 'index.html contains quick-letter-spacing dropdown');
 assert(htmlContent.includes('id="quick-font-family"'), 'index.html contains quick-font-family dropdown');
 assert(htmlContent.includes('id="quick-text-shadow"'), 'index.html contains quick-text-shadow dropdown');
+assert(htmlContent.includes('value="heavy"'), 'index.html contains heavy multi-layer shadow option');
 assert(htmlContent.includes('id="quick-shadow-color-picker"'), 'index.html contains quick-shadow-color-picker');
 assert(htmlContent.includes('id="quick-shadow-color"'), 'index.html contains quick-shadow-color dropdown');
 assert(htmlContent.includes('id="quick-shadow-blur"'), 'index.html contains quick-shadow-blur range slider');
 assert(htmlContent.includes('id="quick-shadow-blur-badge"'), 'index.html contains quick-shadow-blur-badge');
+assert(htmlContent.includes('id="quick-shadow-offset"'), 'index.html contains quick-shadow-offset range slider');
+assert(htmlContent.includes('id="quick-shadow-offset-badge"'), 'index.html contains quick-shadow-offset-badge');
 
 // 2. Check styles.css definitions
 const cssContent = fs.readFileSync(path.join(projectRoot, 'styles.css'), 'utf8');
@@ -55,6 +58,8 @@ assert(appJsContent.includes('updateFontStyle'), 'app.js contains updateFontStyl
 assert(appJsContent.includes('updateTextTransform'), 'app.js contains updateTextTransform');
 assert(appJsContent.includes('updateLetterSpacing'), 'app.js contains updateLetterSpacing');
 assert(appJsContent.includes('updateFontFamily'), 'app.js contains updateFontFamily');
+assert(appJsContent.includes('updateShadowOffset'), 'app.js contains updateShadowOffset');
+assert(appJsContent.includes('quickShadowOffset'), 'app.js contains quickShadowOffset');
 assert(appJsContent.includes('mini-toggle-bold'), 'app.js previewDocument contains mini-toggle-bold');
 assert(appJsContent.includes('mini-toggle-italic'), 'app.js previewDocument contains mini-toggle-italic');
 assert(appJsContent.includes('mini-toggle-underline'), 'app.js previewDocument contains mini-toggle-underline');
