@@ -1010,10 +1010,13 @@ function buildFieldEditor(snippet) {
         colorWrap.append(colorPicker);
         colorItem.append(colorLabel, colorWrap);
 
-        // Highlight Item
-        const bgItem = document.createElement("label");
-        bgItem.className = "style-bar-item";
-        bgItem.title = "เลือกสีไฮไลต์พื้นหลังตัวแปร";
+        // Highlight Item with Opacity Control
+        const bgItem = document.createElement("div");
+        bgItem.className = "style-bar-item style-bar-bg-item";
+
+        const bgLabelWrap = document.createElement("label");
+        bgLabelWrap.className = "style-bar-label-wrap";
+        bgLabelWrap.title = "เลือกสีไฮไลต์พื้นหลังตัวแปร (มี EyeDropper)";
 
         const bgLabel = document.createElement("span");
         bgLabel.className = "style-bar-label";
@@ -1026,10 +1029,41 @@ function buildFieldEditor(snippet) {
         const bgPicker = document.createElement("input");
         bgPicker.type = "color";
         bgPicker.className = "var-bg-picker";
-        bgPicker.value = "#38bdf8";
+
+        let initialBgHex = currentStyle.bgHex || "#38bdf8";
+        let initialBgAlpha = currentStyle.bgAlpha !== undefined ? currentStyle.bgAlpha : 35;
+        if (currentStyle.bgColor) {
+          const parsed = parseColorInfo(currentStyle.bgColor);
+          if (parsed) {
+            initialBgHex = parsed.hex;
+            initialBgAlpha = parsed.alphaPercent;
+          }
+        }
+        bgPicker.value = initialBgHex;
         bgPicker.setAttribute("aria-label", `เลือกสีไฮไลต์สำหรับ ${field.label}`);
         bgWrap.append(bgPicker);
-        bgItem.append(bgLabel, bgWrap);
+        bgLabelWrap.append(bgLabel, bgWrap);
+
+        // Opacity Slider & Badge
+        const opacityWrap = document.createElement("div");
+        opacityWrap.className = "var-opacity-wrap";
+        opacityWrap.title = "ปรับความเข้ม/ความโปร่งใสของสีไฮไลต์ (5% - 100%)";
+
+        const opacitySlider = document.createElement("input");
+        opacitySlider.type = "range";
+        opacitySlider.className = "var-opacity-slider";
+        opacitySlider.min = "5";
+        opacitySlider.max = "100";
+        opacitySlider.step = "5";
+        opacitySlider.value = String(initialBgAlpha);
+        opacitySlider.setAttribute("aria-label", `ปรับความเข้มสีไฮไลต์ ${field.label}`);
+
+        const opacityBadge = document.createElement("span");
+        opacityBadge.className = "var-opacity-badge";
+        opacityBadge.textContent = `${initialBgAlpha}%`;
+
+        opacityWrap.append(opacitySlider, opacityBadge);
+        bgItem.append(bgLabelWrap, opacityWrap);
 
         // Actions: Bold & Reset
         const actionsGroup = document.createElement("div");
@@ -1064,6 +1098,11 @@ function buildFieldEditor(snippet) {
           if (updated.color && updated.color.startsWith("#")) colorPicker.value = updated.color;
 
           bgWrap.style.backgroundColor = updated.bgColor || "";
+          if (updated.bgHex) bgPicker.value = updated.bgHex;
+          if (updated.bgAlpha !== undefined) {
+            opacitySlider.value = String(updated.bgAlpha);
+            opacityBadge.textContent = `${updated.bgAlpha}%`;
+          }
 
           boldBtn.classList.toggle("active", Boolean(updated.bold));
 
@@ -1071,13 +1110,27 @@ function buildFieldEditor(snippet) {
           renderPreview(snippet);
         };
 
+        const onBgUpdate = (hexVal, alphaPercent) => {
+          const alpha = (Math.max(5, Math.min(100, Number(alphaPercent))) / 100).toFixed(2);
+          const rgba = hexToRgbaString(hexVal, alpha);
+          applyStyleUpdate({
+            bgColor: rgba,
+            bgHex: hexVal,
+            bgAlpha: Number(alphaPercent)
+          });
+        };
+
         colorPicker.addEventListener("input", () => {
           applyStyleUpdate({ color: colorPicker.value });
         });
 
         bgPicker.addEventListener("input", () => {
-          const rgba = hexToRgbaString(bgPicker.value, 0.25);
-          applyStyleUpdate({ bgColor: rgba });
+          onBgUpdate(bgPicker.value, opacitySlider.value);
+        });
+
+        opacitySlider.addEventListener("input", () => {
+          opacityBadge.textContent = `${opacitySlider.value}%`;
+          onBgUpdate(bgPicker.value, opacitySlider.value);
         });
 
         boldBtn.addEventListener("click", () => {
@@ -1086,7 +1139,7 @@ function buildFieldEditor(snippet) {
         });
 
         resetBtn.addEventListener("click", () => {
-          applyStyleUpdate({ color: "", bgColor: "", bold: false });
+          applyStyleUpdate({ color: "", bgColor: "", bgHex: "#38bdf8", bgAlpha: 35, bold: false });
         });
       }
     }

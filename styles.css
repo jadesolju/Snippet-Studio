@@ -1398,19 +1398,34 @@ body {
   flex: 0 0 auto;
 }
 
-/* Variable Granular Styling Bar (Text Color & Background Highlight - Minimal Clean Pickers) */
+/* Variable Granular Styling Bar (Text Color & Background Highlight with Opacity) */
 .field-text-style-bar {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   padding: 5px 9px;
   border-radius: 7px;
   background: rgba(0, 0, 0, 0.22);
   border: 1px solid rgba(255, 255, 255, 0.05);
   margin-top: 3px;
+  flex-wrap: wrap;
 }
 
 .style-bar-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.style-bar-bg-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: default;
+}
+
+.style-bar-label-wrap {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -1459,6 +1474,35 @@ body {
   border: none;
   background: none;
   opacity: 0;
+}
+
+.var-opacity-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.var-opacity-slider {
+  width: 46px;
+  height: 4px;
+  border-radius: 2px;
+  background: #252b3a;
+  outline: none;
+  cursor: pointer;
+  accent-color: #38bdf8;
+}
+
+.var-opacity-badge {
+  font-family: "DM Mono", Consolas, monospace;
+  font-size: 10.5px;
+  color: #cbd5e1;
+  min-width: 26px;
+  text-align: right;
+  user-select: none;
 }
 
 .style-bar-actions {

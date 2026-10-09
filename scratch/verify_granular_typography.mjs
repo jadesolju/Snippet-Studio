@@ -65,19 +65,23 @@ assert(appJsContent.includes('mini-toggle-italic'), 'app.js previewDocument cont
 assert(appJsContent.includes('mini-toggle-underline'), 'app.js previewDocument contains mini-toggle-underline');
 assert(appJsContent.includes('mini-toggle-upper'), 'app.js previewDocument contains mini-toggle-upper');
 
-// Variable Granular Styling Suite (Clean Minimal Pickers)
+// Variable Granular Styling Suite (Clean Minimal Pickers with Opacity Slider)
 assert(appJsContent.includes('fieldStylesBySnippet'), 'app.js contains fieldStylesBySnippet state');
 assert(appJsContent.includes('getFieldStyle'), 'app.js contains getFieldStyle helper');
 assert(appJsContent.includes('setFieldStyle'), 'app.js contains setFieldStyle helper');
 assert(appJsContent.includes('field-text-style-bar'), 'app.js renders .field-text-style-bar');
 assert(appJsContent.includes('var-color-picker'), 'app.js renders .var-color-picker');
 assert(appJsContent.includes('var-bg-picker'), 'app.js renders .var-bg-picker');
+assert(appJsContent.includes('var-opacity-slider'), 'app.js renders .var-opacity-slider');
+assert(appJsContent.includes('var-opacity-badge'), 'app.js renders .var-opacity-badge');
 assert(appJsContent.includes('var-bold-btn'), 'app.js renders .var-bold-btn');
 assert(appJsContent.includes('var-reset-btn'), 'app.js renders .var-reset-btn');
 
 assert(cssContent.includes('.field-text-style-bar'), 'styles.css contains .field-text-style-bar');
 assert(cssContent.includes('.var-color-picker'), 'styles.css contains .var-color-picker');
 assert(cssContent.includes('.var-bg-picker'), 'styles.css contains .var-bg-picker');
+assert(cssContent.includes('.var-opacity-slider'), 'styles.css contains .var-opacity-slider');
+assert(cssContent.includes('.var-opacity-badge'), 'styles.css contains .var-opacity-badge');
 assert(cssContent.includes('.var-bold-btn'), 'styles.css contains .var-bold-btn');
 assert(cssContent.includes('.var-reset-btn'), 'styles.css contains .var-reset-btn');
 
