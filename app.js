@@ -1336,7 +1336,7 @@ function htmlWithBackground(snippet, html) {
   const root = scanHtmlTags(html).find((tag) => tag.kind === "open");
   if (!root) return html;
   const cssUrl = url.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/[\r\n\f]/g, "");
-  const additions = `background-image:linear-gradient(rgba(10,12,18,.28),rgba(10,12,18,.28)),url('${cssUrl}');background-size:cover;background-position:center;background-repeat:no-repeat;`;
+  const additions = `background-image:url('${cssUrl}');background-size:cover;background-position:center;background-repeat:no-repeat;`;
   const rootTag = html.slice(root.start, root.end);
   const styleAttribute = rootTag.match(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i);
   let updatedRoot;
@@ -2399,7 +2399,7 @@ window.addEventListener("message", (event) => {
     const bgState = backgroundState(snippet);
     if (bgState.enabled && bgState.url.trim()) {
       const cssUrl = bgState.url.trim().replace(/\\/g, "\\\\").replace(/"/g, "\\\"").replace(/[\r\n\f]/g, "");
-      const additions = `background-image:linear-gradient(rgba(10,12,18,.28),rgba(10,12,18,.28)),url('${cssUrl}');background-size:cover;background-position:center;background-repeat:no-repeat;`;
+      const additions = `background-image:url('${cssUrl}');background-size:cover;background-position:center;background-repeat:no-repeat;`;
       cleanHtml = cleanHtml.split(additions).join("");
     }
 
