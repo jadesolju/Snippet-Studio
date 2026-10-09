@@ -204,9 +204,14 @@ const noFields = document.querySelector("#no-fields");
 const quickEditTabs = document.querySelector("#quick-edit-tabs");
 const tabCountAll = document.querySelector("#tab-count-all");
 const tabCountText = document.querySelector("#tab-count-text");
+const tabCountTypography = document.querySelector("#tab-count-typography");
 const tabCountStyle = document.querySelector("#tab-count-style");
 const tabCountMedia = document.querySelector("#tab-count-media");
 const quickTabMedia = document.querySelector("#quick-tab-media");
+const quickTypographyControls = document.querySelector("#quick-typography-controls");
+const quickTextShadow = document.querySelector("#quick-text-shadow");
+const quickTextColor = document.querySelector("#quick-text-color");
+const quickTextColorPicker = document.querySelector("#quick-text-color-picker");
 let activeQuickEditTab = "all";
 const previewFrame = document.querySelector("#preview-frame");
 const copyButton = document.querySelector("#copy-button");
@@ -747,6 +752,10 @@ function applyQuickEditFilter(tabKey) {
     });
   }
 
+  if (quickTypographyControls) {
+    quickTypographyControls.hidden = !(tabKey === "all" || tabKey === "typography");
+  }
+
   const rows = fieldList.querySelectorAll(".field-row");
   let visibleCount = 0;
   rows.forEach((row) => {
@@ -755,10 +764,11 @@ function applyQuickEditFilter(tabKey) {
     if (isMatch) visibleCount++;
   });
 
-  noFields.hidden = visibleCount > 0;
-  if (visibleCount === 0 && currentFields.length > 0) {
+  const isSpecialVisible = (tabKey === "all" || tabKey === "typography");
+  noFields.hidden = visibleCount > 0 || isSpecialVisible;
+  if (visibleCount === 0 && !isSpecialVisible && currentFields.length > 0) {
     noFields.textContent = "ไม่มีรายการในหมวดหมู่นี้";
-  } else if (currentFields.length === 0) {
+  } else if (currentFields.length === 0 && !isSpecialVisible) {
     noFields.textContent = "ตัวอย่างนี้ไม่มีค่าที่แก้ไขได้แยกไว้";
   }
 }
@@ -771,6 +781,7 @@ function buildFieldEditor(snippet) {
   if (quickEditCount) quickEditCount.textContent = currentFields.length ? `${currentFields.length} ค่า` : "—";
 
   let countText = 0;
+  let countTypography = 0;
   let countStyle = 0;
   let countMedia = 0;
 
@@ -819,6 +830,9 @@ function buildFieldEditor(snippet) {
     if (field.kind === "url") {
       fieldCategory = "media";
       countMedia++;
+    } else if (field.propertyType === "color-text") {
+      fieldCategory = "typography";
+      countTypography++;
     } else if (colorInfo) {
       fieldCategory = "style";
       countStyle++;
@@ -941,6 +955,7 @@ function buildFieldEditor(snippet) {
   // Update tab counts
   if (tabCountAll) tabCountAll.textContent = String(currentFields.length);
   if (tabCountText) tabCountText.textContent = String(countText);
+  if (tabCountTypography) tabCountTypography.textContent = String(countTypography);
   if (tabCountStyle) tabCountStyle.textContent = String(countStyle);
   if (tabCountMedia) tabCountMedia.textContent = String(countMedia);
   if (quickTabMedia) quickTabMedia.hidden = countMedia === 0;
@@ -948,6 +963,7 @@ function buildFieldEditor(snippet) {
   // Validate active tab
   if (
     (activeQuickEditTab === "text" && countText === 0) ||
+    (activeQuickEditTab === "typography" && countTypography === 0 && !quickTypographyControls) ||
     (activeQuickEditTab === "style" && countStyle === 0) ||
     (activeQuickEditTab === "media" && countMedia === 0)
   ) {
@@ -1381,8 +1397,12 @@ function renderBackgroundControls(snippet) {
   backgroundEnabled.checked = state.enabled;
   backgroundUrl.value = state.url;
   if (backgroundTextShadow) backgroundTextShadow.value = state.textShadow || "soft";
+  if (quickTextShadow) quickTextShadow.value = state.textShadow || "soft";
   if (backgroundTextColor) backgroundTextColor.value = state.textColor || "auto";
-  if (backgroundTextColorPicker) backgroundTextColorPicker.value = (state.textColor && state.textColor !== "auto" && state.textColor !== "custom") ? state.textColor : (state.customTextColor || "#ffffff");
+  if (quickTextColor) quickTextColor.value = state.textColor || "auto";
+  const effectiveCustomColor = (state.textColor && state.textColor !== "auto" && state.textColor !== "custom") ? state.textColor : (state.customTextColor || "#ffffff");
+  if (backgroundTextColorPicker) backgroundTextColorPicker.value = effectiveCustomColor;
+  if (quickTextColorPicker) quickTextColorPicker.value = effectiveCustomColor;
   const optRow = document.querySelector(".background-options-row");
   if (optRow) optRow.hidden = !state.enabled;
   const urlField = document.querySelector(".background-url-field");
@@ -1433,11 +1453,8 @@ function escapeHtmlAttribute(value) {
 
 function htmlWithBackground(snippet, html) {
   const state = backgroundState(snippet);
-  const url = state.url.trim();
-  if (!state.enabled || !url) return html;
-  const root = scanHtmlTags(html).find((tag) => tag.kind === "open");
-  if (!root) return html;
-  const cssUrl = url.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/[\r\n\f]/g, "");
+  const url = (state.url || "").trim();
+  const hasBg = state.enabled && Boolean(url);
   
   let shadowCss = "";
   if (state.textShadow === "soft") {
@@ -1455,7 +1472,18 @@ function htmlWithBackground(snippet, html) {
     textOverrideCss = `color:${effectiveColor}!important;`;
   }
 
-  const additions = `background-image:url('${cssUrl}');background-size:cover;background-position:center;background-repeat:no-repeat;${shadowCss}${textOverrideCss}`;
+  let bgCss = "";
+  if (hasBg) {
+    const cssUrl = url.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/[\r\n\f]/g, "");
+    bgCss = `background-image:url('${cssUrl}');background-size:cover;background-position:center;background-repeat:no-repeat;`;
+  }
+
+  const additions = `${bgCss}${shadowCss}${textOverrideCss}`;
+  if (!additions && !effectiveColor) return html;
+
+  const root = scanHtmlTags(html).find((tag) => tag.kind === "open");
+  if (!root) return html;
+
   const rootTag = html.slice(root.start, root.end);
   const styleAttribute = rootTag.match(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i);
   let updatedRoot;
@@ -2292,38 +2320,75 @@ backgroundUrl.addEventListener("input", () => {
   updateCodePanel(snippet);
   renderPreview(snippet);
 });
+function updateTextShadow(snippet, value) {
+  backgroundState(snippet).textShadow = value;
+  if (backgroundTextShadow) backgroundTextShadow.value = value;
+  if (quickTextShadow) quickTextShadow.value = value;
+  updateCodePanel(snippet);
+  renderPreview(snippet);
+}
+
+function updateTextColorSelect(snippet, value) {
+  const state = backgroundState(snippet);
+  state.textColor = value;
+  if (backgroundTextColor) backgroundTextColor.value = value;
+  if (quickTextColor) quickTextColor.value = value;
+  if (state.textColor !== "auto" && state.textColor !== "custom") {
+    if (backgroundTextColorPicker) backgroundTextColorPicker.value = state.textColor;
+    if (quickTextColorPicker) quickTextColorPicker.value = state.textColor;
+  }
+  updateCodePanel(snippet);
+  renderPreview(snippet);
+}
+
+function updateTextColorPicker(snippet, hexValue) {
+  const state = backgroundState(snippet);
+  state.customTextColor = hexValue;
+  state.textColor = "custom";
+  if (backgroundTextColor) backgroundTextColor.value = "custom";
+  if (quickTextColor) quickTextColor.value = "custom";
+  if (backgroundTextColorPicker) backgroundTextColorPicker.value = hexValue;
+  if (quickTextColorPicker) quickTextColorPicker.value = hexValue;
+  updateCodePanel(snippet);
+  renderPreview(snippet);
+}
+
 if (backgroundTextShadow) {
   backgroundTextShadow.addEventListener("change", () => {
     const snippet = snippets.find((item) => item.id === selectedSnippetId);
-    if (!snippet) return;
-    backgroundState(snippet).textShadow = backgroundTextShadow.value;
-    updateCodePanel(snippet);
-    renderPreview(snippet);
+    if (snippet) updateTextShadow(snippet, backgroundTextShadow.value);
   });
 }
+if (quickTextShadow) {
+  quickTextShadow.addEventListener("change", () => {
+    const snippet = snippets.find((item) => item.id === selectedSnippetId);
+    if (snippet) updateTextShadow(snippet, quickTextShadow.value);
+  });
+}
+
 if (backgroundTextColor) {
   backgroundTextColor.addEventListener("change", () => {
     const snippet = snippets.find((item) => item.id === selectedSnippetId);
-    if (!snippet) return;
-    const state = backgroundState(snippet);
-    state.textColor = backgroundTextColor.value;
-    if (state.textColor !== "auto" && state.textColor !== "custom" && backgroundTextColorPicker) {
-      backgroundTextColorPicker.value = state.textColor;
-    }
-    updateCodePanel(snippet);
-    renderPreview(snippet);
+    if (snippet) updateTextColorSelect(snippet, backgroundTextColor.value);
   });
 }
+if (quickTextColor) {
+  quickTextColor.addEventListener("change", () => {
+    const snippet = snippets.find((item) => item.id === selectedSnippetId);
+    if (snippet) updateTextColorSelect(snippet, quickTextColor.value);
+  });
+}
+
 if (backgroundTextColorPicker) {
   backgroundTextColorPicker.addEventListener("input", () => {
     const snippet = snippets.find((item) => item.id === selectedSnippetId);
-    if (!snippet) return;
-    const state = backgroundState(snippet);
-    state.customTextColor = backgroundTextColorPicker.value;
-    state.textColor = "custom";
-    if (backgroundTextColor) backgroundTextColor.value = "custom";
-    updateCodePanel(snippet);
-    renderPreview(snippet);
+    if (snippet) updateTextColorPicker(snippet, backgroundTextColorPicker.value);
+  });
+}
+if (quickTextColorPicker) {
+  quickTextColorPicker.addEventListener("input", () => {
+    const snippet = snippets.find((item) => item.id === selectedSnippetId);
+    if (snippet) updateTextColorPicker(snippet, quickTextColorPicker.value);
   });
 }
 rubiiSlotSelect.addEventListener("change", () => {

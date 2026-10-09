@@ -184,10 +184,10 @@
                             เงาข้อความ (Text Shadow)
                           </span>
                           <select id="background-text-shadow" aria-label="รูปแบบเงาข้อความเมื่อใส่รูปพื้นหลัง">
-                            <option value="none">🚫 ไม่ใส่เงา (None)</option>
-                            <option value="soft" selected>🌑 เงามืดนุ่มนวล (Soft Dark - แนะนำ)</option>
-                            <option value="outline">🔲 ตัดเส้นขอบคม (Sharp Outline)</option>
-                            <option value="neon">⚡ แสงนีออน (Neon Glow)</option>
+                            <option value="none">ไม่ใส่เงา (None)</option>
+                            <option value="soft" selected>เงามืดนุ่มนวล (Soft Dark - แนะนำ)</option>
+                            <option value="outline">ตัดเส้นขอบคม (Sharp Outline)</option>
+                            <option value="neon">แสงนีออน (Neon Glow)</option>
                           </select>
                         </label>
                         <label class="background-color-field">
@@ -198,14 +198,14 @@
                           <div class="background-color-wrap">
                             <input type="color" id="background-text-color-picker" value="#ffffff" title="คลิกเพื่อเลือกสีข้อความ (มี EyeDropper)" aria-label="เลือกสีข้อความ">
                             <select id="background-text-color" aria-label="สีข้อความเมื่อใส่รูปพื้นหลัง">
-                              <option value="auto" selected>✨ ตามเทมเพลต (Default)</option>
-                              <option value="#ffffff">⚪ ขาวสว่าง (White)</option>
-                              <option value="#1d1d1f">⚫ ดำเข้ม (Dark)</option>
-                              <option value="#fef08a">🟡 ทองอ่อน (Light Gold)</option>
-                              <option value="#38bdf8">🔵 ฟ้านีออน (Neon Cyan)</option>
-                              <option value="#c084fc">🟣 ม่วงนีออน (Neon Purple)</option>
-                              <option value="#4ade80">🟢 เขียวมินต์ (Mint Green)</option>
-                              <option value="custom">🎨 กำหนดเอง (Custom)</option>
+                              <option value="auto" selected>ตามเทมเพลต (Default)</option>
+                              <option value="#ffffff">ขาวสว่าง (White)</option>
+                              <option value="#1d1d1f">ดำเข้ม (Dark)</option>
+                              <option value="#fef08a">ทองอ่อน (Light Gold)</option>
+                              <option value="#38bdf8">ฟ้านีออน (Neon Cyan)</option>
+                              <option value="#c084fc">ม่วงนีออน (Neon Purple)</option>
+                              <option value="#4ade80">เขียวมินต์ (Mint Green)</option>
+                              <option value="custom">กำหนดเอง (Custom)</option>
                             </select>
                           </div>
                         </label>
@@ -235,6 +235,11 @@
                             <span>ข้อความ &amp; ตัวแปร</span>
                             <span id="tab-count-text" class="tab-badge">0</span>
                           </button>
+                          <button type="button" class="quick-edit-tab" data-quick-tab="typography">
+                            <svg class="ui-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+                            <span>สีอักษร &amp; เงา</span>
+                            <span id="tab-count-typography" class="tab-badge">0</span>
+                          </button>
                           <button type="button" class="quick-edit-tab" data-quick-tab="style">
                             <svg class="ui-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/></svg>
                             <span>สี &amp; องค์ประกอบ</span>
@@ -245,6 +250,39 @@
                             <span>รูปภาพ</span>
                             <span id="tab-count-media" class="tab-badge">0</span>
                           </button>
+                        </div>
+                        <div id="quick-typography-controls" class="quick-typography-controls">
+                          <div class="quick-typography-header">
+                            <svg class="ui-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+                            <span>การปรับแต่งเงาและสีอักษรโดยรวมของการ์ด</span>
+                          </div>
+                          <div class="quick-typography-grid">
+                            <label class="quick-typography-field">
+                              <span>เงาข้อความ (Text Shadow)</span>
+                              <select id="quick-text-shadow" aria-label="รูปแบบเงาข้อความใน Quick Edit">
+                                <option value="none">ไม่ใส่เงา (None)</option>
+                                <option value="soft" selected>เงามืดนุ่มนวล (Soft Dark - แนะนำ)</option>
+                                <option value="outline">ตัดเส้นขอบคม (Sharp Outline)</option>
+                                <option value="neon">แสงนีออน (Neon Glow)</option>
+                              </select>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span>สีอักษรหลักของการ์ด (Card Text Color)</span>
+                              <div class="background-color-wrap">
+                                <input type="color" id="quick-text-color-picker" value="#ffffff" title="คลิกเพื่อเลือกสีข้อความ (มี EyeDropper)" aria-label="เลือกสีข้อความ">
+                                <select id="quick-text-color" aria-label="สีข้อความหลักใน Quick Edit">
+                                  <option value="auto" selected>ตามเทมเพลต (Default)</option>
+                                  <option value="#ffffff">ขาวสว่าง (White)</option>
+                                  <option value="#1d1d1f">ดำเข้ม (Dark)</option>
+                                  <option value="#fef08a">ทองอ่อน (Light Gold)</option>
+                                  <option value="#38bdf8">ฟ้านีออน (Neon Cyan)</option>
+                                  <option value="#c084fc">ม่วงนีออน (Neon Purple)</option>
+                                  <option value="#4ade80">เขียวมินต์ (Mint Green)</option>
+                                  <option value="custom">กำหนดเอง (Custom)</option>
+                                </select>
+                              </div>
+                            </label>
+                          </div>
                         </div>
                         <div id="field-list" class="field-list"></div>
                         <p id="no-fields" class="field-empty" hidden>ตัวอย่างนี้ไม่มีค่าที่แก้ไขได้แยกไว้</p>
