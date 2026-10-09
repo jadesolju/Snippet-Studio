@@ -44,9 +44,11 @@ function formatCss(css) {
 function parseColorInfo(value) {
   if (!value || typeof value !== "string") return null;
   const trimmed = value.trim();
+  const hasImportant = /!important\s*$/i.test(trimmed);
+  const cleanVal = trimmed.replace(/!important/gi, "").trim();
   
   // 1. Tuple like (255, 255, 255, 0.08) or (255,255,255)
-  const tupleMatch = trimmed.match(/^\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(?:\s*,\s*([\d.]+)\s*)?\)$/);
+  const tupleMatch = cleanVal.match(/^\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(?:\s*,\s*([\d.]+)\s*)?\)$/);
   if (tupleMatch) {
     const r = Math.min(255, parseInt(tupleMatch[1], 10));
     const g = Math.min(255, parseInt(tupleMatch[2], 10));
@@ -55,6 +57,7 @@ function parseColorInfo(value) {
     const hex = "#" + [r, g, b].map(x => x.toString(16).padStart(2, "0")).join("");
     return {
       type: "tuple",
+      hasImportant,
       r, g, b, alpha,
       alphaPercent: alpha !== null ? Math.round(Number(alpha) * 100) : 100,
       hex,
@@ -63,26 +66,29 @@ function parseColorInfo(value) {
         const ng = parseInt(newHex.slice(3, 5), 16);
         const nb = parseInt(newHex.slice(5, 7), 16);
         const a = newAlpha !== undefined ? newAlpha : (alpha !== null ? alpha : null);
-        return a !== null ? `(${nr},${ng},${nb},${a})` : `(${nr},${ng},${nb})`;
+        const core = a !== null ? `(${nr},${ng},${nb},${a})` : `(${nr},${ng},${nb})`;
+        return hasImportant ? `${core}!important` : core;
       },
       withAlphaPercent: (percent) => {
         const a = Number((Math.max(0, Math.min(100, Number(percent))) / 100).toFixed(2));
-        return `(${r},${g},${b},${a})`;
+        const core = `(${r},${g},${b},${a})`;
+        return hasImportant ? `${core}!important` : core;
       }
     };
   }
 
   // 2. rgba(...) or rgb(...)
-  const rgbMatch = trimmed.match(/^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(?:\s*,\s*([\d.]+)\s*)?\)$/i);
+  const rgbMatch = cleanVal.match(/^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(?:\s*,\s*([\d.]+)\s*)?\)$/i);
   if (rgbMatch) {
     const r = Math.min(255, parseInt(rgbMatch[1], 10));
     const g = Math.min(255, parseInt(rgbMatch[2], 10));
     const b = Math.min(255, parseInt(rgbMatch[3], 10));
-    const isRgba = trimmed.toLowerCase().startsWith("rgba") || rgbMatch[4] !== undefined;
+    const isRgba = cleanVal.toLowerCase().startsWith("rgba") || rgbMatch[4] !== undefined;
     const alpha = rgbMatch[4] !== undefined ? rgbMatch[4] : (isRgba ? "1" : null);
     const hex = "#" + [r, g, b].map(x => x.toString(16).padStart(2, "0")).join("");
     return {
       type: isRgba ? "rgba" : "rgb",
+      hasImportant,
       r, g, b, alpha,
       alphaPercent: alpha !== null ? Math.round(Number(alpha) * 100) : 100,
       hex,
@@ -91,17 +97,19 @@ function parseColorInfo(value) {
         const ng = parseInt(newHex.slice(3, 5), 16);
         const nb = parseInt(newHex.slice(5, 7), 16);
         const a = newAlpha !== undefined ? newAlpha : alpha;
-        return a !== null ? `rgba(${nr}, ${ng}, ${nb}, ${a})` : `rgb(${nr}, ${ng}, ${nb})`;
+        const core = a !== null ? `rgba(${nr}, ${ng}, ${nb}, ${a})` : `rgb(${nr}, ${ng}, ${nb})`;
+        return hasImportant ? `${core}!important` : core;
       },
       withAlphaPercent: (percent) => {
         const a = Number((Math.max(0, Math.min(100, Number(percent))) / 100).toFixed(2));
-        return `rgba(${r}, ${g}, ${b}, ${a})`;
+        const core = `rgba(${r}, ${g}, ${b}, ${a})`;
+        return hasImportant ? `${core}!important` : core;
       }
     };
   }
 
   // 3. Hex code #rgb, #rgba, #rrggbb, #rrggbbaa
-  const hexMatch = trimmed.match(/^#([0-9a-f]{3,8})$/i);
+  const hexMatch = cleanVal.match(/^#([0-9a-f]{3,8})$/i);
   if (hexMatch) {
     let rawHex = hexMatch[1];
     let alpha = null;
@@ -120,13 +128,27 @@ function parseColorInfo(value) {
     const b = parseInt(hex.slice(4, 6), 16);
     return {
       type: "hex",
+      hasImportant,
       hex: "#" + hex.toLowerCase(),
       alpha,
       alphaPercent: alpha !== null ? Math.round(Number(alpha) * 100) : 100,
-      format: (newHex) => newHex,
+      format: (newHex, newAlpha) => {
+        if (newAlpha !== undefined && Number(newAlpha) < 1) {
+          const nr = parseInt(newHex.slice(1, 3), 16);
+          const ng = parseInt(newHex.slice(3, 5), 16);
+          const nb = parseInt(newHex.slice(5, 7), 16);
+          const core = `rgba(${nr}, ${ng}, ${nb}, ${newAlpha})`;
+          return hasImportant ? `${core}!important` : core;
+        }
+        return hasImportant ? `${newHex}!important` : newHex;
+      },
       withAlphaPercent: (percent) => {
         const a = Number((Math.max(0, Math.min(100, Number(percent))) / 100).toFixed(2));
-        return `rgba(${r}, ${g}, ${b}, ${a})`;
+        if (a < 1) {
+          const core = `rgba(${r}, ${g}, ${b}, ${a})`;
+          return hasImportant ? `${core}!important` : core;
+        }
+        return hasImportant ? `#${hex}!important` : `#${hex}`;
       }
     };
   }
@@ -196,6 +218,8 @@ const quickEditCount = document.querySelector("#quick-edit-count");
 const backgroundEnabled = document.querySelector("#background-enabled");
 const backgroundUrl = document.querySelector("#background-url");
 const backgroundTextShadow = document.querySelector("#background-text-shadow");
+const backgroundTextColor = document.querySelector("#background-text-color");
+const backgroundTextColorPicker = document.querySelector("#background-text-color-picker");
 const htmlPartsPanel = document.querySelector("#html-parts-panel");
 const htmlPartsList = document.querySelector("#html-parts-list");
 const htmlPartCount = document.querySelector("#html-part-count");
@@ -549,6 +573,28 @@ function collectFields(snippet) {
     for (const dec of styleContent.matchAll(declarations)) {
       const prop = dec[2].toLowerCase().trim();
       const val = dec[3].trim();
+
+      // Direct text color property
+      if (prop === "color") {
+        const colorInfo = parseColorInfo(val);
+        if (colorInfo && !seenPlaceholders.has(val)) {
+          seenPlaceholders.add(val);
+          let label = "สีข้อความหลัก (Text Color)";
+          if (val.toLowerCase().includes("86868b") || val.toLowerCase().includes("secondary") || contextHint.includes("ป้าย") || contextHint.includes("โปรไฟล์")) {
+            label = "สีข้อความรอง (Secondary Text Color)";
+          }
+          fields.push({
+            id: `color-text-${fields.length}`,
+            kind: "literal",
+            token: val,
+            label,
+            propertyType: "color-text",
+            value: val,
+            inputType: "text",
+          });
+        }
+        continue;
+      }
 
       const colorMatches = val.matchAll(/\((?:[^()\n]{1,120})\)/g);
       for (const cm of colorMatches) {
@@ -1321,10 +1367,12 @@ function renderHtmlParts(snippet) {
 
 function backgroundState(snippet) {
   if (!backgroundBySnippet.has(snippet.id)) {
-    backgroundBySnippet.set(snippet.id, { enabled: false, url: defaultBackgroundUrl, textShadow: "soft" });
+    backgroundBySnippet.set(snippet.id, { enabled: false, url: defaultBackgroundUrl, textShadow: "soft", textColor: "auto", customTextColor: "#ffffff" });
   }
   const st = backgroundBySnippet.get(snippet.id);
   if (!st.textShadow) st.textShadow = "soft";
+  if (!st.textColor) st.textColor = "auto";
+  if (!st.customTextColor) st.customTextColor = "#ffffff";
   return st;
 }
 
@@ -1333,6 +1381,8 @@ function renderBackgroundControls(snippet) {
   backgroundEnabled.checked = state.enabled;
   backgroundUrl.value = state.url;
   if (backgroundTextShadow) backgroundTextShadow.value = state.textShadow || "soft";
+  if (backgroundTextColor) backgroundTextColor.value = state.textColor || "auto";
+  if (backgroundTextColorPicker) backgroundTextColorPicker.value = (state.textColor && state.textColor !== "auto" && state.textColor !== "custom") ? state.textColor : (state.customTextColor || "#ffffff");
   const optRow = document.querySelector(".background-options-row");
   if (optRow) optRow.hidden = !state.enabled;
   const urlField = document.querySelector(".background-url-field");
@@ -1398,7 +1448,14 @@ function htmlWithBackground(snippet, html) {
     shadowCss = "text-shadow:0 0 8px rgba(0,255,255,0.9),0 0 16px rgba(0,190,230,0.6),0 1px 2px rgba(0,0,0,0.9);";
   }
 
-  const additions = `background-image:url('${cssUrl}');background-size:cover;background-position:center;background-repeat:no-repeat;${shadowCss}`;
+  let textOverrideCss = "";
+  let effectiveColor = "";
+  if (state.textColor && state.textColor !== "auto") {
+    effectiveColor = state.textColor === "custom" ? (state.customTextColor || "#ffffff") : state.textColor;
+    textOverrideCss = `color:${effectiveColor}!important;`;
+  }
+
+  const additions = `background-image:url('${cssUrl}');background-size:cover;background-position:center;background-repeat:no-repeat;${shadowCss}${textOverrideCss}`;
   const rootTag = html.slice(root.start, root.end);
   const styleAttribute = rootTag.match(/\bstyle\s*=\s*(["'])([\s\S]*?)\1/i);
   let updatedRoot;
@@ -1410,7 +1467,16 @@ function htmlWithBackground(snippet, html) {
     const insertAt = rootTag.lastIndexOf(">");
     updatedRoot = `${rootTag.slice(0, insertAt)} style="${additions}"${rootTag.slice(insertAt)}`;
   }
-  return `${html.slice(0, root.start)}${updatedRoot}${html.slice(root.end)}`;
+
+  let finalHtml = `${html.slice(0, root.start)}${updatedRoot}${html.slice(root.end)}`;
+
+  if (effectiveColor) {
+    finalHtml = finalHtml.replace(/(\bstyle\s*=\s*["'][^"']*\bcolor\s*:\s*)([^;!"']+)(!important)?/gi, (match, p1) => {
+      return `${p1}${effectiveColor}!important`;
+    });
+  }
+
+  return finalHtml;
 }
 
 function rubiiTextSlots(source) {
@@ -2231,6 +2297,31 @@ if (backgroundTextShadow) {
     const snippet = snippets.find((item) => item.id === selectedSnippetId);
     if (!snippet) return;
     backgroundState(snippet).textShadow = backgroundTextShadow.value;
+    updateCodePanel(snippet);
+    renderPreview(snippet);
+  });
+}
+if (backgroundTextColor) {
+  backgroundTextColor.addEventListener("change", () => {
+    const snippet = snippets.find((item) => item.id === selectedSnippetId);
+    if (!snippet) return;
+    const state = backgroundState(snippet);
+    state.textColor = backgroundTextColor.value;
+    if (state.textColor !== "auto" && state.textColor !== "custom" && backgroundTextColorPicker) {
+      backgroundTextColorPicker.value = state.textColor;
+    }
+    updateCodePanel(snippet);
+    renderPreview(snippet);
+  });
+}
+if (backgroundTextColorPicker) {
+  backgroundTextColorPicker.addEventListener("input", () => {
+    const snippet = snippets.find((item) => item.id === selectedSnippetId);
+    if (!snippet) return;
+    const state = backgroundState(snippet);
+    state.customTextColor = backgroundTextColorPicker.value;
+    state.textColor = "custom";
+    if (backgroundTextColor) backgroundTextColor.value = "custom";
     updateCodePanel(snippet);
     renderPreview(snippet);
   });

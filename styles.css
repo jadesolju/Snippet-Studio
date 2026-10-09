@@ -825,19 +825,27 @@ body {
 
 .background-options-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(180px, auto);
+  grid-template-columns: minmax(0, 1.4fr) minmax(160px, 1fr) minmax(160px, 1fr);
   gap: 10px;
   align-items: flex-end;
   margin-top: 8px;
 }
 
-.background-shadow-field {
+@media (max-width: 900px) {
+  .background-options-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.background-shadow-field,
+.background-color-field {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
 
-.background-shadow-field > span {
+.background-shadow-field > span,
+.background-color-field > span {
   display: flex;
   align-items: center;
   gap: 5px;
@@ -862,6 +870,54 @@ body {
 .background-shadow-field select:focus {
   border-color: rgba(192, 160, 255, 0.65);
   box-shadow: 0 0 0 3px rgba(192, 160, 255, 0.12);
+}
+
+.background-color-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  background: #0d1017;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  padding: 0 8px 0 6px;
+  transition: border-color 0.15s ease;
+}
+
+.background-color-wrap:focus-within {
+  border-color: rgba(192, 160, 255, 0.65);
+  box-shadow: 0 0 0 3px rgba(192, 160, 255, 0.12);
+}
+
+#background-text-color-picker {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: none;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+#background-text-color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+#background-text-color-picker::-webkit-color-swatch {
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 5px;
+}
+
+.background-color-wrap select {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: #f2f4fa;
+  font-size: 12.5px;
+  outline: none;
+  cursor: pointer;
 }
 
 .field-label-row label {
