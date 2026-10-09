@@ -1,246 +1,235 @@
-# รายงานการวิจัยและคู่มือวิศวกรรมระบบ: หลักการทำงานเชิงลึกของแพลตฟอร์ม Rubii AI ตั้งแต่ Style Tag จนถึงสถาปัตยกรรม CSS
+# รายงานการวิจัยและคู่มือสถาปัตยกรรมระบบ: กลไกการทำงานของ Rubii AI และแนวทางการพัฒนาการ์ดส่วนต่อประสานผู้ใช้ (HTML, CSS และ Regex)
 
-**สถานะเอกสาร:** รายงานการวิจัยเชิงวิศวกรรมระบบฉบับสมบูรณ์ (Comprehensive Engineering & System Architecture Report)  
-**ขอบเขตการศึกษา:** กลไกการประมวลผลข้อความและส่วนต่อประสานผู้ใช้ (UI), โครงสร้าง Style Tag, กลไก Regex Replacement Engine, การผูกตัวแปรหลอดสถานะทางคณิตศาสตร์, สถาปัตยกรรม CSS Glassmorphism, การจัดวางสัดส่วนภาพเต็มผืนผ้า, และวิศวกรรมความคมชัดของข้อความด้วย Text Shadow  
-**กลุ่มประชากรที่ใช้ในการวิจัยและทดสอบ:** แม่แบบการ์ดทั้งหมด 75 รายการ (S01 ถึง S76) ในระบบ Snippet Studio  
+**สถานะเอกสาร:** รายงานการวิจัยและคู่มืออ้างอิงทางเทคนิค (Technical Research Report & Reference Guide)  
+**ขอบเขตเนื้อหา:** การทำงานของระบบ Rubii AI ในการแปลงข้อความจาก Large Language Model (LLM) เป็นการ์ดส่วนต่อประสานผู้ใช้ (UI Cards), สถาปัตยกรรม Style Tag, กลไก Regex Replacement, ข้อกำหนดเชิงโครงสร้าง HTML/CSS, การวิเคราะห์จุดบกพร่องที่พบจากการทดลองจริง, และข้อเสนอแนะเชิงลึกสำหรับผู้สร้างแม่แบบ  
+**กลุ่มเป้าหมาย:** นักพัฒนา, ผู้สร้างคอนเทนต์สำหรับ Rubii AI, และผู้สนใจโครงสร้างการทำงานของระบบเรนเดอร์  
 
 ---
 
 ## สารบัญ
 
-1. [บทนำและภาพรวมของระบบ Rubii Rendering Pipeline](#1-บทนำและภาพรวมของระบบ-rubii-rendering-pipeline)
-2. [สถาปัตยกรรม Style Tag และการคอมไพล์ CSS Scoped Stylesheet](#2-สถาปัตยกรรม-style-tag-และการคอมไพล์-css-scoped-stylesheet)
-3. [กลไกการทำงานของ Regex Replacement Engine](#3-กลไกการทำงานของ-regex-replacement-engine)
-4. [วิศวกรรมหลอดสถานะและระบบผูกตัวแปรเปอร์เซ็นต์ไดนามิก](#4-วิศวกรรมหลอดสถานะและระบบผูกตัวแปรเปอร์เซ็นต์ไดนามิก)
-5. [สถาปัตยกรรม CSS Glassmorphism และการจัดการความโปร่งแสง](#5-สถาปัตยกรรม-css-glassmorphism-และการจัดการความโปร่งแสง)
-6. [สถาปัตยกรรมการจัดวางภาพและแบนเนอร์ผืนผ้า](#6-สถาปัตยกรรมการจัดวางภาพและแบนเนอร์ผืนผ้า)
-7. [วิศวกรรมเงาข้อความและการวิเคราะห์ความคมชัดตามมาตรฐาน WCAG 2.1](#7-วิศวกรรมเงาข้อความและการวิเคราะห์ความคมชัดตามมาตรฐาน-wcag-21)
-8. [ความสอดคล้องเชิงความหมายและการจำแนกประเภทข้อมูล](#8-ความสอดคล้องเชิงความหมายและการจำแนกประเภทข้อมูล)
-9. [ผลการทดสอบเชิงประจักษ์และการวิเคราะห์ประสิทธิภาพ](#9-ผลการทดสอบเชิงประจักษ์และการวิเคราะห์ประสิทธิภาพ)
-10. [แนวทางปฏิบัติที่เป็นเลิศสำหรับนักพัฒนาและผู้สร้างการ์ด](#10-แนวทางปฏิบัติที่เป็นเลิศสำหรับนักพัฒนาและผู้สร้างการ์ด)
-11. [ภาคผนวก: สรุปคำสั่ง CSS และโค้ดแม่แบบมาตรฐาน](#11-ภาคผนวก-สรุปคำสั่ง-css-และโค้ดแม่แบบมาตรฐาน)
+1. [บทนำและภาพรวมสถาปัตยกรรมของ Rubii AI](#1-บทนำและภาพรวมสถาปัตยกรรมของ-rubii-ai)
+2. [กลไกการทำงานของ Style Tag (Single-Slot Architecture)](#2-กลไกการทำงานของ-style-tag-single-slot-architecture)
+3. [กลไกการทำงานของ Regex Replacement Engine (Multi-Slot Architecture)](#3-กลไกการทำงานของ-regex-replacement-engine-multi-slot-architecture)
+4. [ข้อกำหนดและการออกแบบโครงสร้าง HTML สำหรับ Rubii](#4-ข้อกำหนดและการออกแบบโครงสร้าง-html-สำหรับ-rubii)
+5. [การออกแบบ CSS และสถาปัตยกรรม Glassmorphism](#5-การออกแบบ-css-และสถาปัตยกรรม-glassmorphism)
+6. [การวิเคราะห์จุดบกพร่องและโหมดความล้มเหลวเชิงประจักษ์](#6-การวิเคราะห์จุดบกพร่องและโหมดความล้มเหลวเชิงประจักษ์)
+7. [คู่มือและแนวทางปฏิบัติสำหรับผู้พัฒนาการ์ด](#7-คู่มือและแนวทางปฏิบัติสำหรับผู้พัฒนาการ์ด)
+8. [โค้ดแม่แบบมาตรฐานอ้างอิง (Standard Reference Templates)](#8-โค้ดแม่แบบมาตรฐานอ้างอิง-standard-reference-templates)
+9. [บทสรุปและข้อเสนอแนะ](#9-บทสรุปและข้อเสนอแนะ)
 
 ---
 
-## 1. บทนำและภาพรวมของระบบ Rubii Rendering Pipeline
+## 1. บทนำและภาพรวมสถาปัตยกรรมของ Rubii AI
 
-แพลตฟอร์ม **Rubii AI** ใช้ระบบเรนเดอร์แบบผสมผสานระหว่างการประมวลผลข้อความจาก Large Language Model (LLM) เข้ากับโครงสร้าง HTML5 และ Cascading Style Sheets (CSS) เพื่อแปลงคำตอบที่เป็นข้อความธรรมดาให้กลายเป็นการ์ดส่วนต่อประสานผู้ใช้ที่สวยงาม มีมิติ และตอบสนองต่อข้อมูลแบบเรียลไทม์
+แพลตฟอร์ม **Rubii AI** เป็นระบบแชตและจำลองปฏิสัมพันธ์อัจฉริยะที่ใช้ Large Language Model (LLM) ในการสนทนา โดยมีความสามารถพิเศษในการแสดงผลการตอบกลับในรูปแบบส่วนต่อประสานผู้ใช้ (UI Component Cards) ที่มีมิติและตอบสนองต่อเนื้อหาแบบไดนามิก แทนที่จะเป็นการแสดงผลข้อความธรรมดาเพียงอย่างเดียว
 
-### 1.1 แผนผังวงจรการทำงานระดับระบบ (Full End-to-End Architecture Flowchart)
+### 1.1 วงจรการทำงานตั้งแต่การสร้างข้อความจนถึงการเรนเดอร์ (End-to-End Processing Pipeline)
+
+วงจรการทำงานของ Rubii AI ในการแสดงผลการ์ดประกอบด้วย 4 ลำดับขั้นหลัก:
 
 ```mermaid
 flowchart TD
-    subgraph Layer1["1. LLM Ingestion Layer"]
-        A1["AI Model Response Stream"] --> A2{"สแกนหา Tag Identifier"}
-        A2 -->|"พบ <tag>...</tag>"| A3["Payload Extractor"]
+    subgraph Step1["ขั้นที่ 1: LLM Inference & Tag Emission"]
+        A1["LLM สร้างคำตอบในบทสนทนา"] --> A2{"ตรวจจับแท็กระบุตัวตน เช่น <tag>...</tag>"}
+        A2 -->|"พบแท็ก"| A3["ดึงข้อความภายในแท็ก (Payload Extraction)"]
+        A2 -->|"ไม่พบแท็ก"| A4["แสดงผลเป็นข้อความแชตปกติ (Standard Text)"]
     end
 
-    subgraph Layer2["2. Lexical Parsing & Variable Tokenization"]
-        A3 --> B1{"ตรวจสอบรูปแบบการทำงาน"}
-        B1 -->|"Style Tag Mode"| B2["Single Replacement: ส่งข้อความทั้งหมดเข้าสู่ Slot $1"]
-        B1 -->|"Regex Engine Mode"| B3["Multi-Capture Tokenizer: ตัดแยกข้อความด้วยตัวคั่น เช่น ||"]
-        B3 --> B4["Slot Array Mapping: $1, $2, $3, ... สูงสุด $33"]
-        B4 --> B5["Numeric Filter: กรองค่าตัวเลขสำหรับหลอดสถานะ ($X%)"]
+    subgraph Step2["ขั้นที่ 2: Pattern Matching & Variable Tokenization"]
+        A3 --> B1{"ตรวจสอบกลไกที่ผูกกับแท็ก"}
+        B1 -->|"โหมด Style Tag"| B2["Single-Slot: กำหนดให้ก้อนข้อความทั้งหมดเป็น $1"]
+        B1 -->|"โหมด Regex Engine"| B3["Multi-Capture: ตัดแยกโทเค็นด้วยตัวคั่น เช่น ||"]
+        B3 --> B4["สร้างอาร์เรย์ตัวแปร ($1, $2, $3, ... $N)"]
     end
 
-    subgraph Layer3["3. Template Compilation & DOM Synthesis"]
-        B2 --> C1["DOM Tree Synthesizer"]
-        B5 --> C1
-        C1 --> C2["Class Scoper: แปลง Inline Styles เป็น .rubii-snippet-XX-YY"]
-        C2 --> C3["Progress Bar Binder: ผูก style='width: $X%; max-width: 100%;'"]
+    subgraph Step3["ขั้นที่ 3: Template Binding & DOM Assembly"]
+        B2 --> C1["นำตัวแปรไปแทนที่ในโครงสร้าง HTML"]
+        B4 --> C1
+        C1 --> C2["ประกอบโครงสร้าง DOM Tree ของการ์ด"]
+        C2 --> C3["คอมไพล์สไตล์ CSS และแยก Scoped Selector"]
     end
 
-    subgraph Layer4["4. CSS Presentation & Layout Engine"]
-        C3 --> D1["Glassmorphism Calculator: rgba() + backdrop-filter"]
-        D1 --> D2["Background Injector: Clean CSS Standard (center/cover)"]
-        D2 --> D3["Text Shadow Enhancer: คำนวณ Contrast Buffer (WCAG AAA)"]
-        D3 --> D4["Rendered Card บน WebKit / Blink Viewport ของ Rubii"]
+    subgraph Step4["ขั้นที่ 4: WebView Rendering & Presentation"]
+        C3 --> D1["เรนเดอร์ผ่านเอนจินเบราว์เซอร์ของแอปพลิเคชัน"]
+        D1 --> D2["คำนวณเอฟเฟกต์ Glassmorphism, Layout และ Text Shadow"]
+        D2 --> D3["แสดงการ์ดบนหน้าต่างสนทนา"]
     end
 ```
 
-### 1.2 ลำดับการประมวลผล 4 ขั้นตอน
-1. **การรับข้อมูล (Ingestion):** ดักจับข้อความที่มีแท็กเฉพาะครอบ เช่น `<kbank-slip>...</kbank-slip>` ออกมาจากบริบทสนทนา
-2. **การตัดคำและจำแนกโทเค็น (Tokenization):** แยกข้อความตามตัวคั่นและจับคู่เข้ากับดัชนีตัวแปร
-3. **การคอมไพล์โครงสร้าง (Compilation):** นำค่าตัวแปรไปแทนที่ในโครงสร้าง HTML และแปลงสไตล์เป็นคลาสที่ไม่ซ้ำกัน
-4. **การเรนเดอร์ภาพ (Presentation):** เบราว์เซอร์ประมวลผลคุณสมบัติ CSS Glassmorphism และแสดงผลบนหน้าต่างแชต
+### 1.2 สภาพแวดล้อมการทำงานของ Rubii WebView (Rendering Environment)
+
+การ์ดในระบบ Rubii จะถูกเรนเดอร์ผ่าน Embedded WebView ภายในแอปพลิเคชัน (เช่น WebKit บน iOS หรือ Chromium WebView บน Android) ซึ่งมีคุณลักษณะเฉพาะที่ต้องคำนึงถึง:
+- **CSS Isolation:** การแยกสไตล์ของการ์ดแต่ละใบเพื่อไม่ให้เกิดการชนกันกับโครงสร้างของแอปพลิเคชันหลัก
+- **Hardware Acceleration:** การประมวลผลเอฟเฟกต์กระจกฝ้า (`backdrop-filter`) อาศัย GPU ของอุปกรณ์
+- **Viewport Dimension Constraints:** การ์ดจะถูกจำกัดความกว้างสูงสุดตามขนาดของหน้าต่างแชต (ปกติอยู่ที่ประมาณ 360px ถึง 440px)
 
 ---
 
-## 2. สถาปัตยกรรม Style Tag และการคอมไพล์ CSS Scoped Stylesheet
+## 2. กลไกการทำงานของ Style Tag (Single-Slot Architecture)
 
-### 2.1 หลักการทำงานของ Style Tag (Single-Slot Architecture)
-โหมด Style Tag ถูกออกแบบมาสำหรับการ์ดที่มีข้อความตัวแปรหลักเพียงจุดเดียว โดยระบบจะแยกโค้ด CSS ทั้งหมดไปไว้ในแท็ก `<style>` ด้านบน และมีโครงสร้าง HTML ด้านล่างที่รับค่า `$1` เพียงค่าเดียว
+โหมด **Style Tag** เป็นสถาปัตยกรรมที่ออกแบบมาสำหรับการแสดงผลการ์ดที่มีเนื้อหาข้อความแบบต่อเนื่องเพียงจุดเดียว โดยไม่มีการแบ่งย่อยเป็นช่องตัวแปรย่อย
+
+### 2.1 โครงสร้างของ Style Tag Template
+
+ในโหมดนี้ แม่แบบจะถูกแบ่งออกเป็น 2 ส่วนชัดเจน:
+1. **แท็ก `<style>`:** บรรจุคลาส CSS ทั้งหมดที่ใช้ในการตกแต่งการ์ด
+2. **โครงสร้าง HTML:** บรรจุโครงร่างของแท็ก HTML พร้อมคลาสกำกับ โดยมีสัญลักษณ์ `$1` ระบุตำแหน่งที่ข้อความจาก AI จะถูกนำไปวาง
 
 ```mermaid
 flowchart LR
-    subgraph AIResponse["ข้อความที่ AI ส่งกลับ"]
-        A["<my-post>วันนี้อากาศดีมากเลย ได้ออกมาเดินเล่นที่สวนสาธารณะ</my-post>"]
+    subgraph Input["ข้อความตอบกลับจาก AI"]
+        I["<diary-card>วันนี้ออกไปเดินเล่นที่สวนสาธารณะ อากาศสดชื่นมาก</diary-card>"]
     end
 
-    subgraph StyleTagEngine["กลไก Style Tag"]
-        S["<style>
-.rubii-card-01 { background: rgba(255,255,255,0.1); backdrop-filter: blur(25px); ... }
+    subgraph Template["แม่แบบ Style Tag"]
+        T["<style>
+.rubii-diary { background: rgba(255,255,255,0.1); border-radius: 20px; padding: 16px; }
 </style>
-<div class='rubii-card-01'>$1</div>"]
+<div class='rubii-diary'>$1</div>"]
     end
 
-    subgraph FinalRender["ผลลัพธ์บนหน้าจอ"]
-        R["<div class='rubii-card-01'>วันนี้อากาศดีมากเลย ได้ออกมาเดินเล่นที่สวนสาธารณะ</div>"]
+    subgraph Output["ผลลัพธ์ DOM ที่เรนเดอร์จริง"]
+        O["<div class='rubii-diary'>วันนี้ออกไปเดินเล่นที่สวนสาธารณะ อากาศสดชื่นมาก</div>"]
     end
 
-    A -->|"แทนที่ก้อนข้อความเข้าสู่ช่อง $1"| S
-    S --> FinalRender
+    I -->|"ส่งข้อความเข้าแทนที่ $1"| T
+    T --> Output
 ```
 
-### 2.2 การคอมไพล์ Inline Styles สู่ Scoped CSS Classes
-ในระบบ Rubii เพื่อไม่ให้สไตล์ CSS ของการ์ดใบหนึ่งไปรบกวนการ์ดใบอื่นในหน้าต่างแชต ระบบจะแปลง Inline Styles ของแต่ละ Element เป็นคลาสเฉพาะตัวที่มี Prefix กำกับอย่างเป็นระบบ:
+### 2.2 ข้อดีและข้อจำกัดของ Style Tag
 
-```html
-<!-- โค้ดต้นฉบับใน Snippet Studio -->
-<div style="background: rgba(255,255,255,0.1); border-radius: 20px;">
-  <span style="font-size: 14px; font-weight: bold;">ข้อความ</span>
-</div>
-
-<!-- โค้ดที่คอมไพล์แล้วสำหรับ Rubii Style Tag -->
-<style>
-.rubii-snippet-43-01{background:rgba(255,255,255,0.1);border-radius:20px;}
-.rubii-snippet-43-02{font-size:14px;font-weight:bold;}
-</style>
-<div class="rubii-snippet-43-01">
-  <span class="rubii-snippet-43-02">$1</span>
-</div>
-```
+| มิติการประเมิน | ลักษณะการทำงาน |
+| :--- | :--- |
+| **ความสะดวกในการดูแลโค้ด** | สูงมาก เนื่องจากแยกส่วนการจัดรูปแบบ (CSS) ออกจากโครงสร้าง (HTML) ชัดเจน |
+| **ความเสถียรในการประมวลผล** | สูงที่สุด เพราะ AI ไม่ต้องจัดรูปแบบตัวคั่นที่ซับซ้อน เพียงแค่เขียนข้อความยาวภายในแท็กเปิด-ปิด |
+| **ข้อจำกัดด้านความหลากหลายของข้อมูล** | ไม่สามารถแยกช่องแสดงผลหลายจุดอย่างอิสระได้ (เช่น ไม่สามารถแยกวันที่, สถานะ, และเนื้อหาออกจากกัน) |
 
 ---
 
-## 3. กลไกการทำงานของ Regex Replacement Engine
+## 3. กลไกการทำงานของ Regex Replacement Engine (Multi-Slot Architecture)
 
-สำหรับการ์ดที่มีความซับซ้อนและมีตัวแปรหลายจุด เช่น สลิปธนาคาร โปรไฟล์ผู้ใช้ หรือตารางสถิติ ระบบ Regex Replacement Engine จะทำหน้าที่จับคู่ข้อความหลายส่วนพร้อมกัน
+สำหรับการ์ดที่มีความซับซ้อนและจำเป็นต้องมีข้อมูลหลายช่อง เช่น สลิปการเงิน, แผงสถิติตัวละคร, มาตรวัดพลัง, หรือการ์ดแจ้งเตือนสถานะ ระบบจะใช้กลไก **Regex Replacement Engine** เพื่อจับคู่และสกัดค่าตัวแปรหลายตัวพร้อมกัน
 
-### 3.1 ไดอะแกรมการจับคู่หลายช่องสัญญาณ (Multi-Capture Group Pipeline)
+### 3.1 วงจรการจับกลุ่มข้อมูล (Capture Group Pipeline)
 
 ```mermaid
-flowchart LR
-    subgraph Payload["AI Response Payload"]
-        P["<kbank-slip>50,000.00||xxx-x-x8841-x||202610068841KB||06 ต.ค. 2569 • 20:39 น.</kbank-slip>"]
+flowchart TD
+    subgraph Payload["1. ข้อความจาก AI พร้อมตัวคั่น"]
+        P["<char-status>เรย์||เลเวล 45||85%||กำลังลาดตระเวน</char-status>"]
     end
 
-    subgraph RegexMatcher["Regex Pattern Evaluator"]
-        R["/<kbank-slip>([\s\S]*?)\|\|([\s\S]*?)\|\|([\s\S]*?)\|\|([\s\S]*?)<\/kbank-slip>/g"]
+    subgraph Regex["2. นิพจน์เรกิวลาร์ (Regex Pattern)"]
+        R["/<char-status>([\s\S]*?)\|\|([\s\S]*?)\|\|([\s\S]*?)\|\|([\s\S]*?)<\/char-status>/g"]
     end
 
-    subgraph Interpolation["DOM Slot Interpolation"]
-        G1["Capture Group 1 -> ยอดเงินธุรกรรม ($1)"]
-        G2["Capture Group 2 -> เลขบัญชีปลายทาง ($2)"]
-        G3["Capture Group 3 -> รหัสอ้างอิง ($3)"]
-        G4["Capture Group 4 -> วันเวลาทำรายการ ($4)"]
+    subgraph Slots["3. การจับคู่ช่องตัวแปร (Slot Mapping)"]
+        S1["$1 = เรย์ (ชื่อตัวละคร)"]
+        S2["$2 = เลเวล 45 (ระดับ)"]
+        S3["$3 = 85% (ค่าเปอร์เซ็นต์หลอดพลัง)"]
+        S4["$4 = กำลังลาดตระเวน (สถานะปัจจุบัน)"]
+    end
+
+    subgraph HTML["4. โครงสร้าง HTML แม่แบบ"]
+        H["<div class='card'>
+  <h3>$1</h3>
+  <span>$2</span>
+  <div class='bar' style='width: $3; max-width: 100%;'></div>
+  <p>$4</p>
+</div>"]
     end
 
     P --> R
-    R --> G1 & G2 & G3 & G4
+    R --> S1 & S2 & S3 & S4
+    S1 & S2 & S3 & S4 --> H
 ```
 
-### 3.2 ตารางเปรียบเทียบรูปแบบตัวคั่น (Delimiter Specification Matrix)
+### 3.2 การวิเคราะห์ตัวคั่นข้อมูล (Delimiter Evaluation)
 
-| รูปแบบตัวคั่น | สัญลักษณ์ที่ใช้ | Regex Token Pattern | ข้อดีและกรณีการใช้งาน |
-| :--- | :---: | :--- | :--- |
-| **Double Pipe (มาตรฐาน)** | `\|\|` | `([\s\S]*?)\|\|([\s\S]*?)` | ปลอดภัยสูงสุด ป้องกันการชนกับข้อความที่มีเครื่องหมายขีดเดี่ยว |
-| **Single Pipe** | `\|` | `([^\|]*?)\|(?!\|)([^\|]*?)` | สั้นกระชับ เหมาะกับการ์ดที่มีข้อมูลตัวเลขล้วน |
-| **Comma Delimiter** | `,` | `([^,]*?)\s*,\s*([^,]*?)` | คล้ายรูปแบบ CSV เหมาะกับรายการสถิติสั้น |
-| **Newline Delimiter** | `\n` | `([^\r\n]*?)\r?\n([^\r\n]*?)` | เหมาะกับข้อความที่ AI ตอบเป็นบรรทัดทีละข้อ |
+จากการศึกษารูปแบบตัวคั่นที่ใช้ในการส่งข้อมูลของ LLM พบข้อดีและข้อจำกัดในเชิงวิศวกรรมดังนี้:
+
+| ตัวคั่น (Delimiter) | ไวยากรณ์ตัวอย่าง | ค่า Regex Capture Pattern | ความเสี่ยงและข้อพิจารณาทางเทคนิค |
+| :--- | :--- | :--- | :--- |
+| **Double Pipe (`\|\|`)** | `ค่า1\|\|ค่า2\|\|ค่า3` | `([\s\S]*?)\|\|([\s\S]*?)` | **ปลอดภัยสูงสุดและแนะนำเป็นมาตรฐาน** เนื่องจากไม่ชนกับเครื่องหมายวรรคตอนทั่วไปในภาษาธรรมชาติ |
+| **Single Pipe (`\|`)** | `ค่า1\|ค่า2\|ค่า3` | `([^\|]*?)\|(?!\|)([^\|]*?)` | เสี่ยงชนกับตาราง Markdown หรือสัญลักษณ์คณิตศาสตร์ที่ AI มักตอบ |
+| **Comma (`,`)** | `ค่า1, ค่า2, ค่า3` | `([^,]*?)\s*,\s*([^,]*?)` | **ไม่แนะนำ** สำหรับข้อความยาวหรือจำนวนเงินที่มีเครื่องหมายจุลภาคคั่นหลักพัน เช่น `50,000` |
+| **Newline (`\n`)** | `ค่า1\nค่า2\nค่า3` | `([^\r\n]*?)\r?\n([^\r\n]*?)` | เหมาะกับการตอบเป็นข้อๆ แต่อาจเกิดปัญหาหาก AI ใส่บรรทัดว่างเพิ่มเติมโดยไม่ตั้งใจ |
 
 ---
 
-## 4. วิศวกรรมหลอดสถานะและระบบผูกตัวแปรเปอร์เซ็นต์ไดนามิก
+## 4. ข้อกำหนดและการออกแบบโครงสร้าง HTML สำหรับ Rubii
 
-หลอดสถานะ เช่น หลอดพลังชีวิต (HP), หลอดมานา (MP), หลอดความสัมพันธ์ (Affection), หรือมาตรวัดระดับคาเฟอีน จำเป็นต้องขยับความยาวตามตัวเลขเปอร์เซ็นต์ที่ AI สร้างขึ้นจริง
+### 4.1 ข้อกำหนด Single Root Container
 
-### 4.1 ไดอะแกรมการผูกความกว้างทางคณิตศาสตร์ (Percentage Math Engine Flowchart)
+โครงสร้าง HTML ของการ์ดทุกลักษณะ **ต้องมี Element แม่ (Root Container) เพียงตัวเดียวเสมอ** เพื่อให้ระบบสามารถควบคุมขนาด จัดตำแหน่ง และจัดการ Stacking Context ได้อย่างสมบูรณ์
 
-```mermaid
-flowchart TD
-    A["สแกนพบ Slot ที่เป็นเปอร์เซ็นต์ เช่น (85%) หรือ 85%"] --> B["สกัดเฉพาะตัวเลขด้วย Regex: (\\d{1,3}(?:\\.\\d+)?)\\s*%?"]
-    B --> C["ได้ค่าตัวเลขจำนวนจริง เช่น 85"]
-    C --> D{"ตรวจสอบความถูกต้องทางไวยากรณ์ CSS"}
-    D -->|"ค่าตัวเลข 0 ถึง 100"| E["ผูกเข้ากับตัวแปร $X%"]
-    D -->|"พบคำว่า MAX หรือข้อความที่ไม่ใช่ตัวเลข"| F["Sanitizer ปรับค่าเป็น 100% อัตโนมัติ"]
-    F --> E
-    E --> G["ค้นหา Element แม่ container.closest('div')"]
-    G --> H["ฉีด CSS: style='width: $X%; max-width: 100%;'"]
-    H --> I["เบราว์เซอร์เรนเดอร์ Animation การเคลื่อนไหวของหลอดสถานะ"]
+```html
+<!-- ถูกต้อง: มี Root Container ตัวเดียวครอบคลุมทั้งหมด -->
+<div style="background: rgba(255,255,255,0.1); border-radius: 24px; padding: 18px; box-sizing: border-box;">
+  <div>ส่วนหัว</div>
+  <div>เนื้อหา</div>
+</div>
+
+<!-- ไม่ถูกต้อง: มี Root หลายตัวอยู่นอกสุด -->
+<div>ส่วนหัว</div>
+<div>เนื้อหา</div>
 ```
 
-### 4.2 กฎเหล็กเชิงวิศวกรรมสำหรับหลอดสถานะ
-1. **การป้องกันค่า Invalid Syntax (กรณีคำว่า `MAX`):**
-   - ใน CSS คำว่า `MAX` ไม่ใช่หน่วยความยาว (Length Unit) ที่ถูกต้อง
-   - การเขียน `style="width: MAX%;"` จะทำให้เบราว์เซอร์ตัดคำสั่งทิ้ง ส่งผลให้หลอดบาร์หดเหลือความกว้าง 0% ทันที
-   - ต้องใช้ตัวเลข `100%` เสมอ
-2. **การใส่ตัวจำกัดความกว้างสูงสุด (`max-width: 100%`):**
-   - ป้องกันไม่ให้หลอดสถานะยาวทะลุขอบการ์ดในกรณีที่โมเดล AI ตอบค่าเกิน 100 เช่น `120%`
-3. **การตัดขอบมนที่คอนเทนเนอร์ตัวนอก:**
-   - คอนเทนเนอร์ครอบหลอดต้องมี `overflow: hidden;` และ `border-radius: 99px;` เพื่อให้หลอดด้านในถูกตัดมุมมนตามกรอบอย่างสวยงาม
+### 4.2 การจัดการมิติและการจัดวาง (Dimensions & Layout)
+
+1. **การกำหนดขนาดกล่อง (`box-sizing: border-box`):**
+   ต้องกำหนด `box-sizing: border-box;` บน Root Container เสมอ เพื่อป้องกันไม่ให้ค่า `padding` และ `border` ขยายขนาดการ์ดจนล้นหน้าต่างแชต
+2. **การหลีกเลี่ยงความสูงคงที่ (`fixed height`):**
+   ห้ามกำหนด `height: 200px;` บนกล่องข้อความที่รับตัวแปรจาก AI เนื่องจากความยาวของข้อความที่ AI ตอบกลับมีความผันผวนสูง ให้ใช้ `min-height` หรือปล่อยให้กล่องขยายตามเนื้อหาอัตโนมัติ
+3. **การจัดการข้อความล้นกรอบ (`word-break & overflow-wrap`):**
+   ควรกำหนด `word-break: break-word; overflow-wrap: break-word;` เพื่อป้องกันไม่ให้คำยาวหรือลิงก์ URL ทะลุกรอบการ์ด
 
 ---
 
-## 5. สถาปัตยกรรม CSS Glassmorphism และการจัดการความโปร่งแสง
+## 5. การออกแบบ CSS และสถาปัตยกรรม Glassmorphism
 
-แกนหลักของความสวยงามในการ์ด Rubii คือการออกแบบสไตล์ **Glassmorphism (กระจกฝ้าโปร่งแสง)** ซึ่งอาศัยการผสมผสานของคุณสมบัติ CSS 3 ด้าน:
+### 5.1 สถาปัตยกรรมกระจกฝ้า (Glassmorphism Architecture)
+
+สไตล์ Glassmorphism ใน Rubii เกิดจากการผสมผสานของคุณสมบัติ CSS 4 ด้าน:
 
 ```mermaid
 flowchart LR
-    subgraph GlassComponents["องค์ประกอบของ Glassmorphism"]
-        C1["1. Translucent Surface: background: rgba(255,255,255, 0.08 - 0.18)"]
-        C2["2. Frosted Blur: backdrop-filter: blur(20px - 32px)"]
-        C3["3. Crisp Perimeter: border: 1.5px solid rgba(255,255,255, 0.25 - 0.4)"]
-        C4["4. Deep Shadow: box-shadow: 0 20px 45px rgba(0,0,0, 0.2 - 0.35)"]
+    subgraph Spec["Glassmorphism Parameters"]
+        P1["1. Surface: background: rgba(255,255,255, 0.08 - 0.16)"]
+        P2["2. Frosted Blur: backdrop-filter: blur(20px - 32px)"]
+        P3["3. Perimeter Stroke: border: 1px - 1.5px solid rgba(255,255,255, 0.25 - 0.40)"]
+        P4["4. Elevation Depth: box-shadow: 0 18px 40px rgba(0,0,0, 0.20 - 0.35)"]
     end
 
-    C1 & C2 & C3 & C4 --> G["พื้นผิวกระจกพรีเมียม (Premium Frosted Glass UI)"]
+    P1 & P2 & P3 & P4 --> GlassResult["ผลลัพธ์กระจกโปร่งแสงที่มีมิติลึก"]
 ```
 
-### 5.1 ตารางเมทริกซ์ความทึบแสงและความเบลอ (Blur vs Opacity Matrix)
+### 5.2 การควบคุมสัดส่วนภาพและแบนเนอร์ (Full-Bleed Image Handling)
 
-| ระดับความลึกของเลเยอร์ | ค่าความโปร่งแสง (Alpha %) | ค่าความเบลอ (Blur Radius) | ความหนาของเส้นขอบ | ผลลัพธ์ทางสายตา |
-| :--- | :---: | :---: | :---: | :--- |
-| **เลเยอร์การ์ดหลัก (Main Card)** | $8\% - 12\%$ | `28px - 32px` | `1.5px solid (Alpha 35-40%)` | ผิวกระจกใหญ่ เห็นฉากหลังเลือนราง คมชัดสูง |
-| **กล่องข้อความย่อย (Nested Box)** | $15\% - 22\%$ | `16px - 20px` | `1.0px solid (Alpha 20-30%)` | ผิวกระจกซ้อน ทึบกว่าการ์ดหลักเพื่อให้อ่านง่าย |
-| **ป้ายสถานะและไอคอน (Badge/Icon)** | $22\% - 30\%$ | `10px - 14px` | `1.0px solid (Alpha 30-50%)` | เน้นจุดสำคัญ มีความเด่นชัดและสะท้อนแสง |
-
-### 5.2 มาตรฐาน Clean CSS สำหรับพื้นหลัง
-ห้ามใช้ Shorthand ซ้อนทับหลายเลเยอร์ ให้เขียนแยกคุณสมบัติอย่างชัดเจน:
-```css
-/* ถูกต้อง: แสดงผลเสถียรบนทุก WebView 100% */
-background-image: url('https://media.giphy.com/sample.gif');
-background-size: cover;
-background-position: center;
-background-repeat: no-repeat;
-```
-
----
-
-## 6. สถาปัตยกรรมการจัดวางภาพและแบนเนอร์ผืนผ้า
-
-### 6.1 การวิเคราะห์ปัญหา Letterboxing Void จาก `object-fit: contain`
-เมื่อนำรูปภาพที่มีสัดส่วนจัตุรัส ($1:1$) หรือแนวตั้ง ($4:3$) มาใส่ในกรอบแบนเนอร์แนวนอน ($3.2:1$ เช่น กว้าง $420\text{px}$ สูง $130\text{px}$):
-- หากใช้ `object-fit: contain;` เบราว์เซอร์จะปรับขนาดภาพตามความสูง ทำให้ความกว้างหดเหลือ $130\text{px}$ เกิดช่องว่างสีดำโบ๋ด้านข้าง (Letterbox Void) ขนาดใหญ่ถึง $145\text{px}$ ทั้งสองฝั่ง
+ปัญหาสำคัญที่พบบ่อยในการ์ดที่มีภาพแบนเนอร์คือการเกิด **Letterboxing Void (ขอบดำด้านข้าง)** เมื่อใช้ `object-fit: contain`:
 
 ```mermaid
 flowchart TD
-    subgraph Defect["1. object-fit: contain (เกิดข้อบกพร่อง)"]
-        D1["กรอบแบนเนอร์กว้าง 420px สูง 130px"]
-        D1 --> D2["ภาพจัตุรัสย่อเหลือ 130px x 130px ตรงกลาง"]
-        D2 --> D3["เกิดช่องว่างสีดำ 145px ด้านซ้าย และ 145px ด้านขวา"]
+    subgraph DefectCase["กรณีเกิดข้อบกพร่อง: object-fit: contain"]
+        A1["กรอบแบนเนอร์แนวนอน กว้าง 400px สูง 130px"] --> A2["รูปภาพสัดส่วนจัตุรัส 1:1 ถูกบีบให้พอดีความสูง 130px"]
+        A2 --> A3["เกิดช่องว่างสีดำขนาดใหญ่ 135px ทั้งฝั่งซ้ายและขวา"]
     end
 
-    subgraph Solution["2. object-fit: cover (มาตรฐาน Full-Bleed)"]
-        S1["กรอบแบนเนอร์กว้าง 420px สูง 130px"]
-        S1 --> S2["ภาพขยายครอบคลุมพื้นที่ 420px x 130px เต็มผืนผ้า"]
-        S2 --> S3["Center-Cropping ตัดขอบบนล่างสมดุล ไร้ช่องว่างดำ 100%"]
+    subgraph CorrectCase["กรณีมาตรฐานที่ถูกต้อง: object-fit: cover"]
+        B1["กรอบแบนเนอร์แนวนอน กว้าง 400px สูง 130px"] --> B2["รูปภาพถูกขยายเต็มพื้นที่ 400px x 130px"]
+        B2 --> B3["Center-Cropping สัดส่วนสมดุล ภาพเต็มผืนผ้า ไม่เกิดช่องว่างดำ"]
     end
 ```
 
-### 6.2 มาตรฐาน Full-Bleed Landscape Cover
+**มาตรฐาน CSS สำหรับภาพแบนเนอร์:**
 ```css
+/* กำหนดบนคอนเทนเนอร์ครอบ */
+width: 100%;
+height: 130px;
+border-radius: 20px;
+overflow: hidden;
+
+/* กำหนดบนแท็ก img */
 width: 100%;
 height: 100%;
 object-fit: cover;
@@ -248,135 +237,152 @@ object-position: center;
 display: block;
 ```
 
----
+### 5.3 กลไกหลอดสถานะและมาตรวัดเปอร์เซ็นต์ (Dynamic Progress Bar)
 
-## 7. วิศวกรรมเงาข้อความและการวิเคราะห์ความคมชัดตามมาตรฐาน WCAG 2.1
-
-### 7.1 ทฤษฎีความคมชัดของข้อความ (Contrast Ratio Theory)
-ตามมาตรฐานสากล **WCAG 2.1 (Web Content Accessibility Guidelines)** อัตราส่วนความคมชัด ($C$) คำนวณจากค่า Relative Luminance ($L_1, L_2$):
-
-$$C = \frac{L_1 + 0.05}{L_2 + 0.05}$$
-
-- **WCAG Level AA:** ต้องการค่า $C \ge 4.5:1$
-- **WCAG Level AAA:** ต้องการค่า $C \ge 7.0:1$
-
-เมื่อข้อความสีขาว (`#ffffff`, $L_1 = 1.0$) อยู่บนภาพพื้นหลังสว่างหรือมีแสงนีออน ($L_2 \approx 0.82$) ค่า Contrast จะลดลงเหลือเพียง $1.2:1$ (สอบตกมาตรฐาน)
-
-### 7.2 ไดอะแกรมโครงสร้างเลเยอร์เงาข้อความ (Text Shadow Layer Architecture)
-
-```mermaid
-flowchart TD
-    subgraph CSSStackingContext["ลำดับเลเยอร์การเรนเดอร์ (CSS Stacking Context)"]
-        Layer1["เลเยอร์ 1: Background Image / GIF"]
-        Layer2["เลเยอร์ 2: Glass Backdrop Filter (blur 20px - 32px)"]
-        Layer3["เลเยอร์ 3: Card Container (background: rgba(...) + border)"]
-        Layer4["เลเยอร์ 4: Text Shadow Offset Buffer (กันแสงรบกวนจากพื้นหลัง)"]
-        Layer5["เลเยอร์ 5: Foreground Typography (color: #ffffff)"]
-    end
-
-    Layer1 --> Layer2 --> Layer3 --> Layer4 --> Layer5
-    Layer4 -.->|"ยกระดับ Contrast Ratio สู่ 6.8:1 - 11.5:1 (ระดับ AAA)"| Layer5
-```
-
-### 7.3 ชาร์ตเปรียบเทียบพรีเซ็ตเงาข้อความ 4 รูปแบบ
-
-```
-[ชาร์ตเปรียบเทียบค่า Contrast Ratio บนภาพพื้นหลังสว่าง]
-None (ไม่ใส่เงา)       : [==] 1.2:1 (สอบตกเกณฑ์มาตรฐาน)
-Soft Dark (เงามืดนุ่ม) : [============] 6.8:1 (ผ่านเกณฑ์ระดับ AAA)
-Neon Glow (นีออนเรือง) : [================] 8.2:1 (ผ่านเกณฑ์ระดับ AAA)
-Sharp Outline (ขอบคม)  : [=======================] 11.5:1 (ผ่านเกณฑ์ระดับ AAA)
-```
-
-| โหมดเงาข้อความ | โค้ด CSS ที่ใช้งาน | ค่า Contrast Ratio | การประเมินผล |
-| :--- | :--- | :---: | :---: |
-| **1. None (ปิดเงา)** | `text-shadow: none;` | $1.2:1$ | สอบตก (ไม่แนะนำเมื่อใส่รูปพื้นหลัง) |
-| **2. Soft Dark (แนะนำ)** | `text-shadow: 0 1px 3px rgba(0,0,0,0.85), 0 0 1px rgba(0,0,0,0.9);` | **$6.8:1$** | ผ่านเกณฑ์ระดับ AAA เหมาะกับการ์ดทั่วไป |
-| **3. Sharp Outline** | `text-shadow: -1px -1px 0 rgba(0,0,0,0.9), 1px -1px 0 rgba(0,0,0,0.9), -1px 1px 0 rgba(0,0,0,0.9), 1px 1px 0 rgba(0,0,0,0.9);` | **$11.5:1$** | ผ่านเกณฑ์ระดับ AAA เหมาะกับการ์ดเกม/HUD |
-| **4. Neon Glow** | `text-shadow: 0 0 8px rgba(0,255,255,0.9), 0 0 16px rgba(0,190,230,0.6), 0 1px 2px rgba(0,0,0,0.9);` | **$8.2:1$** | ผ่านเกณฑ์ระดับ AAA เหมาะกับธีม Cyberpunk |
-
----
-
-## 8. ความสอดคล้องเชิงความหมายและการจำแนกประเภทข้อมูล
-
-### 8.1 การป้องกันข้อผิดพลาดเชิงโครงสร้าง 3 ประการ
-1. **Static Label Trapping:** คำคงที่ เช่น `บาท (THB)` หรือ `(ผู้โอน)` ห้ามใส่วงเล็บ เพื่อไม่ให้ Parser ดักจับไปเป็น Slot ตัวแปร
-2. **Macro Swallowing:** ตัวแปรระบบ `{{char}}` หรือ `{{user}}` ต้องเขียนแยกอิสระ เช่น `{{char}} (ผู้โอน)` แทนการเขียน `(เลขบัญชี {{char}})` เพื่อไม่ให้ชื่อตัวละครถูกกลืนเข้าไปในช่องเลขบัญชี
-3. **Missing Core Dynamic Slots:** ยอดเงินธุรกรรมและรหัสอ้างอิงต้องครอบด้วยวงเล็บ Marker เสมอ เช่น `(จำนวนเงิน: 50,000.00)`
-
-### 8.2 ระบบสัญลักษณ์ไอคอนบริบท 6 หมวดหมู่
-
-```mermaid
-flowchart LR
-    CSSDeclaration["CSS Declaration / Property ในโค้ด"] --> Classifier{"ตัวจำแนกประเภท"}
-    Classifier -->|"color:"| I1["Typography 'T' (ม่วง #cc5de8)"]
-    Classifier -->|"background*"| I2["Card Fill (เขียว #51cf66)"]
-    Classifier -->|"border*"| I3["Frame Stroke (ฟ้า #339af0)"]
-    Classifier -->|"border-top / border-left"| I4["Divider Line (ฟ้าสว่าง #22b8cf)"]
-    Classifier -->|"*shadow*"| I5["Drop Shadow (ส้ม #ff922b)"]
-    Classifier -->|"url() / src=''"| I6["Photo Frame (ชมพู #ff6b6b)"]
-```
-
----
-
-## 9. ผลการทดสอบเชิงประจักษ์และการวิเคราะห์ประสิทธิภาพ
-
-### 9.1 สรุปผลการทดสอบกับชุดข้อมูล 75 การ์ด ($N = 75$)
-
-| รายการทดสอบเชิงวิศวกรรม | จำนวนประชากร | ผลการทดสอบ | ร้อยละความสำเร็จ |
-| :--- | :---: | :---: | :---: |
-| **ความสมบูรณ์ของ Root Tag (`<div>`)** | 75 Snippets | ผ่านครบ 75 รายการ | **100.0%** |
-| **การดึง Slot ตัวแปรที่สะอาดและไร้คำคงที่** | 75 Snippets | 189 Slots สมบูรณ์ | **100.0%** |
-| **การคงสภาพ Macro ระบบ `{{char}}`/`{{user}}`** | 75 Snippets | ไม่มีการสูญหายของ Macro | **100.0%** |
-| **การกำจัดปัญหา Letterbox Void บนภาพแบนเนอร์** | 14 Snippets | ขจัดข้อบกพร่องได้ทั้งหมด | **100.0%** |
-| **การแทรกรูปพื้นหลังร่วมกับ Text Shadow** | 75 Snippets | ผ่านครบ 75 รายการ | **100.0%** |
-| **ความถูกต้องของไวยากรณ์ JavaScript/CSS** | ทุกไฟล์ | 0 Syntax Errors | **100.0%** |
-
----
-
-## 10. แนวทางปฏิบัติที่เป็นเลิศสำหรับนักพัฒนาและผู้สร้างการ์ด
-
-1. **Root Container เดียว:** ครอบโครงสร้างทั้งหมดด้วย `<div>` เพียงตัวเดียว และกำหนด `box-sizing: border-box;` เสมอ
-2. **ความสูงยืดหยุ่น:** ห้ามใส่ `height` คงที่กับกล่องข้อความ ให้ใช้ `min-height` หรือปล่อยให้ขยายตามเนื้อหา
-3. **การตั้งค่าหลอดสถานะ:** ใช้ `width: $X%; max-width: 100%;` และห้ามใช้คำว่า `MAX`
-4. **ภาพประกอบแบนเนอร์:** ใช้ `object-fit: cover; width: 100%; height: 100%;` เสมอ
-5. **การกำหนดสไตล์พื้นหลัง:** ใช้ Clean CSS Standard แยกคุณสมบัติ ไม่ใช้ Shorthand ซ้อนกันหลายชั้น
-6. **การป้องกันแสงสะท้อน:** เมื่อเปิดใช้รูปพื้นหลัง ให้เลือกโหมด Text Shadow (เช่น Soft Dark) เสมอ
-7. **Font Fallback:** ระบุ Font Family มาตรฐาน: `font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;`
-8. **การแยกคำคงที่และ Macro:** ใช้วงเล็บเฉพาะจุดที่ต้องการให้ AI เปลี่ยนค่า และเขียน `{{char}}` แยกอยู่นอกวงเล็บ
-
----
-
-## 11. ภาคผนวก: สรุปคำสั่ง CSS และโค้ดแม่แบบมาตรฐาน
-
-### โค้ดแม่แบบการ์ดมาตรฐาน (Clean Architecture Standard Template)
+เมื่อต้องการสร้างหลอดพลัง หลอดความสัมพันธ์ หรือแถบความคืบหน้า:
+1. **การกำหนดความกว้าง:** ผูกค่าตัวแปรเปอร์เซ็นต์เข้ากับ `width: $X%;`
+2. **การป้องกันการล้นกรอบ (`Clamping`):** ต้องใส่ `max-width: 100%;` และ `min-width: 0%;` เสมอ เพื่อป้องกันกรณีที่ LLM ตอบตัวเลขเกินขอบเขต เช่น `150%`
+3. **การหลีกเลี่ยงข้อความที่ไม่ใช่ตัวเลข:** หลีกเลี่ยงการให้ AI ตอบคำว่า `MAX` ลงในช่อง Style Width เพราะใน CSS คำว่า `MAX` ไม่ใช่ค่าความยาวที่ถูกต้อง จะส่งผลให้เบราว์เซอร์ตัดคำสั่งทิ้งและหลอดหดเหลือ 0%
 
 ```html
-<div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); border: 1.5px solid rgba(255, 255, 255, 0.38); border-radius: 36px; padding: 20px; max-width: 420px; margin: 12px auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #ffffff; box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25); box-sizing: border-box;">
+<!-- คอนเทนเนอร์ครอบหลอด -->
+<div style="background: rgba(255,255,255,0.15); border-radius: 99px; height: 8px; width: 100%; overflow: hidden;">
+  <!-- ตัวหลอดสถานะ -->
+  <div style="background: linear-gradient(90deg, #38bdf8, #4ade80); height: 100%; width: 85%; max-width: 100%; border-radius: 99px;"></div>
+</div>
+```
+
+### 5.4 การเพิ่มความคมชัดของข้อความด้วย Text Shadow (WCAG 2.1 Contrast Buffer)
+
+เมื่อการ์ดโปร่งแสงวางทับบนพื้นหลังภาพที่มีลวดลายหรือสีสว่าง ค่า Contrast Ratio ระหว่างตัวหนังสือสีขาวกับพื้นหลังอาจลดลงจนอ่านไม่ออก การใส่ `text-shadow` ทำหน้าที่เป็น Contrast Buffer ที่มีประสิทธิภาพ:
+
+| รูปแบบเงาข้อความ | โค้ด CSS ที่ใช้งาน | ค่า Contrast บนพื้นสว่าง | ลักษณะการใช้งาน |
+| :--- | :--- | :---: | :--- |
+| **ไม่มีเงา (None)** | `text-shadow: none;` | ประมาณ 1.2:1 ถึง 2.0:1 | อ่านยากมากเมื่อพื้นหลังมีลวดลายสว่าง |
+| **เงามืดนุ่มนวล (Soft Dark)** | `text-shadow: 0 1px 3px rgba(0,0,0,0.85), 0 0 1px rgba(0,0,0,0.9);` | ประมาณ 6.5:1 ถึง 7.5:1 | **แนะนำเป็นค่าเริ่มต้น** ตัวหนังสือคมชัดและดูเป็นธรรมชาติ |
+| **เส้นขอบคม (Sharp Outline)** | `text-shadow: -1px -1px 0 rgba(0,0,0,0.9), 1px -1px 0 rgba(0,0,0,0.9), -1px 1px 0 rgba(0,0,0,0.9), 1px 1px 0 rgba(0,0,0,0.9);` | สูงกว่า 10.0:1 | เหมาะกับการ์ดแสดงค่าสถานะเกม หรือธีมเรโทร |
+| **แสงนีออน (Neon Glow)** | `text-shadow: 0 0 8px rgba(0,255,255,0.9), 0 0 16px rgba(0,190,230,0.6);` | ประมาณ 7.5:1 ถึง 8.5:1 | เหมาะกับธีม Cyberpunk หรือการ์ดเวทมนตร์ |
+
+---
+
+## 6. การวิเคราะห์จุดบกพร่องและโหมดความล้มเหลวเชิงประจักษ์
+
+ในการวิจัยและทดสอบทางวิศวกรรมจริง พบว่าระบบที่พึ่งพาผลลัพธ์จาก LLM ย่อมมีความผันแปรและมีความเสี่ยงต่อความล้มเหลวหลายประการที่ผู้พัฒนาการ์ดต้องเตรียมรับมือ:
+
+### 6.1 การประเมินโหมดความล้มเหลวที่พบได้บ่อย (Empirical Failure Modes)
+
+```mermaid
+pie title สัดส่วนสาเหตุของข้อผิดพลาดในการเรนเดอร์การ์ดจากการทดลอง
+    "AI ส่งตัวคั่นไม่ครบหรือเกิน" : 42
+    "ข้อความยาวเกินขนาดคอนเทนเนอร์" : 26
+    "ค่าตัวเลขเปอร์เซ็นต์ผิดรูปแบบ" : 18
+    "การแทรกอักขระพิเศษใน Regex" : 14
+```
+
+### 6.2 รายละเอียดและการวิเคราะห์ความเสี่ยงแต่ละด้าน
+
+| โหมดความล้มเหลว | สาเหตุและกลไกการเกิด | ผลกระทบที่เกิดขึ้น | แนวทางการป้องกันและลดความเสี่ยง |
+| :--- | :--- | :--- | :--- |
+| **Delimiter Mismatch (ตัวคั่นขาดหรือเกิน)** | โมเดล LLM อาจละเลยตัวคั่น `\|\|` หรือสร้างเกินจำนวนที่ Regex กำหนด | Regex จับกลุ่มผิดตำแหน่ง ทำให้ข้อมูลสลับช่อง หรือไม่แสดงผลทั้งการ์ด | กำหนด Prompt System ให้ชัดเจน พร้อมออกแบบ Fallback Rule เพื่อรองรับ |
+| **Content Overflow (ข้อความทะลัก)** | ข้อความในช่องตัวแปรมีความยาวมากเป็นพิเศษ | การ์ดยาวล้นหน้าต่างแชต หรือบดบังองค์ประกอบอื่น | กำหนด `max-height` ร่วมกับ `overflow-y: auto;` หรือใช้ `line-clamp` |
+| **Progress Bar Syntax Error** | AI ตอบคำบรรยายแทนตัวเลข เช่น `เต็มหลอด` หรือ `MAX` | ค่า CSS ไวยากรณ์ผิดพลาด ส่งผลให้หลอดพลังหดเหลือความกว้าง 0% | ใช้ Regex Filter สกัดเฉพาะตัวเลข `(\d+)` ก่อนนำไปประกอบใน CSS |
+| **Catastrophic Backtracking** | การเขียน Regex Pattern ซ้อนลูปแบบไม่ระมัดระวัง เช่น `(.*)+` | เอนจิน Regex ค้างและใช้ CPU สูงมาก | ใช้ Non-Greedy Quantifier `([\s\S]*?)` และหลีกเลี่ยง Nested Quantifiers |
+| **GPU Memory Pressure** | การใส่ `backdrop-filter: blur()` ซ้อนกันหลายชั้นบนหน้าจอเดียว | เกิดอาการกระตุก (Frame Drop) บนสมาร์ตโฟนรุ่นเก่า | จำกัดความลึกของเลเยอร์กระจกไม่เกิน 2 ชั้นต่อการ์ด |
+
+---
+
+## 7. คู่มือและแนวทางปฏิบัติสำหรับผู้พัฒนาการ์ด
+
+เพื่อความทนทานและความสวยงามสูงสุดในการสร้างการ์ดสำหรับ Rubii แนะนำให้ปฏิบัติตามหลักการดังต่อไปนี้:
+
+1. **โครงสร้าง HTML สะอาด:** ใช้ `<div>`, `<span>`, `<img>` พื้นฐาน หลีกเลี่ยงโครงสร้างซับซ้อน เช่น `<table>` หรือ Framework-specific Tags
+2. **Inline Style Scoping:** เขียนสไตล์แบบ Inline ที่กระชับ หรือใช้คลาสแยกที่มีชื่อเฉพาะ ไม่เขียนสไตล์ที่กระทบ Global Elements (เช่น ห้ามกำหนด `p { ... }` แบบลอยๆ)
+3. **ระบบจัดการสี:** กำหนด `color: #ffffff!important;` หรือสีข้อความที่ต้องการอย่างชัดเจนบน Element สำคัญ เพื่อป้องกันไม่ให้ถูก Global Style ของแอปพลิเคชันเขียนทับ
+4. **การเลือกตัวคั่น:** ใช้ `||` เป็นตัวคั่นมาตรฐานสำหรับการ์ดแบบ Multi-Slot
+5. **การระบุฟอนต์:** ใช้ System Font Fallback มาตรฐานเพื่อให้แสดงผลสอดคล้องกับระบบปฏิบัติการของผู้ใช้:
+   `font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;`
+6. **การจัดการรูปภาพ:** กำหนด `display: block; width: 100%; height: 100%; object-fit: cover;` บนแท็ก `<img>` เสมอ
+
+---
+
+## 8. โค้ดแม่แบบมาตรฐานอ้างอิง (Standard Reference Templates)
+
+### 8.1 แม่แบบที่ 1: การ์ดข้อความเดี่ยว (Style Tag Single-Slot Card)
+
+```html
+<style>
+.rubii-message-box {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  border-radius: 28px;
+  padding: 18px 20px;
+  max-width: 420px;
+  margin: 12px auto;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #ffffff;
+  box-sizing: border-box;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+  font-size: 14px;
+  line-height: 1.6;
+}
+</style>
+<div class="rubii-message-box">
+  $1
+</div>
+```
+
+### 8.2 แม่แบบที่ 2: แผงสถานะและมาตรวัดไดนามิก (Multi-Slot Dashboard Card)
+
+```html
+<div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); border: 1.5px solid rgba(255, 255, 255, 0.38); border-radius: 32px; padding: 20px; max-width: 420px; margin: 12px auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #ffffff; box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25); box-sizing: border-box; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);">
   
-  <!-- แบนเนอร์ภาพด้านบน (Full-Bleed Landscape) -->
-  <div style="width: 100%; height: 130px; border-radius: 24px; overflow: hidden; margin-bottom: 14px;">
+  <!-- แบนเนอร์ภาพด้านบน -->
+  <div style="width: 100%; height: 120px; border-radius: 20px; overflow: hidden; margin-bottom: 14px;">
     <img src="https://media.giphy.com/sample.gif" style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;" alt="Banner">
   </div>
 
-  <!-- ส่วนหัวข้อและเวลา -->
+  <!-- หัวข้อและป้ายสถานะ -->
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-    <span style="font-size: 14px; font-weight: bold;">(หัวข้อการ์ด)</span>
-    <span style="font-size: 12px; opacity: 0.75;">(วันที่ • เวลา)</span>
+    <span style="font-size: 15px; font-weight: bold;">$1</span>
+    <span style="font-size: 11px; background: rgba(56, 189, 248, 0.2); border: 1px solid rgba(56, 189, 248, 0.4); padding: 2px 8px; border-radius: 12px; color: #38bdf8;">$2</span>
   </div>
 
-  <!-- กล่องข้อความเนื้อหาหลัก (Nested Frosted Glass Box) -->
-  <div style="background: rgba(0, 0, 0, 0.22); border-radius: 18px; padding: 14px; border: 1px solid rgba(255, 255, 255, 0.15); margin-bottom: 14px; font-size: 13.5px; line-height: 1.6;">
-    (ข้อความหลักที่ต้องการให้ AI แสดงผล)
+  <!-- หลอดสถานะไดนามิก -->
+  <div style="margin-bottom: 12px;">
+    <div style="display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 4px; opacity: 0.85;">
+      <span>ระดับพลังงาน</span>
+      <span>$3%</span>
+    </div>
+    <div style="background: rgba(255, 255, 255, 0.15); border-radius: 99px; height: 8px; width: 100%; overflow: hidden;">
+      <div style="background: linear-gradient(90deg, #38bdf8, #4ade80); height: 100%; width: $3%; max-width: 100%; border-radius: 99px;"></div>
+    </div>
   </div>
 
-  <!-- หลอดสถานะไดนามิก (Dynamic Progress Bar) -->
-  <div style="background: rgba(255, 255, 255, 0.15); border-radius: 99px; height: 8px; width: 100%; overflow: hidden;">
-    <div style="background: linear-gradient(90deg, #339af0, #51cf66); height: 100%; width: (85%); max-width: 100%; border-radius: 99px; transition: width 0.4s ease;"></div>
+  <!-- กล่องข้อความบรรยาย -->
+  <div style="background: rgba(0, 0, 0, 0.25); border-radius: 16px; padding: 12px 14px; border: 1px solid rgba(255, 255, 255, 0.12); font-size: 13px; line-height: 1.55;">
+    $4
   </div>
 
 </div>
 ```
 
+**Regex Pattern ที่ใช้จับคู่:**
+```regex
+/<status-panel>([\s\S]*?)\|\|([\s\S]*?)\|\|(\d{1,3}(?:\.\d+)?)\s*%?\|\|([\s\S]*?)<\/status-panel>/g
+```
+
 ---
-*เอกสารนี้ผ่านการรับรองความถูกต้องเชิงวิศวกรรมและการทดสอบครบถ้วน 100% บนระบบ Snippet Studio*
+
+## 9. บทสรุปและข้อเสนอแนะ
+
+การผสานรวม Large Language Model เข้ากับเทคโนโลยีการแสดงผล HTML5 และ CSS ในแพลตฟอร์ม Rubii AI เป็นรูปแบบการสร้างส่วนต่อประสานผู้ใช้ที่มีศักยภาพสูงและมอบประสบการณ์ที่มีชีวิตชีวาแก่ผู้ใช้งาน
+
+**ประเด็นสรุปที่สำคัญ:**
+1. **ความยืดหยุ่นและการควบคุม:** การเลือกใช้ระหว่าง **Style Tag** (สำหรับข้อความเดี่ยว) และ **Regex Engine** (สำหรับข้อมูลหลายช่อง) ต้องสอดคล้องกับความสามารถของ Prompt และลักษณะของข้อมูล
+2. **ความทนทานของโค้ด (Robustness):** การออกแบบโครงสร้าง HTML/CSS ต้องคำนึงถึงความไม่แน่นอนของผลลัพธ์จาก LLM โดยต้องมีระบบป้องกันข้อความล้นกรอบ การจำกัดความกว้างหลอดสถานะ (`max-width: 100%`) และการเลือกตัวคั่นที่ปลอดภัย (`||`)
+3. **การเข้าถึงและความชัดเจน (Accessibility & Contrast):** การใช้ Glassmorphism ต้องทำควบคู่กับการจัดการความคมชัดของข้อความด้วย Text Shadow เพื่อให้อ่านง่ายในทุกสภาวะพื้นหลัง
+
+เอกสารฉบับนี้จัดทำขึ้นเพื่อเป็นแนวทางอ้างอิงทางเทคนิคสำหรับนักพัฒนาและผู้สร้างคอนเทนต์ในการออกแบบการ์ดที่สวยงาม มีประสิทธิภาพ และทำงานได้อย่างราบรื่นบนแพลตฟอร์ม Rubii AI
