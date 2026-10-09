@@ -1,4 +1,4 @@
-# 🔬 รายงานการวิจัยและวิเคราะห์เชิงระบบ: สถาปัตยกรรมพื้นหลัง (Background Rendering) และหลอดสถานะ (Progress Bars) บน Rubii AI
+# รายงานการวิจัยและวิเคราะห์เชิงระบบ: สถาปัตยกรรมพื้นหลัง (Background Rendering) และหลอดสถานะ (Progress Bars) บน Rubii AI
 **ผู้วิจัย/วิศวกรระบบ:** Antigravity AI Engineering  
 **สถานะเอกสาร:** Peer-Reviewed & Empirically Verified Standard  
 **กลุ่มประชากรที่ตรวจสอบ:** 75 Snippets (S01 - S76) บนฐานข้อมูลระบบ Snippet Studio  
@@ -17,14 +17,19 @@
 จากการจำลองสภาพแวดล้อมและการวิเคราะห์การทำงานของ Engine ประมวลผล CSS:
 
 ```mermaid
-graph TD
+flowchart TD
     A["CSS Background Declarations"] --> B{"Rendering Environment"}
-    B -->|"Desktop PC (Blink / WebKit Full Engine)"| C["รองรับ Multi-Layer Complex Gradients ได้เต็มประสิทธิภาพ"]
-    B -->|"Mobile App (React Native / iOS WebKit / Android WebView)"| D["เกิดข้อจำกัดด้าน Sanitizer, Shorthand Collisions และ Layer Blending"]
-    D --> E["1. Shorthand Override Hazard"]
-    D --> F["2. Multi-layer Gradient Occlusion"]
+    B -->|"Desktop Browser (Blink / WebKit Full Engine)"| C["Full Multi-Layer Gradient & Shorthand Support"]
+    B -->|"Mobile WebView (React Native / iOS WebKit / Android WebView)"| D["Sanitizer Filters, Shorthand Collisions & Occlusion Hazards"]
+    D --> E["1. Shorthand Override Hazard (Resetting properties)"]
+    D --> F["2. Multi-layer Gradient Occlusion (Dark tint opacity fallback)"]
     D --> G["3. Escape String Formatting Dropouts"]
 ```
+
+> **สรุปขั้นตอน Workflow (Rendering Environment & Background Mechanics):**
+> 1. **ความแตกต่างของเบราว์เซอร์:** เบราว์เซอร์ Desktop รองรับ CSS Shorthand และ Gradient หลายชั้นได้สมบูรณ์ แต่ Mobile WebView ของแอปแชตมักมีข้อจำกัดเรื่อง CSS Sanitizer
+> 2. **ความเสี่ยงที่พบ:** การใช้ Shorthand `background:` มักรีเซ็ตค่าของ `background-image:` และการซ้อน Gradient มักทำให้ภาพพื้นหลังมืดสนิท
+> 3. **แนวทางแก้ไข:** ใช้ Clean CSS Standard โดยแยกคุณสมบัติเฉพาะเจาะจง (`background-image`, `background-size: cover`, `background-position: center`)
 
 1. **Shorthand Override Hazard (ข้อกำหนด CSS Shorthand):**
    - ตามมาตรฐาน W3C CSS Specification คุณสมบัติ `background` เป็น Shorthand Property ซึ่งจะทำการ Reset ทุก Sub-properties (`background-image`, `background-color`, `background-size`, `background-repeat`, ฯลฯ) ให้กลับเป็นค่าตั้งต้น
@@ -95,14 +100,17 @@ graph TD
 ### 5.1 การวิเคราะห์เชิงคุณภาพ (Qualitative Layout Mechanics)
 
 ```mermaid
-graph TD
-    A["รูปภาพ / GIF (สัดส่วน 1:1 หรือ 4:3)"] --> B{"CSS Sizing Property"}
-    B -->|"object-fit: contain"| C["⚠️ Letterboxing Defect: ภาพหดเหลือ 130px ตรงกลาง เกิดช่องว่างดำ/สีพื้นหลังโบ๋ทั้งซ้ายและขวา"]
-    B -->|"object-fit: cover (แนะนำ)"| D["✨ Full-Bleed Landscape: ภาพแผ่เต็มผืนผ้า 100% Edge-to-Edge ไร้ขอบมืด Overlay ลอยสวยงาม"]
-    C --> E["กรณี snippet-58: กล่องสถิติลอยเคว้งบนพื้นที่ว่างสีดำ"]
-    C --> F["กรณี snippet-71 ถึง 75: แบนเนอร์กลายเป็นการ์ดแคบ มีปีกข้างโล่ง"]
-    D --> G["แก้ไขเสร็จสมบูรณ์ทั้ง 14 รายการ"]
+flowchart TD
+    A["Media / GIF Asset (1:1 or 4:3 Aspect Ratio)"] --> B{"CSS Sizing Property"}
+    B -->|"object-fit: contain"| C["Letterboxing Defect: Image shrinks with empty black voids on left and right"]
+    B -->|"object-fit: cover (Recommended)"| D["Full-Bleed Landscape: Image spans 100% edge-to-edge seamlessly"]
+    C --> E["Defect Example: Floating badges disconnected over black voids"]
+    D --> F["Standardized Solution: Center-cropped landscape presentation"]
 ```
+
+> **สรุปขั้นตอน Workflow (Media & Banner Layout Architecture):**
+> 1. **สาเหตุของปัญหา:** รูปภาพต้นฉบับที่เป็นสี่เหลี่ยมจัตุรัส (1:1) เมื่อใส่ลงในกรอบแนวนอนด้วย `object-fit: contain` จะหดตัวและเกิดขอบดำโบ๋ด้านข้าง
+> 2. **วิธีแก้ไขมาตรฐาน:** กำหนด `object-fit: cover; object-position: center; width: 100%; height: 100%; display: block;` บนแท็กรูปภาพ เพื่อให้ภาพแผ่เต็มผืนผ้าอย่างสวยงาม ไร้รอยต่อ
 
 1. **ปัญหา Letterboxing Void จาก `object-fit: contain`:**
    - ในการ์ดสไตล์โมเดิร์น แบนเนอร์ด้านบนหรือพื้นหลังมักถูกกำหนดขนาดเป็น **แนวนอนผืนผ้า (Landscape)** เช่น กว้าง $100\%$ ($\approx 420\text{px}$) และสูงคงที่ $120\text{px} - 140\text{px}$ (อัตราส่วนประมาณ $3.2:1$)
@@ -123,8 +131,8 @@ graph TD
 | :--- | :---: | :---: | :---: | :---: |
 | **SVG Icons & Small Logos (เช่น โลโก้แอป/โซเชียล)** | 11 | 14.7% | `width: 18-38px; height: 18-38px;` | ปกติสมบูรณ์ |
 | **Natural Feed Posts (เช่น โพสต์ภาพเดี่ยวสัดส่วนอิสระ)** | 23 | 30.7% | `width: 100%; height: auto;` | ปกติสมบูรณ์ |
-| **Media Banners & Fixed Aspect Frames (ก่อนแก้)** | 14 | 18.7% | `object-fit: contain;` | ⚠️ เกิด Letterbox Void |
-| **Media Banners & Fixed Aspect Frames (หลังแก้)** | 14 | 18.7% | `object-fit: cover; center;` | ✨ เต็มผืนผ้า 100% |
+| **Media Banners & Fixed Aspect Frames (ก่อนแก้)** | 14 | 18.7% | `object-fit: contain;` | เกิด Letterbox Void |
+| **Media Banners & Fixed Aspect Frames (หลังแก้)** | 14 | 18.7% | `object-fit: cover; center;` | เต็มผืนผ้า 100% |
 | **Snippets ที่ไม่มีแท็ก `<img>` (Text/Status Cards)** | 27 | 36.0% | N/A | ปกติสมบูรณ์ |
 
 #### ผลการตรวจสอบหลังการปรับปรุง (Post-Remediation Benchmark)
@@ -145,17 +153,22 @@ graph TD
 ### 7.1 การวิเคราะห์เชิงคุณภาพ: 4 ข้อบกพร่องที่ทำให้ Output ไม่สมเหตุสมผล
 
 ```mermaid
-graph TD
-    A["ปัญหาการวิเคราะห์โครงสร้างข้อมูล (Parser & Template Defect)"] --> B["1. Static Label Trapping: ป้ายคงที่ถูกดักจับเป็นตัวแปร เช่น (THB), (ผู้โอน), (ผู้รับ)"]
-    A --> C["2. Macro Swallowing: ตัวแปรระบบ {{char}} ถูกกลืนในวงเล็บ เช่น (เลขบัญชี {{char}})"]
-    A --> D["3. Missing Core Slots: ค่าสำคัญอย่างยอดเงิน 50,000.00 / เลขอ้างอิง เป็น Hardcoded Text"]
-    A --> E["4. Sample Value Scramble: ค่าตัวอย่างสุ่มผิดประเภท เช่น วันที่ถูกแทนด้วยเวลา 21:45"]
+flowchart TD
+    A["Parser & Template Data Structuring Defects"] --> B["1. Static Label Trapping: Labels enclosed in parens (e.g. (THB), (Sender))"]
+    A --> C["2. Macro Swallowing: System tokens swallowed inside parens (e.g. (Account {{char}}))"]
+    A --> D["3. Missing Core Slots: Critical values (Amount 50,000.00) hardcoded"]
+    A --> E["4. Sample Value Scramble: Context mismatch (Date replaced with 21:45)"]
     
-    B --> F["ผลลัพธ์: AI ถูกสั่งให้ป้อนคำว่า 'THB' แทนที่จะป้อน 'ยอดเงิน'"]
-    C --> G["ผลลัพธ์: เลขบัญชีถูกแทนด้วยชื่อ 'Mira' และทำลาย Macro {{char}}"]
-    D --> H["ผลลัพธ์: การ์ดไม่สามารถเปลี่ยนยอดเงินธุรกรรมแบบไดนามิกได้"]
-    E --> I["ผลลัพธ์: Output กลายเป็น <kbank-slip>ตัวอย่างข้อมูล||ตัวอย่างข้อมูล||Mira||...</kbank-slip>"]
+    B --> F["Impact: AI prompted to output 'THB' instead of dynamic amount"]
+    C --> G["Impact: Account number replaced by character name 'Mira'"]
+    D --> H["Impact: Card cannot update transaction amount dynamically"]
+    E --> I["Impact: Malformed output string with repeated fallback tokens"]
 ```
+
+> **สรุปขั้นตอน Workflow (Semantic Slot Alignment Analysis):**
+> 1. **การวิเคราะห์จุดบกพร่อง:** การใส่วงเล็บครอบป้ายกำกับคงที่ หรือครอบ Macro ระบบ (`{{char}}`) ทำให้ Parser สกัดตัวแปรผิดพลาด
+> 2. **ผลกระทบ:** AI ถูกสั่งให้สร้างข้อความที่ไม่จำเป็น หรือส่งค่าตัวแปรสลับช่อง
+> 3. **มาตรฐานการแก้ไข:** ปลดวงเล็บออกจากข้อความคงที่ และแยก `{{char}}` ออกมาอยู่นอกวงเล็บอย่างชัดเจน
 
 1. **Static Label Trapping (ป้ายกำกับคงที่ถูกดักจับเป็นตัวแปร):**
    - ข้อความกำกับโครงสร้างที่ไม่ควรเปลี่ยนแปลง เช่น สกุลเงิน `(THB)`, หัวข้อส่วน `(ผู้โอน)`, `(ผู้รับ)`, `(PromptPay)` เมื่อถูกใส่วงเล็บ `(...)` ระบบ Regex ของ Quick Edit และ Rubii Slot Parser จะเข้าใจผิดว่าเป็น Marker ที่ผู้ใช้ต้องกรอก ส่งผลให้เกิดช่องว่างที่ไม่จำเป็นและทำให้ AI ต้องสร้าง Output สำหรับคำว่า `THB` แทนที่จะสร้างข้อมูลจริง
@@ -220,20 +233,26 @@ graph TD
 | **ตัวละครและผู้ใช้** | `(เลขบัญชี {{char}})` (กลืน Macro) | `{{char}}` (ผู้โอน) และ `(เลขบัญชี: xxx-x-x8841-x)` แยกเป็นอิสระ |
 | **ยอดเงินทำธุรกรรม** | `50,000.00` (Hardcoded แก้ไม่ได้) | `(จำนวนเงิน: 50,000.00)` หรือ `(50,000.00)` |
 | **เลขอ้างอิงและเวลา** | `202610068841KB` (Hardcoded) | `(เลขอ้างอิง: 202610068841KB)`, `(วันที่ • เวลา)` |
-| **Output สำหรับ Style tag** | `<kbank-slip>ตัวอย่างข้อมูล</kbank-slip>` ❌ | `<kbank-slip>50,000.00</kbank-slip>` ✨ (เปลี่ยนยอดเงินทันที) |
-| **Output สำหรับ Regex** | `<kbank-slip>ตัวอย่าง||ตัวอย่าง||Mira||21:45...</kbank-slip>` ❌ | `<kbank-slip>50,000.00||xxx-x-x8841-x||06 ต.ค. 2569 • 20:39 น.</kbank-slip>` ✨ |
+| **Output สำหรับ Style tag** | `<kbank-slip>ตัวอย่างข้อมูล</kbank-slip> (ไม่ตรงจุด)` | `<kbank-slip>50,000.00</kbank-slip> (เปลี่ยนยอดเงินทันที)` |
+| **Output สำหรับ Regex** | `<kbank-slip>ตัวอย่าง||ตัวอย่าง||Mira||21:45...</kbank-slip> (ไม่ตรงจุด)` | `<kbank-slip>50,000.00||xxx-x-x8841-x||06 ต.ค. 2569 • 20:39 น.</kbank-slip> (สมบูรณ์)` |
 
 ---
 
 ## 8. สรุปข้อเสนอแนะและแผนการดำเนินงาน (Action Plan & Implementation Roadmap)
 
 ```mermaid
-graph LR
-    A["เฟส 1: ปรับปรุง HTML Template ใน snippets.json (19 รายการ)"] --> B["เฟส 2: อัปเกรด Parser ใน app.js ป้องกัน Static Label Trap"]
-    B --> C["เฟส 3: ปรับปรุง rubiiSampleValue ให้จับคู่ข้อมูลตามบริบทการเงิน/เวลาจริง"]
-    C --> D["เฟส 4: ทดสอบแบบ End-to-End ครบ 75 Snippets"]
-    D --> E["เฟส 5: ซิงก์ Git และ Deploy สู่ Production"]
+flowchart LR
+    A["Phase 1: Template Sanitization in snippets.json"] --> B["Phase 2: Parser Enhancement in app.js"]
+    B --> C["Phase 3: Context-Aware Sample Value Generator"]
+    C --> D["Phase 4: End-to-End Test Suite Execution"]
+    D --> E["Phase 5: Git Synchronization & Production Deployment"]
 ```
+
+> **สรุปขั้นตอน Workflow (Implementation Roadmap):**
+> 1. **เฟส 1 - การทำความสะอาดแม่แบบ:** ปรับปรุงโครงสร้าง HTML ในแม่แบบ ปลดวงเล็บและแยก Macro
+> 2. **เฟส 2 - พัฒนา Parser:** ติดตั้ง Blacklist ป้องกันไม่ให้ข้อความคงที่กลายเป็น Slot ตัวแปร
+> 3. **เฟส 3 - ระบบสร้างค่าตัวอย่าง:** ปรับปรุงการสร้างค่าตัวอย่างให้ตรงกับประเภทข้อมูล (ยอดเงิน, วันที่, บัญชี)
+> 4. **เฟส 4 และ 5 - ทดสอบและเผยแพร่:** รันชุดทดสอบความถูกต้องและปรับใช้สู่ระบบ Production
 
 1. **เฟส 1 (Template Sanitization):** ทำความสะอาด HTML ใน `data/snippets.json` ทั้ง 19 Snippets:
    - ปลดวงเล็บออกจากข้อความคงที่ (`THB`, `ผู้โอน`, `ผู้รับ`)
@@ -273,13 +292,18 @@ graph LR
 จากการวัดค่า Contrast Ratio ตามมาตรฐานสากล **WCAG 2.1 (Web Content Accessibility Guidelines)** บนภาพพื้นหลังสว่าง:
 
 ```mermaid
-graph TD
-    A["ข้อความสีขาว (#ffffff) บนภาพพื้นหลัง"] --> B{"รูปแบบเงา (Text Shadow Preset)"}
-    B -->|"1. ไม่ใส่เงา (None)"| C["❌ Contrast Ratio 1.2:1 (FAIL WCAG AA - ข้อความกลืนกับพื้นหลัง)"]
-    B -->|"2. เงามืดนุ่มนวล (Soft Dark)"| D["✨ Contrast Ratio 6.8:1 (PASS WCAG AAA - คมชัดเป็นธรรมชาติ)"]
-    B -->|"3. ตัดเส้นขอบคม (Sharp Outline)"| E["✨ Contrast Ratio 11.5:1 (PASS WCAG AAA - สไตล์การ์ตูน/HUD)"]
-    B -->|"4. แสงนีออนเรือง (Neon Glow)"| F["✨ Contrast Ratio 8.2:1 (PASS WCAG AAA - สไตล์ Cyberpunk)"]
+flowchart TD
+    A["Foreground White Text (#ffffff) over Bright Media Background"] --> B{"Text Shadow Preset"}
+    B -->|"1. None"| C["Contrast Ratio 1.2:1 (Fail WCAG AA - Text blends into background)"]
+    B -->|"2. Soft Dark"| D["Contrast Ratio 6.8:1 (Pass WCAG AAA - Smooth natural legibility)"]
+    B -->|"3. Sharp Outline"| E["Contrast Ratio 11.5:1 (Pass WCAG AAA - High-contrast comic/HUD style)"]
+    B -->|"4. Neon Glow"| F["Contrast Ratio 8.2:1 (Pass WCAG AAA - Stylized cyberpunk glow)"]
 ```
+
+> **สรุปขั้นตอน Workflow (Text Shadow Contrast Simulation):**
+> 1. **ปัญหาการอ่านข้อความ:** ข้อความสีขาวบนภาพพื้นหลังสว่างมี Contrast ต่ำเพียง 1.2:1 ทำให้กลืนกับภาพและอ่านยาก
+> 2. **การประเมินตามมาตรฐาน WCAG 2.1:** พรีเซ็ต Soft Dark, Sharp Outline และ Neon Glow ช่วยเพิ่ม Contrast Ratio ขึ้นเป็น 6.8:1 ถึง 11.5:1
+> 3. **ผลลัพธ์:** ตัวหนังสือคมชัด อ่านง่าย โดยไม่ต้องเปลี่ยนสีข้อความเดิม
 
 ---
 

@@ -30,32 +30,39 @@
 
 ```mermaid
 flowchart TD
-    subgraph Step1["ขั้นที่ 1: LLM Inference & Tag Emission"]
-        A1["LLM สร้างคำตอบในบทสนทนา"] --> A2{"ตรวจจับแท็กระบุตัวตน เช่น <tag>...</tag>"}
-        A2 -->|"พบแท็ก"| A3["ดึงข้อความภายในแท็ก (Payload Extraction)"]
-        A2 -->|"ไม่พบแท็ก"| A4["แสดงผลเป็นข้อความแชตปกติ (Standard Text)"]
+    subgraph Stage1["Stage 1: LLM Ingestion & Token Interception"]
+        A1["LLM Completion Stream"] --> A2{"Identifier Scanner: <tag>...</tag>"}
+        A2 -->|"Matched"| A3["Payload Extractor"]
+        A2 -->|"Unmatched"| A4["Standard Markdown / Plaintext Chat Bubble"]
     end
 
-    subgraph Step2["ขั้นที่ 2: Pattern Matching & Variable Tokenization"]
-        A3 --> B1{"ตรวจสอบกลไกที่ผูกกับแท็ก"}
-        B1 -->|"โหมด Style Tag"| B2["Single-Slot: กำหนดให้ก้อนข้อความทั้งหมดเป็น $1"]
-        B1 -->|"โหมด Regex Engine"| B3["Multi-Capture: ตัดแยกโทเค็นด้วยตัวคั่น เช่น ||"]
-        B3 --> B4["สร้างอาร์เรย์ตัวแปร ($1, $2, $3, ... $N)"]
+    subgraph Stage2["Stage 2: Lexical Tokenization & Slot Parsing"]
+        A3 --> B1{"Binding Mode Evaluator"}
+        B1 -->|"Style Tag Mode"| B2["Single-Slot Ingestion: Entire Payload -> $1"]
+        B1 -->|"Regex Engine Mode"| B3["Multi-Capture Delimiter Splitter (e.g. ||)"]
+        B3 --> B4["Slot Array Mapping: $1, $2, $3, ... $N"]
+        B4 --> B5["Type Sanitizer & Numeric Extractor"]
     end
 
-    subgraph Step3["ขั้นที่ 3: Template Binding & DOM Assembly"]
-        B2 --> C1["นำตัวแปรไปแทนที่ในโครงสร้าง HTML"]
-        B4 --> C1
-        C1 --> C2["ประกอบโครงสร้าง DOM Tree ของการ์ด"]
-        C2 --> C3["คอมไพล์สไตล์ CSS และแยก Scoped Selector"]
+    subgraph Stage3["Stage 3: DOM Tree Assembly & CSS Scoping"]
+        B2 --> C1["DOM Synthesizer"]
+        B5 --> C1
+        C1 --> C2["CSS Rule Isolator & Style Scoper"]
+        C2 --> C3["Progress Bar Width Clamping (max-width: 100%)"]
     end
 
-    subgraph Step4["ขั้นที่ 4: WebView Rendering & Presentation"]
-        C3 --> D1["เรนเดอร์ผ่านเอนจินเบราว์เซอร์ของแอปพลิเคชัน"]
-        D1 --> D2["คำนวณเอฟเฟกต์ Glassmorphism, Layout และ Text Shadow"]
-        D2 --> D3["แสดงการ์ดบนหน้าต่างสนทนา"]
+    subgraph Stage4["Stage 4: WebView Presentation & Composition"]
+        C3 --> D1["Embedded WebView Compositor (WebKit / Blink)"]
+        D1 --> D2["GPU Backdrop Filter & Text Shadow Contrast Buffer"]
+        D2 --> D3["Rendered Interactive Card in Conversation Stream"]
     end
 ```
+
+> **สรุปขั้นตอน Workflow (End-to-End Pipeline):**
+> 1. **การดักจับข้อมูล (LLM Ingestion):** ระบบสแกนหา Tag Identifier เช่น `<tag>...</tag>` จาก Response Stream ของ AI หากตรวจพบจะสกัดเนื้อหา (Payload) ภายในแท็กออกมาประมวลผลต่อ
+> 2. **การตัดคำและจัดกลุ่มโทเค็น (Tokenization):** จำแนกข้อมูลตามโหมดที่กำหนด หากเป็นการ์ดแบบ Style Tag จะส่งข้อความทั้งหมดเข้าสู่ `$1` หากเป็น Regex Engine จะตัดแยกโทเค็นด้วยตัวคั่น เช่น `||` เข้าสู่อาร์เรย์ `$1` ถึง `$N`
+> 3. **การประกอบโครงสร้าง DOM (DOM Synthesis):** นำค่าตัวแปรไปแทนที่ในโครงสร้าง HTML พร้อมคอมไพล์สไตล์ CSS และจำกัดขอบเขตความกว้างหลอดสถานะ (`max-width: 100%`)
+> 4. **การแสดงผลบนหน้าจอ (WebView Presentation):** เบราว์เซอร์ประมวลผลเอฟเฟกต์ Glassmorphism, Layout และ Text Shadow เพื่อแสดงผลเป็นการ์ดที่สมบูรณ์บนหน้าต่างแชต
 
 ### 1.2 สภาพแวดล้อมการทำงานของ Rubii WebView (Rendering Environment)
 
@@ -78,24 +85,29 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    subgraph Input["ข้อความตอบกลับจาก AI"]
-        I["<diary-card>วันนี้ออกไปเดินเล่นที่สวนสาธารณะ อากาศสดชื่นมาก</diary-card>"]
+    subgraph AIResponse["LLM Generation"]
+        R["<diary-card>วันนี้ออกไปเดินเล่นที่สวนสาธารณะ อากาศสดชื่นมาก</diary-card>"]
     end
 
-    subgraph Template["แม่แบบ Style Tag"]
+    subgraph StyleTagTemplate["Style Tag Template"]
         T["<style>
-.rubii-diary { background: rgba(255,255,255,0.1); border-radius: 20px; padding: 16px; }
+.rubii-diary { background: rgba(255,255,255,0.08); border-radius: 20px; padding: 16px; }
 </style>
 <div class='rubii-diary'>$1</div>"]
     end
 
-    subgraph Output["ผลลัพธ์ DOM ที่เรนเดอร์จริง"]
-        O["<div class='rubii-diary'>วันนี้ออกไปเดินเล่นที่สวนสาธารณะ อากาศสดชื่นมาก</div>"]
+    subgraph RenderedDOM["Final Document Object Model"]
+        D["<div class='rubii-diary'>วันนี้ออกไปเดินเล่นที่สวนสาธารณะ อากาศสดชื่นมาก</div>"]
     end
 
-    I -->|"ส่งข้อความเข้าแทนที่ $1"| T
-    T --> Output
+    R -->|"Single-Slot Injection into $1"| T
+    T --> RenderedDOM
 ```
+
+> **สรุปขั้นตอน Workflow (Style Tag Mode):**
+> 1. AI ตอบกลับข้อความแบบก้อนเดียวภายในแท็กเปิด-ปิดที่กำหนด
+> 2. สไตล์ CSS ทั้งหมดถูกแยกเก็บไว้ในแท็ก `<style>` ด้านบนอย่างเป็นระเบียบ ทำให้ง่ายต่อการปรับแต่ง
+> 3. ก้อนข้อความทั้งหมดถูกส่งเข้าแทนที่ช่อง `$1` ในโครงสร้าง HTML โดยตรงในขั้นตอนเดียว โดยไม่ต้องผ่านตัวคั่นใดๆ
 
 ### 2.2 ข้อดีและข้อจำกัดของ Style Tag
 
@@ -115,34 +127,39 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    subgraph Payload["1. ข้อความจาก AI พร้อมตัวคั่น"]
-        P["<char-status>เรย์||เลเวล 45||85%||กำลังลาดตระเวน</char-status>"]
+    subgraph Stream["LLM Response Payload"]
+        P["<character-sheet>Noctis||Level 85||78%||Castle Infiltration</character-sheet>"]
     end
 
-    subgraph Regex["2. นิพจน์เรกิวลาร์ (Regex Pattern)"]
-        R["/<char-status>([\s\S]*?)\|\|([\s\S]*?)\|\|([\s\S]*?)\|\|([\s\S]*?)<\/char-status>/g"]
+    subgraph RegexEngine["Regex Tokenizer"]
+        R["/<character-sheet>([\s\S]*?)\|\|([\s\S]*?)\|\|([\s\S]*?)\|\|([\s\S]*?)<\/character-sheet>/g"]
     end
 
-    subgraph Slots["3. การจับคู่ช่องตัวแปร (Slot Mapping)"]
-        S1["$1 = เรย์ (ชื่อตัวละคร)"]
-        S2["$2 = เลเวล 45 (ระดับ)"]
-        S3["$3 = 85% (ค่าเปอร์เซ็นต์หลอดพลัง)"]
-        S4["$4 = กำลังลาดตระเวน (สถานะปัจจุบัน)"]
+    subgraph SlotArray["Extracted Slot Array"]
+        S1["$1: Name -> 'Noctis'"]
+        S2["$2: Level -> 'Level 85'"]
+        S3["$3: Energy Gauge -> '78%'"]
+        S4["$4: Current Mission -> 'Castle Infiltration'"]
     end
 
-    subgraph HTML["4. โครงสร้าง HTML แม่แบบ"]
-        H["<div class='card'>
-  <h3>$1</h3>
+    subgraph TemplateBinding["Template Binding Matrix"]
+        H["<div class='sheet-root'>
+  <h2>$1</h2>
   <span>$2</span>
-  <div class='bar' style='width: $3; max-width: 100%;'></div>
+  <div class='meter' style='width: $3; max-width: 100%;'></div>
   <p>$4</p>
 </div>"]
     end
 
     P --> R
     R --> S1 & S2 & S3 & S4
-    S1 & S2 & S3 & S4 --> H
+    S1 & S2 & S3 & S4 --> TemplateBinding
 ```
+
+> **สรุปขั้นตอน Workflow (Regex Multi-Slot Engine):**
+> 1. AI สร้างข้อความที่มีหลายช่องข้อมูลโดยคั่นด้วยสัญลักษณ์มาตรฐาน เช่น `||`
+> 2. Regex Engine ทำการประเมินและสกัดแต่ละส่วนเข้าสู่ Capture Groups ($1, $2, $3, $4) แบบเรียงลำดับ
+> 3. นำค่าตัวแปรแต่ละช่องไปผูกกับตำแหน่งที่สอดคล้องกันในแม่แบบ HTML และหลอดสถานะไดนามิกได้อย่างแม่นยำ
 
 ### 3.2 การวิเคราะห์ตัวคั่นข้อมูล (Delimiter Evaluation)
 
@@ -165,14 +182,14 @@ flowchart TD
 
 ```html
 <!-- ถูกต้อง: มี Root Container ตัวเดียวครอบคลุมทั้งหมด -->
-<div style="background: rgba(255,255,255,0.1); border-radius: 24px; padding: 18px; box-sizing: border-box;">
+<div style="background: rgba(255,255,255,0.08); border-radius: 28px; padding: 20px; box-sizing: border-box; width: 100%;">
   <div>ส่วนหัว</div>
   <div>เนื้อหา</div>
 </div>
 
 <!-- ไม่ถูกต้อง: มี Root หลายตัวอยู่นอกสุด -->
-<div>ส่วนหัว</div>
-<div>เนื้อหา</div>
+<div style="...">ส่วนหัว</div>
+<div style="...">เนื้อหา</div>
 ```
 
 ### 4.2 การจัดการมิติและการจัดวาง (Dimensions & Layout)
@@ -194,15 +211,29 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    subgraph Spec["Glassmorphism Parameters"]
-        P1["1. Surface: background: rgba(255,255,255, 0.08 - 0.16)"]
-        P2["2. Frosted Blur: backdrop-filter: blur(20px - 32px)"]
-        P3["3. Perimeter Stroke: border: 1px - 1.5px solid rgba(255,255,255, 0.25 - 0.40)"]
-        P4["4. Elevation Depth: box-shadow: 0 18px 40px rgba(0,0,0, 0.20 - 0.35)"]
+    subgraph GlassStack["Glassmorphism Component Stack"]
+        C1["Translucent Fill: background: rgba(255, 255, 255, 0.08 - 0.16)"]
+        C2["Sub-surface Blur: backdrop-filter: blur(20px - 32px)"]
+        C3["Perimeter Definition: border: 1.5px solid rgba(255, 255, 255, 0.25 - 0.40)"]
+        C4["Ambient Elevation: box-shadow: 0 18px 45px rgba(0, 0, 0, 0.20 - 0.35)"]
     end
 
-    P1 & P2 & P3 & P4 --> GlassResult["ผลลัพธ์กระจกโปร่งแสงที่มีมิติลึก"]
+    C1 & C2 & C3 & C4 --> OutputCard["Frosted Glass Interface Card"]
 ```
+
+> **สรุปโครงสร้างสถาปัตยกรรมกระจกฝ้า (Glassmorphism Stack):**
+> 1. **พื้นผิวโปร่งแสง (Translucent Surface):** ใช้ `background: rgba(255,255,255, ...)` ระดับความทึบ 8% ถึง 16% เพื่อให้มองเห็นมิติของฉากหลัง
+> 2. **ความเบลอของเลเยอร์ลึก (Frosted Blur):** ใช้ `backdrop-filter: blur(20px - 32px)` สร้างเอฟเฟกต์กระจกฝ้าที่นุ่มนวล
+> 3. **เส้นขอบสะท้อนแสง (Perimeter Stroke):** ตีเส้นขอบ `border: 1px - 1.5px solid rgba(...)` เพื่อเน้นรูปทรงขอบการ์ดให้คมชัด
+> 4. **เงาตกกระทบ (Ambient Elevation):** ใช้ `box-shadow` เพิ่มความลอยตัวและความลึกของการ์ดบนหน้าต่างสนทนา
+
+#### ตารางพารามิเตอร์ความทึบแสงและความเบลอแต่ละระดับเลเยอร์
+
+| ระดับความลึกของเลเยอร์ | ค่าความโปร่งแสง (Alpha Range) | ค่าความเบลอ (Blur Radius) | ความหนาของเส้นขอบ | ผลลัพธ์ทางสายตา |
+| :--- | :---: | :---: | :---: | :--- |
+| **เลเยอร์การ์ดหลัก (Primary Root)** | $8\% - 14\%$ | $24\text{px} - 32\text{px}$ | $1.5\text{px}$ solid ($\alpha = 0.35$) | ผิวกระจกใหญ่ เห็นฉากหลังเลือนราง คมชัดสูง |
+| **กล่องข้อความย่อย (Nested Box)** | $16\% - 24\%$ | $14\text{px} - 20\text{px}$ | $1.0\text{px}$ solid ($\alpha = 0.20$) | ผิวกระจกซ้อน ทึบกว่าการ์ดหลักเพื่อให้อ่านง่าย |
+| **ป้ายสถานะและไอคอน (Badge/Icon)** | $22\% - 32\%$ | $8\text{px} - 12\text{px}$ | $1.0\text{px}$ solid ($\alpha = 0.45$) | เน้นจุดสำคัญ มีความเด่นชัดและสะท้อนแสง |
 
 ### 5.2 การควบคุมสัดส่วนภาพและแบนเนอร์ (Full-Bleed Image Handling)
 
@@ -210,16 +241,20 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    subgraph DefectCase["กรณีเกิดข้อบกพร่อง: object-fit: contain"]
-        A1["กรอบแบนเนอร์แนวนอน กว้าง 400px สูง 130px"] --> A2["รูปภาพสัดส่วนจัตุรัส 1:1 ถูกบีบให้พอดีความสูง 130px"]
-        A2 --> A3["เกิดช่องว่างสีดำขนาดใหญ่ 135px ทั้งฝั่งซ้ายและขวา"]
+    subgraph Defect["Defective Rendering: object-fit: contain"]
+        D1["Banner Container: 400px x 130px (3.08:1)"] --> D2["1:1 Square Image Scales to 130px x 130px"]
+        D2 --> D3["Creates 135px Empty Black Voids on Left and Right"]
     end
 
-    subgraph CorrectCase["กรณีมาตรฐานที่ถูกต้อง: object-fit: cover"]
-        B1["กรอบแบนเนอร์แนวนอน กว้าง 400px สูง 130px"] --> B2["รูปภาพถูกขยายเต็มพื้นที่ 400px x 130px"]
-        B2 --> B3["Center-Cropping สัดส่วนสมดุล ภาพเต็มผืนผ้า ไม่เกิดช่องว่างดำ"]
+    subgraph FullBleed["Full-Bleed Standard: object-fit: cover"]
+        F1["Banner Container: 400px x 130px (3.08:1)"] --> F2["Image Expands to Cover 400px x 130px Area"]
+        F2 --> F3["Balanced Center-Crop Eliminates All Void Gaps"]
     end
 ```
+
+> **สรุปขั้นตอนการจัดการภาพแบนเนอร์ (Full-Bleed Media Workflow):**
+> 1. **ปัญหาขอบดำ (Defect):** การใช้ `object-fit: contain` กับภาพจัตุรัสบนกรอบแนวนอน จะทำให้เกิดช่องว่างสีดำโบ๋ด้านข้างขนาดใหญ่
+> 2. **วิธีแก้ไขมาตรฐาน (Solution):** กำหนด `object-fit: cover` ร่วมกับ `object-position: center` บน `img` และกำหนด `overflow: hidden` บนคอนเทนเนอร์ เพื่อให้ภาพขยายเต็มผืนผ้าอย่างสมดุลไร้รอยต่อ
 
 **มาตรฐาน CSS สำหรับภาพแบนเนอร์:**
 ```css
@@ -248,7 +283,7 @@ display: block;
 <!-- คอนเทนเนอร์ครอบหลอด -->
 <div style="background: rgba(255,255,255,0.15); border-radius: 99px; height: 8px; width: 100%; overflow: hidden;">
   <!-- ตัวหลอดสถานะ -->
-  <div style="background: linear-gradient(90deg, #38bdf8, #4ade80); height: 100%; width: 85%; max-width: 100%; border-radius: 99px;"></div>
+  <div style="background: linear-gradient(90deg, #38bdf8, #4ade80); height: 100%; width: 85%; max-width: 100%; min-width: 0%; border-radius: 99px;"></div>
 </div>
 ```
 
@@ -272,12 +307,18 @@ display: block;
 ### 6.1 การประเมินโหมดความล้มเหลวที่พบได้บ่อย (Empirical Failure Modes)
 
 ```mermaid
-pie title สัดส่วนสาเหตุของข้อผิดพลาดในการเรนเดอร์การ์ดจากการทดลอง
-    "AI ส่งตัวคั่นไม่ครบหรือเกิน" : 42
-    "ข้อความยาวเกินขนาดคอนเทนเนอร์" : 26
-    "ค่าตัวเลขเปอร์เซ็นต์ผิดรูปแบบ" : 18
-    "การแทรกอักขระพิเศษใน Regex" : 14
+pie title Empirical Distribution of Card Parsing and Rendering Failures
+    "Missing or Extra Delimiters" : 42
+    "Unbounded Content String Overflow" : 26
+    "Non-numeric Gauge Value (e.g. MAX)" : 18
+    "Unescaped Special Regex Characters" : 14
 ```
+
+> **สรุปข้อมูลเชิงประจักษ์ (Empirical Risk Insights):**
+> - **อันดับ 1 (42%):** เกิดจากโมเดล AI ลืมใส่ตัวคั่นหรือใส่ตัวคั่นเกินจากที่ Regex กำหนด ทำให้ Slot สลับตำแหน่ง
+> - **อันดับ 2 (26%):** เกิดจากข้อความมีความยาวมากเกินไปจนล้นกรอบหากกำหนดความสูงคงที่
+> - **อันดับ 3 (18%):** เกิดจากการที่ AI ตอบคำบรรยาย (เช่น `MAX` หรือ `เต็ม`) ลงในช่องตัวเลขหลอดพลัง ส่งผลให้ CSS ไวยากรณ์พัง
+> - **อันดับ 4 (14%):** เกิดจากข้อความของ AI มีอักขระพิเศษที่ชนกับ Regex
 
 ### 6.2 รายละเอียดและการวิเคราะห์ความเสี่ยงแต่ละด้าน
 
@@ -312,7 +353,7 @@ pie title สัดส่วนสาเหตุของข้อผิดพ�
 ```html
 <style>
 .rubii-message-box {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.09);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
   border: 1.5px solid rgba(255, 255, 255, 0.35);
@@ -337,7 +378,7 @@ pie title สัดส่วนสาเหตุของข้อผิดพ�
 ### 8.2 แม่แบบที่ 2: แผงสถานะและมาตรวัดไดนามิก (Multi-Slot Dashboard Card)
 
 ```html
-<div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); border: 1.5px solid rgba(255, 255, 255, 0.38); border-radius: 32px; padding: 20px; max-width: 420px; margin: 12px auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #ffffff; box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25); box-sizing: border-box; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);">
+<div style="background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border: 1.5px solid rgba(255, 255, 255, 0.38); border-radius: 32px; padding: 20px; max-width: 420px; margin: 12px auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #ffffff; box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25); box-sizing: border-box; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);">
   
   <!-- แบนเนอร์ภาพด้านบน -->
   <div style="width: 100%; height: 120px; border-radius: 20px; overflow: hidden; margin-bottom: 14px;">
@@ -357,7 +398,7 @@ pie title สัดส่วนสาเหตุของข้อผิดพ�
       <span>$3%</span>
     </div>
     <div style="background: rgba(255, 255, 255, 0.15); border-radius: 99px; height: 8px; width: 100%; overflow: hidden;">
-      <div style="background: linear-gradient(90deg, #38bdf8, #4ade80); height: 100%; width: $3%; max-width: 100%; border-radius: 99px;"></div>
+      <div style="background: linear-gradient(90deg, #38bdf8, #4ade80); height: 100%; width: $3%; max-width: 100%; min-width: 0%; border-radius: 99px;"></div>
     </div>
   </div>
 

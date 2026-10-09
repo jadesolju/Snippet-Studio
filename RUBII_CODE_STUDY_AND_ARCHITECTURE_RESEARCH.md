@@ -47,28 +47,34 @@ Snippet Studio/
 
 ```mermaid
 flowchart TD
-    subgraph Data["1. Data Ingestion & State Init"]
-        D1["data/snippets.json"] --> D2["fetch & sort ตาม categoryId"]
+    subgraph Data["Stage 1: Data Ingestion & State Initialization"]
+        D1["data/snippets.json"] --> D2["Fetch & Sort by categoryId"]
         D2 --> D3["State Stores: editValuesBySnippet, backgroundBySnippet, rubiiSettingsBySnippet"]
     end
 
-    subgraph ParserEngine["2. Parsing & Field Extraction"]
-        D3 --> P1["collectFields(): ดึง {{token}}, CSS Colors, (Markers), URLs"]
-        P1 --> P2["rubiiTextSlots(): ตัด Slot ตัวแปร $1 ถึง $33 พร้อมให้คะแนนความสำคัญ"]
-        P2 --> P3["isRubiiPercentageSlot(): ค้นหาและจับคู่หลอดสถานะเปอร์เซ็นต์"]
+    subgraph ParserEngine["Stage 2: Lexical Parsing & Field Extraction"]
+        D3 --> P1["collectFields(): Extract {{token}}, CSS Colors, (Markers), URLs"]
+        P1 --> P2["rubiiTextSlots(): Segment Slots $1 to $N with Heuristic Scoring"]
+        P2 --> P3["isRubiiPercentageSlot(): Detect and Bind Dynamic Percentage Gauges"]
     end
 
-    subgraph Compiler["3. Output Generation Layer"]
-        P3 --> C1["buildRubiiSections(): สร้าง Style Tag Code และ Regex Pattern"]
-        P3 --> C2["htmlWithBackground(): ฉีด CSS พื้นหลัง + Text Shadow"]
+    subgraph Compiler["Stage 3: Output Compilation Layer"]
+        P3 --> C1["buildRubiiSections(): Synthesize Style Tag Code & Regex Pattern"]
+        P3 --> C2["htmlWithBackground(): Inject CSS Background & Text Shadow"]
     end
 
-    subgraph Render["4. Live View & Synchronization"]
+    subgraph Render["Stage 4: Live View & Interactive Synchronization"]
         C1 --> R1["Code Panel Display: Template, HTML, CSS, Regex, Markdown"]
-        C2 --> R2["Preview Frame (Iframe): เรนเดอร์การ์ดจำลองบนหน้าจอมือถือ"]
+        C2 --> R2["Preview Frame (Iframe): Render Mobile Card Simulation"]
         R2 <-->|"postMessage (Two-Way Sync)"| R3["Direct Visual Edit Mode"]
     end
 ```
+
+> **สรุปขั้นตอน Workflow (System Architecture & Pipeline):**
+> 1. **การโหลดและเตรียมข้อมูล (Data Ingestion):** โหลดแม่แบบจาก `data/snippets.json` และจัดกลุ่มตามหมวดหมู่ พร้อมเตรียม State Store ในหน่วยความจำ
+> 2. **การสกัดฟิลด์และตัวแปร (Parsing & Extraction):** ฟังก์ชัน `collectFields()` และ `rubiiTextSlots()` สแกนหาตัวแปร, สี CSS, เครื่องหมายวงเล็บ และคำนวณคะแนนเพื่อจัดลำดับ Slot `$1` ถึง `$N`
+> 3. **การคอมไพล์โค้ด (Output Compilation):** แปลงโครงสร้าง HTML/CSS เป็น Style Tag และ Regex Pattern พร้อมทั้งฉีดสไตล์พื้นหลังและเงาข้อความ
+> 4. **การแสดงผลและซิงก์สองทาง (Live View & Sync):** แสดงผลในแผง Code Panel และพรีวิวใน Iframe พร้อมรองรับการพิมพ์แก้ไขแบบ Two-Way Realtime ผ่าน `postMessage`
 
 ---
 
@@ -97,29 +103,34 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    subgraph InputPayload["AI Response Payload"]
-        IP["&lt;kbank-slip&gt;50,000.00||xxx-x-x8841-x||202610068841KB||06 ต.ค. 2569 • 20:39 น.&lt;/kbank-slip&gt;"]
+    subgraph InputPayload["LLM Response Payload"]
+        IP["<kbank-slip>50,000.00||xxx-x-x8841-x||202610068841KB||06 Oct 2026 • 20:39</kbank-slip>"]
     end
 
     subgraph RegexEngine["Regex Pattern Matching"]
-        RP["/&lt;kbank-slip&gt;([\\s\\S]*?)\\|\\|([\\s\\S]*?)\\|\\|([\\s\\S]*?)\\|\\|([\\s\\S]*?)&lt;\\/kbank-slip&gt;/g"]
+        RP["/<kbank-slip>([\s\S]*?)\|\|([\s\S]*?)\|\|([\s\S]*?)\|\|([\s\S]*?)<\/kbank-slip>/g"]
     end
 
-    subgraph Slots["Capture Group Mapping"]
-        S1["$1 = 50,000.00 (ยอดเงิน)"]
-        S2["$2 = xxx-x-x8841-x (เลขบัญชี)"]
-        S3["$3 = 202610068841KB (เลขอ้างอิง)"]
-        S4["$4 = 06 ต.ค. 2569 • 20:39 น. (เวลา)"]
+    subgraph Slots["Capture Group Slot Mapping"]
+        S1["$1 = 50,000.00 (Amount)"]
+        S2["$2 = xxx-x-x8841-x (Account)"]
+        S3["$3 = 202610068841KB (Ref ID)"]
+        S4["$4 = 06 Oct 2026 • 20:39 (Timestamp)"]
     end
 
-    subgraph RenderedCard["Final HTML Card in Chat"]
-        RC["&lt;div class='rubii-kbank-01'&gt;ยอดเงิน: 50,000.00 บาท ...&lt;/div&gt;"]
+    subgraph RenderedCard["Rendered HTML Card in Chat"]
+        RC["<div class='rubii-kbank-01'>Amount: 50,000.00 THB ...</div>"]
     end
 
     IP --> RP
     RP --> S1 & S2 & S3 & S4
     S1 & S2 & S3 & S4 --> RenderedCard
 ```
+
+> **สรุปขั้นตอน Workflow (Regex Multi-Slot Engine):**
+> 1. **รับ Payload จาก AI:** โมเดล LLM สร้างข้อความภายในแท็กคู่เปิด-ปิด เช่น `<kbank-slip>...</kbank-slip>` โดยคั่นแต่ละฟิลด์ด้วย `||`
+> 2. **ประมวลผลด้วย Regex:** เอนจิน Regex ตรวจจับรูปแบบและสกัดข้อมูลเข้าสู่ Capture Groups ($1, $2, $3, $4)
+> 3. **ประกอบเข้าสู่ HTML Template:** นำค่าตัวแปรแต่ละช่องไปแทนที่ในโครงสร้าง HTML ตามตำแหน่งที่กำหนดไว้ในการ์ด
 
 ### การสร้าง Output สำหรับ 2 โหมด
 1. **โหมด Style Tag:**
@@ -143,13 +154,18 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    A["สแกนพบ Slot เปอร์เซ็นต์ เช่น 85%"] --> B["ค้นหา Container แม่ที่ใกล้ที่สุด textNode.closest('div')"]
-    B --> C["ค้นหา Element ภายในที่มี style='width: ...%'"]
-    C --> D{"ตรวจสอบค่าความกว้าง"}
-    D -->|"พบค่าความกว้างที่ตรงกัน หรือไม่ใช่ 100%"| E["ผูก Bar Element เข้ากับตัวแปร $X%"]
-    E --> F["ลบ width เดิมออกจาก CSS Rules ของคลาส"]
-    F --> G["ใส่ style='width: $X%; max-width: 100%;' กลับเข้าไปใน HTML Element"]
+    A["Scan Percentage Slot (e.g. 85%)"] --> B["Locate Nearest Ancestor Container: textNode.closest('div')"]
+    B --> C["Traverse Child Elements with inline style containing 'width: ...%'"]
+    C --> D{"Evaluate Target Width"}
+    D -->|"Width matches or non-100% value found"| E["Bind Bar Element to Variable $X%"]
+    E --> F["Strip Static Width from Class CSS Rules"]
+    F --> G["Inject inline style='width: $X%; max-width: 100%; min-width: 0%;'"]
 ```
+
+> **สรุปขั้นตอน Workflow (Dynamic Progress Bar Binding):**
+> 1. **ตรวจจับค่าเปอร์เซ็นต์:** ระบบสแกนหาข้อความเปอร์เซ็นต์ในเทมเพลต เช่น `85%` หรือ `(85%)`
+> 2. **ค้นหาคอนเทนเนอร์หลอดสถานะ:** ค้นหา Element แม่ที่ใกล้ที่สุดและตรวจสอบแท็กหลอดด้านในที่มีการกำหนดความกว้างเป็นเปอร์เซ็นต์
+> 3. **ผูกตัวแปรและป้องกันการล้นกรอบ:** ผูกค่าความกว้างเข้ากับ `$X%` พร้อมตัดสไตล์เดิมออกจาก CSS Class และใส่ `max-width: 100%; min-width: 0%;` เพื่อป้องกันหลอดล้นหรือหดตัวผิดปกติ
 
 ### กฎสำคัญของการสร้างหลอดสถานะ
 - **ห้ามใส่ `width: MAX%;`:** ให้ใช้ `width: 100%;` แทน เพราะคำว่า `MAX` ทำให้เบราว์เซอร์เกิด Syntax Error และหลอดจะหดเหลือ 0%
@@ -190,17 +206,22 @@ display: block;
 
 ```mermaid
 flowchart TD
-    subgraph StackingContext["CSS Stacking Context"]
-        L1["เลเยอร์ 1: Background Image / GIF"]
-        L2["เลเยอร์ 2: Glass Backdrop Filter (blur 20px - 32px)"]
-        L3["เลเยอร์ 3: Card Container (rgba background + border)"]
-        L4["เลเยอร์ 4: Text Shadow Offset Buffer"]
-        L5["เลเยอร์ 5: Foreground Text (color: #ffffff)"]
+    subgraph StackingContext["CSS Stacking Context & Layer Architecture"]
+        L1["Layer 1: Background Media / GIF Canvas"]
+        L2["Layer 2: Glass Backdrop Filter (blur: 20px - 32px)"]
+        L3["Layer 3: Translucent Card Container (rgba fill + border stroke)"]
+        L4["Layer 4: High-Density Text Shadow Offset Buffer"]
+        L5["Layer 5: Foreground Text Element (color: #ffffff)"]
     end
 
     L1 --> L2 --> L3 --> L4 --> L5
-    L4 -.->|"เพิ่ม Contrast Ratio จาก 1.2:1 เป็น 6.8:1 (WCAG AAA)"| L5
+    L4 -.->|"Elevates Contrast Ratio from 1.2:1 to 6.8:1+ (WCAG AAA)"| L5
 ```
+
+> **สรุปขั้นตอน Workflow (Text Shadow Contrast Architecture):**
+> 1. **ลำดับชั้นเลเยอร์การแสดงผล:** เลเยอร์ข้อความอยู่บนสุดเหนือผิวกระจกและภาพพื้นหลัง
+> 2. **การทำงานของ Contrast Buffer:** การใส่ `text-shadow` ทำหน้าที่เป็นกันชนความมืดรอบตัวหนังสือสีขาว
+> 3. **ยกระดับความคมชัด:** ช่วยเพิ่มค่า Contrast Ratio จาก 1.2:1 (ซึ่งอ่านยากบนพื้นสว่าง) ขึ้นเป็น 6.8:1+ ผ่านมาตรฐาน WCAG AAA ทำให้อ่านง่ายบนทุกภาพพื้นหลัง
 
 ### พรีเซ็ตเงาข้อความ 4 รูปแบบ
 1. **None:** `text-shadow: none;` (Contrast 1.2:1) - เหมาะกับพื้นหลังมืดสนิท
@@ -216,14 +237,19 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    CSS["CSS Declaration ใน style=''"] --> Prop{"ตรวจสอบชื่อ Property"}
-    Prop -->|"color"| T["Icon: Typography 'T' (ม่วง #cc5de8)"]
-    Prop -->|"background*"| BG["Icon: Card Fill (เขียว #51cf66)"]
-    Prop -->|"border*"| BD["Icon: Frame Stroke (ฟ้า #339af0)"]
-    Prop -->|"border-top / border-left"| LN["Icon: Divider Line (ฟ้าสว่าง #22b8cf)"]
-    Prop -->|"*shadow*"| SH["Icon: Drop Shadow (ส้ม #ff922b)"]
-    Prop -->|"url() / src=''"| MD["Icon: Photo Frame (ชมพู #ff6b6b)"]
+    CSS["CSS Declaration in inline style=''"] --> Prop{"Evaluate CSS Property"}
+    Prop -->|"color"| T["Typography Icon 'T' (Purple #cc5de8)"]
+    Prop -->|"background*"| BG["Card Fill Icon (Green #51cf66)"]
+    Prop -->|"border*"| BD["Frame Stroke Icon (Blue #339af0)"]
+    Prop -->|"border-top / border-left"| LN["Divider Line Icon (Cyan #22b8cf)"]
+    Prop -->|"*shadow*"| SH["Drop Shadow Icon (Amber #ff922b)"]
+    Prop -->|"url() / src=''"| MD["Media Frame Icon (Coral #ff6b6b)"]
 ```
+
+> **สรุปขั้นตอน Workflow (Field Classifier & Contextual SVG Icons):**
+> 1. **วิเคราะห์คุณสมบัติ CSS:** ระบบสแกนชื่อ Property ของแต่ละสไตล์ (เช่น `color`, `background`, `border`, `shadow`)
+> 2. **จำแนกหมวดหมู่อัตโนมัติ:** จัดกลุ่มเป็น Typography, Background, Border, Divider, Shadow หรือ Media
+> 3. **กำหนดสัญลักษณ์และสี Accent:** แสดงไอคอน SVG และสีประจำหมวดหมู่ในแผง Quick Edit เพื่อให้ผู้ใช้แยกแยะได้ทันทีโดยไม่ต้องอ่านข้อความยาวๆ
 
 ---
 
@@ -234,19 +260,25 @@ flowchart LR
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as ผู้ใช้งาน (User)
+    actor User as User Interface
     participant Preview as Iframe Preview (contenteditable)
-    participant App as app.js (Main Window)
-    participant QuickEdit as แผง Quick Edit UI
-    participant CodePanel as แผง Code Output
+    participant App as Engine Core (app.js)
+    participant QuickEdit as Quick Edit UI Panel
+    participant CodePanel as Output Code Panel
 
-    User->>Preview: พิมพ์แก้ไขข้อความบนตัวการ์ดโดยตรง
-    Preview->>App: window.parent.postMessage({ type: 'PREVIEW_DIRECT_TEXT_INPUT', newText, html })
-    App->>App: ปรับปรุงค่าใน editValuesBySnippet Map
-    App->>QuickEdit: อัปเดตค่าใน input value และ color badge
-    App->>CodePanel: สร้างและอัปเดตโค้ด Template/Regex ใหม่ทันที
-    App->>App: บันทึกสถานะเพื่อคงอยู่แม้สลับไปดูการ์ดอื่น
+    User->>Preview: Directly edit text content inside preview card
+    Preview->>App: postMessage({ type: 'PREVIEW_DIRECT_TEXT_INPUT', newText, html })
+    App->>App: Update in-memory state in editValuesBySnippet Map
+    App->>QuickEdit: Sync updated values into input fields & badges
+    App->>CodePanel: Recompile Template, HTML, CSS, and Regex output
+    App->>App: Persist active session state across snippet switches
 ```
+
+> **สรุปขั้นตอน Workflow (Real-time Two-Way Synchronization):**
+> 1. **แก้ไขข้อความบนการ์ดจริง:** ผู้ใช้พิมพ์แก้ข้อความบนตัวการ์ดใน Iframe พรีวิวโดยตรง
+> 2. **ส่งสัญญาณผ่าน `postMessage`:** Iframe ส่ง Event และข้อมูลที่อัปเดตกลับมายังหน้าต่างหลัก (`app.js`)
+> 3. **อัปเดต State และ UI:** ระบบอัปเดตค่าในตัวแปร State และสะท้อนผลไปยังช่อง Input ใน Quick Edit
+> 4. **คอมไพล์โค้ด Output ใหม่ทันที:** แผง Code Panel อัปเดตโค้ด Style Tag, Regex และ HTML ใหม่แบบ Real-time
 
 ---
 
@@ -307,14 +339,19 @@ sequenceDiagram
 
 ```mermaid
 flowchart TD
-    Start["เกิดปัญหาในการแสดงผลการ์ด"] --> Q1{"ปัญหาที่พบคืออะไร?"}
+    Start["Card Rendering Issue Detected"] --> Q1{"Identify Failure Symptom"}
 
-    Q1 -->|"1. ข้อความใน AI Output ไม่ลงในช่องการ์ด"| D1["ตรวจสอบตัวคั่น || ว่าตรงกับที่ Regex กำหนดหรือไม่ และตรวจว่าแท็กเปิด-ปิด <tag>...</tag> สะกดตรงกันหรือไม่"]
-    Q1 -->|"2. หลอดสถานะหดเหลือ 0% หรือไม่ขยับ"| D2["ตรวจดูโค้ดว่ามีคำว่า width: MAX% หรือไม่ ให้เปลี่ยนเป็น width: 100% และตรวจว่าค่าที่ AI ส่งมามีเฉพาะตัวเลขหรือไม่"]
-    Q1 -->|"3. รูปภาพแบนเนอร์มีขอบดำสองข้าง"| D3["เปลี่ยน CSS ของแท็ก img จาก object-fit: contain เป็น object-fit: cover; width: 100%; height: 100%;"]
-    Q1 -->|"4. ตัวหนังสือกลืนกับรูปพื้นหลัง อ่านไม่ออก"| D4["เปิดใช้งานตัวเลือก Text Shadow ในโหมด Soft Dark หรือ Sharp Outline เพื่อเพิ่ม Contrast Ratio เป็น 6.8:1"]
-    Q1 -->|"5. ตัวแปร {{char}} กลายเป็นคำว่า Mira ในเลขบัญชี"| D5["ตรวจดูเทมเพลตว่ามีวงเล็บครอบ {{char}} หรือไม่ ให้แยก {{char}} ออกมาอยู่นอกวงเล็บ เช่น {{char}} (เลขบัญชี: xxx)"]
+    Q1 -->|"1. AI output not matching card slots"| D1["Verify delimiter consistency (e.g. ||) and tag naming exact match"]
+    Q1 -->|"2. Progress bar collapsed or static"| D2["Replace 'width: MAX%' with 'width: 100%' and ensure numeric inputs"]
+    Q1 -->|"3. Banner image has black letterbox voids"| D3["Switch CSS to 'object-fit: cover; width: 100%; height: 100%;'"]
+    Q1 -->|"4. Text illegible over dynamic background"| D4["Enable Text Shadow preset (Soft Dark or Sharp Outline) for WCAG AAA contrast"]
+    Q1 -->|"5. Macro {{char}} replaced with static character name"| D5["Extract {{char}} outside parenthesis marker: e.g. {{char}} (Account: xxx)"]
 ```
+
+> **สรุปขั้นตอน Workflow (Troubleshooting & Remediation Workflow):**
+> 1. **การตรวจสอบข้อผิดพลาด:** ระบุอาการผิดปกติของการ์ดจากการแสดงผลจริง
+> 2. **วินิจฉัยตามสาเหตุ:** ตรวจสอบตัวคั่น Regex, สไตล์ความกว้างหลอดพลัง, การจัดขนาดภาพแบนเนอร์, ความคมชัดของข้อความ หรือตำแหน่งของตัวแปรระบบ
+> 3. **ดำเนินการแก้ไขตามมาตรฐาน:** ปรับแก้โค้ด HTML/CSS และ Prompt ให้สอดคล้องกับแนวทางวิศวกรรมมาตรฐาน
 
 ---
 *เอกสารฉบับนี้เป็นคู่มืออ้างอิงเชิงวิศวกรรมระดับสมบูรณ์สำหรับสถาปัตยกรรม Snippet Studio และแพลตฟอร์ม Rubii AI*
