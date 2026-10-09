@@ -509,7 +509,7 @@ body { font-size: 14px; }
 .preview-toggles { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 20px; }
 .background-options-row {
   display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 12px;
   align-items: end;
   width: 100%;
@@ -1079,14 +1079,8 @@ body {
 
 .quick-typography-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-@media (max-width: 650px) {
-  .quick-typography-grid {
-    grid-template-columns: 1fr;
-  }
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
 }
 
 .quick-typography-field {
@@ -1099,6 +1093,39 @@ body {
   color: #c9bddf;
   font-size: 11.5px;
   font-weight: 500;
+}
+
+.field-title-with-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.field-blur-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 6px;
+  background: rgba(204, 93, 232, 0.2);
+  border: 1px solid rgba(204, 93, 232, 0.35);
+  color: #dfd4f6;
+  font-family: "DM Mono", Consolas, monospace;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.field-range-wrap {
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 4px;
+}
+
+.field-range-wrap input[type="range"] {
+  width: 100%;
+  accent-color: #c084fc;
+  cursor: pointer;
 }
 
 .quick-typography-field select {
@@ -1117,6 +1144,112 @@ body {
 .quick-typography-field select:focus {
   border-color: rgba(192, 160, 255, 0.65);
   box-shadow: 0 0 0 3px rgba(192, 160, 255, 0.12);
+}
+
+/* Floating Direct Visual Edit Selection Mini Toolbar */
+.selection-mini-toolbar {
+  position: absolute;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: rgba(13, 16, 25, 0.96);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(135, 230, 228, 0.4);
+  border-radius: 10px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  user-select: none;
+  animation: toolbarFadeIn 0.15s ease-out;
+  transform: translateY(-8px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+@keyframes toolbarFadeIn {
+  from { opacity: 0; transform: translateY(-2px); }
+  to { opacity: 1; transform: translateY(-8px); }
+}
+
+.mini-toolbar-colors {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mini-color-btn {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.mini-color-btn:hover {
+  transform: scale(1.22);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+.mini-toolbar-picker-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  color: #87e6e4;
+  transition: background 0.12s ease;
+}
+
+.mini-toolbar-picker-btn:hover {
+  background: rgba(135, 230, 228, 0.2);
+}
+
+.mini-toolbar-picker-btn input[type="color"] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.mini-toolbar-divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.15);
+  margin: 0 2px;
+}
+
+.mini-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mini-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e2e8f0;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.mini-btn:hover {
+  background: rgba(135, 230, 228, 0.2);
+  border-color: rgba(135, 230, 228, 0.5);
+  color: #ffffff;
 }
 
 .field-label-row label {

@@ -188,7 +188,27 @@
                             <option value="soft" selected>เงามืดนุ่มนวล (Soft Dark - แนะนำ)</option>
                             <option value="outline">ตัดเส้นขอบคม (Sharp Outline)</option>
                             <option value="neon">แสงนีออน (Neon Glow)</option>
+                            <option value="custom">กำหนดเอง (Custom Shadow / Glow)</option>
                           </select>
+                        </label>
+                        <label class="background-shadow-color-field">
+                          <span>
+                            <svg class="ui-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/></svg>
+                            สีเงา / แสงนีออน (Shadow Tint)
+                          </span>
+                          <div class="background-color-wrap">
+                            <input type="color" id="background-shadow-color-picker" value="#000000" title="คลิกเพื่อเลือกสีเงาข้อความ" aria-label="เลือกสีเงาข้อความ">
+                            <select id="background-shadow-color" aria-label="สีเงาข้อความเมื่อใส่รูปพื้นหลัง">
+                              <option value="#000000" selected>ดำเข้ม (Dark)</option>
+                              <option value="#38bdf8">ฟ้านีออน (Neon Cyan)</option>
+                              <option value="#c084fc">ม่วงนีออน (Neon Purple)</option>
+                              <option value="#fef08a">ทองนีออน (Neon Gold)</option>
+                              <option value="#4ade80">เขียวมินต์ (Mint Glow)</option>
+                              <option value="#f87171">แดงคอรัล (Coral Red)</option>
+                              <option value="#ffffff">ขาวฟุ้ง (Soft White)</option>
+                              <option value="custom">กำหนดเอง (Custom)</option>
+                            </select>
+                          </div>
                         </label>
                         <label class="background-color-field">
                           <span>
@@ -264,6 +284,7 @@
                                 <option value="soft" selected>เงามืดนุ่มนวล (Soft Dark - แนะนำ)</option>
                                 <option value="outline">ตัดเส้นขอบคม (Sharp Outline)</option>
                                 <option value="neon">แสงนีออน (Neon Glow)</option>
+                                <option value="custom">กำหนดเอง (Custom Shadow / Glow)</option>
                               </select>
                             </label>
                             <label class="quick-typography-field">
@@ -280,6 +301,31 @@
                                   <option value="#4ade80">เขียวมินต์ (Mint Green)</option>
                                   <option value="custom">กำหนดเอง (Custom)</option>
                                 </select>
+                              </div>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span>สีของเงาและแสง (Shadow &amp; Glow Tint)</span>
+                              <div class="background-color-wrap">
+                                <input type="color" id="quick-shadow-color-picker" value="#000000" title="คลิกเพื่อเลือกสีเงาหรือแสงนีออน" aria-label="เลือกสีเงา">
+                                <select id="quick-shadow-color" aria-label="สีเงาข้อความใน Quick Edit">
+                                  <option value="#000000" selected>ดำเข้ม (Dark)</option>
+                                  <option value="#38bdf8">ฟ้านีออน (Neon Cyan)</option>
+                                  <option value="#c084fc">ม่วงนีออน (Neon Purple)</option>
+                                  <option value="#fef08a">ทองนีออน (Neon Gold)</option>
+                                  <option value="#4ade80">เขียวมินต์ (Mint Glow)</option>
+                                  <option value="#f87171">แดงคอรัล (Coral Red)</option>
+                                  <option value="#ffffff">ขาวฟุ้ง (Soft White)</option>
+                                  <option value="custom">กำหนดเอง (Custom)</option>
+                                </select>
+                              </div>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span class="field-title-with-badge">
+                                <span>รัศมีความฟุ้งของเงา (Shadow Blur)</span>
+                                <strong id="quick-shadow-blur-badge" class="field-blur-badge">4px</strong>
+                              </span>
+                              <div class="field-range-wrap">
+                                <input type="range" id="quick-shadow-blur" min="0" max="30" value="4" step="1" aria-label="ความฟุ้งของเงา">
                               </div>
                             </label>
                           </div>

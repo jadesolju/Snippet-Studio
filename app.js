@@ -210,6 +210,10 @@ const tabCountMedia = document.querySelector("#tab-count-media");
 const quickTabMedia = document.querySelector("#quick-tab-media");
 const quickTypographyControls = document.querySelector("#quick-typography-controls");
 const quickTextShadow = document.querySelector("#quick-text-shadow");
+const quickShadowColor = document.querySelector("#quick-shadow-color");
+const quickShadowColorPicker = document.querySelector("#quick-shadow-color-picker");
+const quickShadowBlur = document.querySelector("#quick-shadow-blur");
+const quickShadowBlurBadge = document.querySelector("#quick-shadow-blur-badge");
 const quickTextColor = document.querySelector("#quick-text-color");
 const quickTextColorPicker = document.querySelector("#quick-text-color-picker");
 let activeQuickEditTab = "all";
@@ -223,6 +227,8 @@ const quickEditCount = document.querySelector("#quick-edit-count");
 const backgroundEnabled = document.querySelector("#background-enabled");
 const backgroundUrl = document.querySelector("#background-url");
 const backgroundTextShadow = document.querySelector("#background-text-shadow");
+const backgroundShadowColor = document.querySelector("#background-shadow-color");
+const backgroundShadowColorPicker = document.querySelector("#background-shadow-color-picker");
 const backgroundTextColor = document.querySelector("#background-text-color");
 const backgroundTextColorPicker = document.querySelector("#background-text-color-picker");
 const htmlPartsPanel = document.querySelector("#html-parts-panel");
@@ -1383,10 +1389,20 @@ function renderHtmlParts(snippet) {
 
 function backgroundState(snippet) {
   if (!backgroundBySnippet.has(snippet.id)) {
-    backgroundBySnippet.set(snippet.id, { enabled: false, url: defaultBackgroundUrl, textShadow: "soft", textColor: "auto", customTextColor: "#ffffff" });
+    backgroundBySnippet.set(snippet.id, {
+      enabled: false,
+      url: defaultBackgroundUrl,
+      textShadow: "soft",
+      shadowColor: "#000000",
+      shadowBlur: 4,
+      textColor: "auto",
+      customTextColor: "#ffffff"
+    });
   }
   const st = backgroundBySnippet.get(snippet.id);
   if (!st.textShadow) st.textShadow = "soft";
+  if (!st.shadowColor) st.shadowColor = "#000000";
+  if (st.shadowBlur === undefined) st.shadowBlur = 4;
   if (!st.textColor) st.textColor = "auto";
   if (!st.customTextColor) st.customTextColor = "#ffffff";
   return st;
@@ -1396,13 +1412,35 @@ function renderBackgroundControls(snippet) {
   const state = backgroundState(snippet);
   backgroundEnabled.checked = state.enabled;
   backgroundUrl.value = state.url;
+  
+  // Shadow style
   if (backgroundTextShadow) backgroundTextShadow.value = state.textShadow || "soft";
   if (quickTextShadow) quickTextShadow.value = state.textShadow || "soft";
+
+  // Shadow color
+  const effectiveShadowColor = state.shadowColor || "#000000";
+  const standardShadows = ["#000000", "#38bdf8", "#c084fc", "#fef08a", "#4ade80", "#f87171", "#ffffff"];
+  if (backgroundShadowColor) {
+    backgroundShadowColor.value = standardShadows.includes(effectiveShadowColor) ? effectiveShadowColor : "custom";
+  }
+  if (quickShadowColor) {
+    quickShadowColor.value = standardShadows.includes(effectiveShadowColor) ? effectiveShadowColor : "custom";
+  }
+  if (backgroundShadowColorPicker) backgroundShadowColorPicker.value = effectiveShadowColor;
+  if (quickShadowColorPicker) quickShadowColorPicker.value = effectiveShadowColor;
+
+  // Shadow blur
+  const effectiveBlur = state.shadowBlur !== undefined ? state.shadowBlur : 4;
+  if (quickShadowBlur) quickShadowBlur.value = effectiveBlur;
+  if (quickShadowBlurBadge) quickShadowBlurBadge.textContent = `${effectiveBlur}px`;
+
+  // Text color
   if (backgroundTextColor) backgroundTextColor.value = state.textColor || "auto";
   if (quickTextColor) quickTextColor.value = state.textColor || "auto";
   const effectiveCustomColor = (state.textColor && state.textColor !== "auto" && state.textColor !== "custom") ? state.textColor : (state.customTextColor || "#ffffff");
   if (backgroundTextColorPicker) backgroundTextColorPicker.value = effectiveCustomColor;
   if (quickTextColorPicker) quickTextColorPicker.value = effectiveCustomColor;
+  
   const optRow = document.querySelector(".background-options-row");
   if (optRow) optRow.hidden = !state.enabled;
   const urlField = document.querySelector(".background-url-field");
@@ -1451,18 +1489,35 @@ function escapeHtmlAttribute(value) {
   return String(value).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+function hexToRgbaString(hex, alpha = 1) {
+  if (!hex || typeof hex !== "string") return `rgba(0,0,0,${alpha})`;
+  let clean = hex.trim().replace("#", "");
+  if (clean.length === 3) clean = clean.split("").map((c) => c + c).join("");
+  const r = parseInt(clean.slice(0, 2), 16) || 0;
+  const g = parseInt(clean.slice(2, 4), 16) || 0;
+  const b = parseInt(clean.slice(4, 6), 16) || 0;
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
 function htmlWithBackground(snippet, html) {
   const state = backgroundState(snippet);
   const url = (state.url || "").trim();
   const hasBg = state.enabled && Boolean(url);
   
   let shadowCss = "";
+  const sColor = state.shadowColor || "#000000";
+  const blur = Number(state.shadowBlur !== undefined ? state.shadowBlur : 4);
+
   if (state.textShadow === "soft") {
-    shadowCss = "text-shadow:0 1px 3px rgba(0,0,0,0.85),0 0 1px rgba(0,0,0,0.9);";
+    shadowCss = `text-shadow:0 1px ${blur}px ${hexToRgbaString(sColor, 0.85)},0 0 1px ${hexToRgbaString(sColor, 0.9)};`;
   } else if (state.textShadow === "outline") {
-    shadowCss = "text-shadow:-1px -1px 0 rgba(0,0,0,0.9),1px -1px 0 rgba(0,0,0,0.9),-1px 1px 0 rgba(0,0,0,0.9),1px 1px 0 rgba(0,0,0,0.9);";
+    shadowCss = `text-shadow:-1px -1px 0 ${hexToRgbaString(sColor, 0.95)},1px -1px 0 ${hexToRgbaString(sColor, 0.95)},-1px 1px 0 ${hexToRgbaString(sColor, 0.95)},1px 1px 0 ${hexToRgbaString(sColor, 0.95)};`;
   } else if (state.textShadow === "neon") {
-    shadowCss = "text-shadow:0 0 8px rgba(0,255,255,0.9),0 0 16px rgba(0,190,230,0.6),0 1px 2px rgba(0,0,0,0.9);";
+    const neonBlur = Math.max(2, blur);
+    const neonColor = sColor && sColor !== "#000000" ? sColor : "#38bdf8";
+    shadowCss = `text-shadow:0 0 ${neonBlur}px ${hexToRgbaString(neonColor, 0.95)},0 0 ${neonBlur * 2}px ${hexToRgbaString(neonColor, 0.65)},0 1px 2px rgba(0,0,0,0.9);`;
+  } else if (state.textShadow === "custom") {
+    shadowCss = `text-shadow:0 0 ${blur}px ${hexToRgbaString(sColor, 0.9)},0 1px 3px ${hexToRgbaString(sColor, 0.85)};`;
   }
 
   let textOverrideCss = "";
@@ -2065,6 +2120,37 @@ function previewDocument(snippet) {
   const directEditStyles = isDirectEdit ? `
     [contenteditable="true"]:hover { outline: 1.5px dashed rgba(135,230,228,.65) !important; border-radius: 4px; cursor: text; }
     [contenteditable="true"]:focus { outline: 2px solid rgba(135,230,228,.9) !important; border-radius: 4px; background: rgba(135,230,228,.1); cursor: text; }
+    .selection-mini-toolbar {
+      position: absolute;
+      z-index: 999999;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      background: rgba(13, 16, 25, 0.96);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(135, 230, 228, 0.4);
+      border-radius: 10px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08);
+      user-select: none;
+      animation: toolbarFadeIn 0.15s ease-out;
+      transform: translateY(-8px);
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+    @keyframes toolbarFadeIn {
+      from { opacity: 0; transform: translateY(-2px); }
+      to { opacity: 1; transform: translateY(-8px); }
+    }
+    .mini-toolbar-colors { display: flex; align-items: center; gap: 5px; }
+    .mini-color-btn { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.25); cursor: pointer; padding: 0; transition: transform 0.12s ease, box-shadow 0.12s ease; }
+    .mini-color-btn:hover { transform: scale(1.22); box-shadow: 0 0 8px rgba(255, 255, 255, 0.5); }
+    .mini-toolbar-picker-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); cursor: pointer; color: #87e6e4; }
+    .mini-toolbar-picker-btn input[type="color"] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+    .mini-toolbar-divider { width: 1px; height: 18px; background: rgba(255, 255, 255, 0.15); margin: 0 2px; }
+    .mini-toolbar-actions { display: flex; align-items: center; gap: 4px; }
+    .mini-btn { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #e2e8f0; font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 6px; cursor: pointer; transition: all 0.12s ease; font-family: inherit; }
+    .mini-btn:hover { background: rgba(135, 230, 228, 0.2); border-color: rgba(135, 230, 228, 0.5); color: #ffffff; }
   ` : "";
 
   const values = fieldValues(snippet);
@@ -2074,6 +2160,30 @@ function previewDocument(snippet) {
     value: values[f.id] ?? f.value,
   }));
 
+  const directEditToolbarHtml = isDirectEdit ? `
+    <div id="selection-mini-toolbar" class="selection-mini-toolbar" style="display:none;">
+      <div class="mini-toolbar-colors">
+        <button type="button" class="mini-color-btn" data-color="#ffffff" title="White" style="background:#ffffff;"></button>
+        <button type="button" class="mini-color-btn" data-color="#fef08a" title="Light Gold" style="background:#fef08a;"></button>
+        <button type="button" class="mini-color-btn" data-color="#38bdf8" title="Cyan Glow" style="background:#38bdf8;"></button>
+        <button type="button" class="mini-color-btn" data-color="#c084fc" title="Purple Neon" style="background:#c084fc;"></button>
+        <button type="button" class="mini-color-btn" data-color="#4ade80" title="Mint Green" style="background:#4ade80;"></button>
+        <button type="button" class="mini-color-btn" data-color="#f87171" title="Coral Red" style="background:#f87171;"></button>
+        <button type="button" class="mini-color-btn" data-color="#18181b" title="Dark" style="background:#18181b; border:1px solid #555;"></button>
+        <label class="mini-toolbar-picker-btn" title="เลือกสีข้อความเฉพาะจุด">
+          <input type="color" id="mini-custom-color" value="#38bdf8" aria-label="เลือกสีข้อความ">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/></svg>
+        </label>
+      </div>
+      <div class="mini-toolbar-divider"></div>
+      <div class="mini-toolbar-actions">
+        <button type="button" id="mini-toggle-glow" title="เพิ่มแสงนีออน" class="mini-btn">Glow</button>
+        <button type="button" id="mini-toggle-shadow" title="เพิ่มเงามืดคมชัด" class="mini-btn">Shadow</button>
+        <button type="button" id="mini-clear-format" title="ล้างการจัดรูปแบบ" class="mini-btn">Clear</button>
+      </div>
+    </div>
+  ` : "";
+
   const directEditScript = isDirectEdit ? `
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -2082,12 +2192,12 @@ function previewDocument(snippet) {
       let node;
       while ((node = walker.nextNode())) {
         const parent = node.parentElement;
-        if (parent && !parent.closest('script,style,template,noscript')) {
+        if (parent && !parent.closest('script,style,template,noscript,#selection-mini-toolbar')) {
           const text = node.nodeValue.trim();
           if (text) {
             parent.setAttribute('contenteditable', 'true');
             parent.setAttribute('spellcheck', 'false');
-            parent.title = 'คลิกเพื่อพิมพ์แก้ข้อความนี้ได้โดยตรง (จะซิงค์กับ Quick Edit และโค้ดทันที)';
+            parent.title = 'คลิกเพื่อพิมพ์แก้ข้อความนี้ได้โดยตรง (หรือไฮไลต์เพื่อเปลี่ยนสี/ใส่เงา)';
             
             const matched = fieldsList.find((f) => f.value === text || f.token === text || text.includes(f.value) || (f.token && text.includes(f.token)));
             if (matched && !parent.dataset.fieldId) {
@@ -2098,8 +2208,8 @@ function previewDocument(snippet) {
         }
       }
 
-      document.body.addEventListener('input', (e) => {
-        const target = e.target.closest('[contenteditable="true"]');
+      function triggerSync(targetEl) {
+        const target = targetEl || document.querySelector('[contenteditable="true"]');
         const fieldId = target ? target.dataset.fieldId : null;
         const newText = target ? target.textContent.trim() : null;
         const token = target ? target.dataset.token : null;
@@ -2114,6 +2224,8 @@ function previewDocument(snippet) {
             el.removeAttribute('data-field-id');
             el.removeAttribute('data-token');
           });
+          const tb = clone.querySelector('#selection-mini-toolbar');
+          if (tb) tb.remove();
           window.parent.postMessage({
             type: 'PREVIEW_DIRECT_TEXT_INPUT',
             fieldId: fieldId,
@@ -2122,7 +2234,141 @@ function previewDocument(snippet) {
             html: clone.outerHTML
           }, '*');
         }
+      }
+
+      document.body.addEventListener('input', (e) => {
+        const target = e.target.closest('[contenteditable="true"]');
+        triggerSync(target);
       });
+
+      // Floating Selection Toolbar Logic
+      const toolbar = document.getElementById('selection-mini-toolbar');
+      let lastRange = null;
+
+      function updateToolbarPosition() {
+        const sel = window.getSelection();
+        if (!sel || sel.isCollapsed || !sel.rangeCount) {
+          if (toolbar) toolbar.style.display = 'none';
+          return;
+        }
+
+        const range = sel.getRangeAt(0);
+        const commonAncestor = range.commonAncestorContainer;
+        const editable = (commonAncestor.nodeType === 1 ? commonAncestor : commonAncestor.parentElement)?.closest('[contenteditable="true"]');
+        if (!editable) {
+          if (toolbar) toolbar.style.display = 'none';
+          return;
+        }
+
+        lastRange = range.cloneRange();
+        const rect = range.getBoundingClientRect();
+        if (rect.width === 0 && rect.height === 0) {
+          if (toolbar) toolbar.style.display = 'none';
+          return;
+        }
+
+        toolbar.style.display = 'flex';
+        const tbWidth = toolbar.offsetWidth || 280;
+        const top = Math.max(8, rect.top - 46 + window.scrollY);
+        const left = Math.max(8, Math.min(window.innerWidth - tbWidth - 8, rect.left + (rect.width / 2) - (tbWidth / 2) + window.scrollX));
+        toolbar.style.top = top + 'px';
+        toolbar.style.left = left + 'px';
+      }
+
+      document.addEventListener('selectionchange', updateToolbarPosition);
+      window.addEventListener('resize', updateToolbarPosition);
+      window.addEventListener('scroll', updateToolbarPosition);
+
+      function applyStyleToSelection(styles) {
+        const sel = window.getSelection();
+        let range = (sel && sel.rangeCount && !sel.isCollapsed) ? sel.getRangeAt(0) : lastRange;
+        if (!range || range.collapsed) return;
+
+        const span = document.createElement('span');
+        if (styles.color) span.style.setProperty('color', styles.color, 'important');
+        if (styles.textShadow) span.style.setProperty('text-shadow', styles.textShadow, 'important');
+
+        try {
+          const contents = range.extractContents();
+          span.appendChild(contents);
+          range.insertNode(span);
+          sel.removeAllRanges();
+          const newRange = document.createRange();
+          newRange.selectNodeContents(span);
+          sel.addRange(newRange);
+        } catch (err) {
+          console.error(err);
+        }
+
+        const editable = span.closest('[contenteditable="true"]');
+        triggerSync(editable);
+        updateToolbarPosition();
+      }
+
+      if (toolbar) {
+        toolbar.addEventListener('mousedown', (e) => {
+          if (e.target.tagName !== 'INPUT') e.preventDefault();
+        });
+
+        toolbar.querySelectorAll('[data-color]').forEach((btn) => {
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            applyStyleToSelection({ color: btn.dataset.color });
+          });
+        });
+
+        const customColorInput = toolbar.querySelector('#mini-custom-color');
+        if (customColorInput) {
+          customColorInput.addEventListener('input', () => {
+            applyStyleToSelection({ color: customColorInput.value });
+          });
+        }
+
+        const glowBtn = toolbar.querySelector('#mini-toggle-glow');
+        if (glowBtn) {
+          glowBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetColor = (customColorInput ? customColorInput.value : null) || '#38bdf8';
+            applyStyleToSelection({
+              textShadow: '0 0 8px ' + targetColor + ', 0 0 16px ' + targetColor
+            });
+          });
+        }
+
+        const shadowBtn = toolbar.querySelector('#mini-toggle-shadow');
+        if (shadowBtn) {
+          shadowBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            applyStyleToSelection({
+              textShadow: '0 1px 3px rgba(0,0,0,0.9), 0 0 1px rgba(0,0,0,0.95)'
+            });
+          });
+        }
+
+        const clearBtn = toolbar.querySelector('#mini-clear-format');
+        if (clearBtn) {
+          clearBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const sel = window.getSelection();
+            let range = (sel && sel.rangeCount && !sel.isCollapsed) ? sel.getRangeAt(0) : lastRange;
+            if (!range) return;
+            try {
+              const contents = range.extractContents();
+              const text = contents.textContent;
+              const textNode = document.createTextNode(text);
+              range.insertNode(textNode);
+              sel.removeAllRanges();
+              const newRange = document.createRange();
+              newRange.selectNode(textNode);
+              sel.addRange(newRange);
+              triggerSync(textNode.parentElement?.closest('[contenteditable="true"]'));
+            } catch (err) {
+              console.error(err);
+            }
+            updateToolbarPosition();
+          });
+        }
+      }
     });
   </script>` : "";
 
@@ -2130,7 +2376,7 @@ function previewDocument(snippet) {
     *{box-sizing:border-box}html,body{min-height:100%;margin:0}body{padding:12px;background:#191d27;color:#f2f4fa;font-family:Arial,"Noto Sans Thai",sans-serif;overflow-x:hidden}img{max-width:100%}pre{white-space:pre-wrap;overflow-wrap:anywhere}
     ${directEditStyles}
     ${css}
-  </style></head><body>${html}${directEditScript}</body></html>`;
+  </style></head><body>${html}${directEditToolbarHtml}${directEditScript}</body></html>`;
 }
 
 function renderCodeTabs(snippet) {
@@ -2328,6 +2574,41 @@ function updateTextShadow(snippet, value) {
   renderPreview(snippet);
 }
 
+function updateShadowColorSelect(snippet, value) {
+  const state = backgroundState(snippet);
+  state.shadowColor = value === "custom" ? (state.shadowColor || "#000000") : value;
+  if (backgroundShadowColor) backgroundShadowColor.value = value;
+  if (quickShadowColor) quickShadowColor.value = value;
+  if (value !== "custom") {
+    if (backgroundShadowColorPicker) backgroundShadowColorPicker.value = value;
+    if (quickShadowColorPicker) quickShadowColorPicker.value = value;
+  }
+  updateCodePanel(snippet);
+  renderPreview(snippet);
+}
+
+function updateShadowColorPicker(snippet, hexValue) {
+  const state = backgroundState(snippet);
+  state.shadowColor = hexValue;
+  const standardShadows = ["#000000", "#38bdf8", "#c084fc", "#fef08a", "#4ade80", "#f87171", "#ffffff"];
+  const matchingValue = standardShadows.includes(hexValue) ? hexValue : "custom";
+  if (backgroundShadowColor) backgroundShadowColor.value = matchingValue;
+  if (quickShadowColor) quickShadowColor.value = matchingValue;
+  if (backgroundShadowColorPicker) backgroundShadowColorPicker.value = hexValue;
+  if (quickShadowColorPicker) quickShadowColorPicker.value = hexValue;
+  updateCodePanel(snippet);
+  renderPreview(snippet);
+}
+
+function updateShadowBlur(snippet, blurValue) {
+  const state = backgroundState(snippet);
+  state.shadowBlur = Number(blurValue);
+  if (quickShadowBlur) quickShadowBlur.value = blurValue;
+  if (quickShadowBlurBadge) quickShadowBlurBadge.textContent = `${blurValue}px`;
+  updateCodePanel(snippet);
+  renderPreview(snippet);
+}
+
 function updateTextColorSelect(snippet, value) {
   const state = backgroundState(snippet);
   state.textColor = value;
@@ -2363,6 +2644,39 @@ if (quickTextShadow) {
   quickTextShadow.addEventListener("change", () => {
     const snippet = snippets.find((item) => item.id === selectedSnippetId);
     if (snippet) updateTextShadow(snippet, quickTextShadow.value);
+  });
+}
+
+if (backgroundShadowColor) {
+  backgroundShadowColor.addEventListener("change", () => {
+    const snippet = snippets.find((item) => item.id === selectedSnippetId);
+    if (snippet) updateShadowColorSelect(snippet, backgroundShadowColor.value);
+  });
+}
+if (quickShadowColor) {
+  quickShadowColor.addEventListener("change", () => {
+    const snippet = snippets.find((item) => item.id === selectedSnippetId);
+    if (snippet) updateShadowColorSelect(snippet, quickShadowColor.value);
+  });
+}
+
+if (backgroundShadowColorPicker) {
+  backgroundShadowColorPicker.addEventListener("input", () => {
+    const snippet = snippets.find((item) => item.id === selectedSnippetId);
+    if (snippet) updateShadowColorPicker(snippet, backgroundShadowColorPicker.value);
+  });
+}
+if (quickShadowColorPicker) {
+  quickShadowColorPicker.addEventListener("input", () => {
+    const snippet = snippets.find((item) => item.id === selectedSnippetId);
+    if (snippet) updateShadowColorPicker(snippet, quickShadowColorPicker.value);
+  });
+}
+
+if (quickShadowBlur) {
+  quickShadowBlur.addEventListener("input", () => {
+    const snippet = snippets.find((item) => item.id === selectedSnippetId);
+    if (snippet) updateShadowBlur(snippet, quickShadowBlur.value);
   });
 }
 
