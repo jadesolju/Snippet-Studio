@@ -253,7 +253,30 @@ const editValuesBySnippet = new Map();
 const backgroundBySnippet = new Map();
 const htmlPartsBySnippet = new Map();
 const rubiiSettingsBySnippet = new Map();
+const fieldStylesBySnippet = new Map();
 let lastCodeSnippetId = "";
+
+function fieldStyles(snippet) {
+  if (!snippet) return {};
+  if (!fieldStylesBySnippet.has(snippet.id)) fieldStylesBySnippet.set(snippet.id, {});
+  return fieldStylesBySnippet.get(snippet.id);
+}
+
+function getFieldStyle(snippet, fieldId) {
+  const styles = fieldStyles(snippet);
+  return styles[fieldId] || null;
+}
+
+function setFieldStyle(snippet, fieldId, newStyle) {
+  const styles = fieldStyles(snippet);
+  const current = styles[fieldId] || {};
+  const merged = { ...current, ...newStyle };
+  if (!merged.color && !merged.bgColor && !merged.bold) {
+    delete styles[fieldId];
+  } else {
+    styles[fieldId] = merged;
+  }
+}
 
 function isRubiiHtmlSnippet(snippet) {
   return Boolean(snippet.code?.html && !snippet.editable?.tagName);
@@ -953,6 +976,197 @@ function buildFieldEditor(snippet) {
     } else {
       inputGroup.append(input);
       row.append(labelRow, inputGroup);
+
+      if (field.kind !== "tagName" && field.kind !== "rubiiTagName" && field.kind !== "url") {
+        const styleBar = document.createElement("div");
+        styleBar.className = "field-text-style-bar";
+
+        const currentStyle = getFieldStyle(snippet, field.id) || {};
+
+        if (currentStyle.color) input.style.color = currentStyle.color;
+        if (currentStyle.bgColor) input.style.backgroundColor = currentStyle.bgColor;
+        if (currentStyle.bold) input.style.fontWeight = "bold";
+
+        // Text Color Group
+        const colorGroup = document.createElement("div");
+        colorGroup.className = "style-bar-group";
+
+        const colorLabel = document.createElement("span");
+        colorLabel.className = "style-bar-label";
+        colorLabel.innerHTML = `<svg class="ui-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg><span>สีอักษร:</span>`;
+
+        const colorWrap = document.createElement("div");
+        colorWrap.className = "var-color-wrap";
+        const colorPicker = document.createElement("input");
+        colorPicker.type = "color";
+        colorPicker.className = "var-color-picker";
+        colorPicker.value = currentStyle.color && currentStyle.color.startsWith("#") ? currentStyle.color : "#ffffff";
+        colorPicker.title = "เลือกสีข้อความตัวแปร (มี EyeDropper)";
+        colorPicker.setAttribute("aria-label", `เลือกสีข้อความสำหรับ ${field.label}`);
+        colorWrap.append(colorPicker);
+
+        const colorSwatchList = document.createElement("div");
+        colorSwatchList.className = "var-swatch-list";
+
+        const textColorPresets = [
+          { color: "", title: "ตามค่าเริ่มต้น (Default)", label: "Auto" },
+          { color: "#ffffff", title: "ขาวสว่าง (White)" },
+          { color: "#fef08a", title: "ทองสว่าง (Gold)" },
+          { color: "#38bdf8", title: "ฟ้านีออน (Cyan)" },
+          { color: "#c084fc", title: "ม่วงนีออน (Purple)" },
+          { color: "#4ade80", title: "เขียวมินต์ (Mint)" },
+          { color: "#f87171", title: "แดงคอรัล (Coral)" },
+          { color: "#18181b", title: "ดำเข้ม (Dark)" },
+        ];
+
+        const colorButtons = [];
+        textColorPresets.forEach((preset) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "var-swatch-btn";
+          btn.dataset.color = preset.color;
+          btn.title = preset.title;
+          if (preset.color) {
+            btn.style.setProperty("--swatch-color", preset.color);
+          } else {
+            btn.textContent = preset.label || "Auto";
+          }
+          if ((currentStyle.color || "") === preset.color) {
+            btn.classList.add("active");
+          }
+          colorButtons.push(btn);
+          colorSwatchList.append(btn);
+        });
+
+        colorGroup.append(colorLabel, colorWrap, colorSwatchList);
+
+        // Background Highlight Group
+        const bgGroup = document.createElement("div");
+        bgGroup.className = "style-bar-group";
+
+        const bgLabel = document.createElement("span");
+        bgLabel.className = "style-bar-label";
+        bgLabel.innerHTML = `<svg class="ui-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/></svg><span>ไฮไลต์:</span>`;
+
+        const bgWrap = document.createElement("div");
+        bgWrap.className = "var-color-wrap";
+        const bgPicker = document.createElement("input");
+        bgPicker.type = "color";
+        bgPicker.className = "var-bg-picker";
+        bgPicker.value = "#38bdf8";
+        bgPicker.title = "เลือกสีไฮไลต์พื้นหลังตัวแปร";
+        bgPicker.setAttribute("aria-label", `เลือกสีไฮไลต์สำหรับ ${field.label}`);
+        bgWrap.append(bgPicker);
+
+        const bgSwatchList = document.createElement("div");
+        bgSwatchList.className = "var-swatch-list";
+
+        const textBgPresets = [
+          { bg: "", title: "ไม่มีไฮไลต์ (None)", label: "None" },
+          { bg: "rgba(0, 0, 0, 0.55)", color: "#000000", title: "กระจกมืด (Dark Glass)" },
+          { bg: "rgba(56, 189, 248, 0.22)", color: "#38bdf8", title: "ฟ้าใส (Cyan Tint)" },
+          { bg: "rgba(192, 132, 252, 0.22)", color: "#c084fc", title: "ม่วงใส (Purple Tint)" },
+          { bg: "rgba(254, 240, 138, 0.25)", color: "#fef08a", title: "ทองใส (Gold Tint)" },
+          { bg: "rgba(74, 222, 128, 0.22)", color: "#4ade80", title: "มินต์ใส (Mint Tint)" },
+          { bg: "rgba(248, 113, 113, 0.22)", color: "#f87171", title: "คอรัลใส (Coral Tint)" },
+          { bg: "rgba(255, 255, 255, 0.18)", color: "#ffffff", title: "ขาวใส (White Glass)" },
+        ];
+
+        const bgButtons = [];
+        textBgPresets.forEach((preset) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "var-bg-swatch-btn";
+          btn.dataset.bg = preset.bg;
+          btn.title = preset.title;
+          if (preset.bg) {
+            btn.style.setProperty("--swatch-color", preset.color || preset.bg);
+          } else {
+            btn.textContent = preset.label || "None";
+          }
+          if ((currentStyle.bgColor || "") === preset.bg) {
+            btn.classList.add("active");
+          }
+          bgButtons.push(btn);
+          bgSwatchList.append(btn);
+        });
+
+        bgGroup.append(bgLabel, bgWrap, bgSwatchList);
+
+        // Actions: Bold & Reset
+        const actionsGroup = document.createElement("div");
+        actionsGroup.className = "style-bar-actions";
+
+        const boldBtn = document.createElement("button");
+        boldBtn.type = "button";
+        boldBtn.className = `var-action-btn var-bold-btn ${currentStyle.bold ? "active" : ""}`;
+        boldBtn.title = "ตัวหนา (Bold)";
+        boldBtn.innerHTML = "<strong>B</strong>";
+
+        const resetBtn = document.createElement("button");
+        resetBtn.type = "button";
+        resetBtn.className = "var-action-btn var-reset-btn";
+        resetBtn.title = "ล้างการตกแต่งตัวแปรนี้กลับเป็นค่าเริ่มต้น";
+        resetBtn.textContent = "รีเซ็ต";
+
+        actionsGroup.append(boldBtn, resetBtn);
+
+        styleBar.append(colorGroup, bgGroup, actionsGroup);
+        row.append(styleBar);
+
+        const applyStyleUpdate = (diff) => {
+          setFieldStyle(snippet, field.id, diff);
+          const updated = getFieldStyle(snippet, field.id) || {};
+
+          input.style.color = updated.color || "";
+          input.style.backgroundColor = updated.bgColor || "";
+          input.style.fontWeight = updated.bold ? "bold" : "";
+
+          colorButtons.forEach((b) => {
+            b.classList.toggle("active", (b.dataset.color || "") === (updated.color || ""));
+          });
+          if (updated.color && updated.color.startsWith("#")) colorPicker.value = updated.color;
+
+          bgButtons.forEach((b) => {
+            b.classList.toggle("active", (b.dataset.bg || "") === (updated.bgColor || ""));
+          });
+
+          boldBtn.classList.toggle("active", Boolean(updated.bold));
+
+          updateCodePanel(snippet);
+          renderPreview(snippet);
+        };
+
+        colorSwatchList.addEventListener("click", (e) => {
+          const btn = e.target.closest(".var-swatch-btn");
+          if (!btn) return;
+          applyStyleUpdate({ color: btn.dataset.color || "" });
+        });
+
+        colorPicker.addEventListener("input", () => {
+          applyStyleUpdate({ color: colorPicker.value });
+        });
+
+        bgSwatchList.addEventListener("click", (e) => {
+          const btn = e.target.closest(".var-bg-swatch-btn");
+          if (!btn) return;
+          applyStyleUpdate({ bgColor: btn.dataset.bg || "" });
+        });
+
+        bgPicker.addEventListener("input", () => {
+          const rgba = hexToRgbaString(bgPicker.value, 0.25);
+          applyStyleUpdate({ bgColor: rgba });
+        });
+
+        boldBtn.addEventListener("click", () => {
+          const cur = getFieldStyle(snippet, field.id) || {};
+          applyStyleUpdate({ bold: !cur.bold });
+        });
+
+        resetBtn.addEventListener("click", () => {
+          applyStyleUpdate({ color: "", bgColor: "", bold: false });
+        });
+      }
     }
 
     fieldList.append(row);
@@ -1465,7 +1679,27 @@ function applyFieldValues(snippet, source, options = {}) {
     if (options.preserveMacros && (field.token === "{{char}}" || field.token === "{{user}}" || field.token?.startsWith("{{"))) {
       continue;
     }
-    const value = values[field.id] ?? field.value;
+    const rawValue = values[field.id] ?? field.value;
+    let value = rawValue;
+
+    if (field.kind !== "tagName" && field.kind !== "rubiiTagName" && field.kind !== "url") {
+      const styles = getFieldStyle(snippet, field.id);
+      if (styles && (styles.color || styles.bgColor || styles.bold)) {
+        const styleParts = [];
+        if (styles.color) styleParts.push(`color:${styles.color}!important`);
+        if (styles.bgColor) {
+          styleParts.push(`background-color:${styles.bgColor}!important`);
+          styleParts.push(`padding:2px 6px`);
+          styleParts.push(`border-radius:4px`);
+          styleParts.push(`display:inline-block`);
+        }
+        if (styles.bold) styleParts.push(`font-weight:bold!important`);
+        if (styleParts.length > 0) {
+          value = `<span style="${styleParts.join(";")}">${rawValue}</span>`;
+        }
+      }
+    }
+
     if (field.kind === "tagName") {
       if (!/^[A-Za-z][A-Za-z0-9_-]*$/.test(value)) continue;
       const original = snippet.editable.tagName;
@@ -3000,6 +3234,7 @@ if (resetCodeButton) {
     htmlPartsBySnippet.delete(snippet.id);
     rubiiSettingsBySnippet.delete(snippet.id);
     customCodeBySnippet.delete(snippet.id);
+    fieldStylesBySnippet.delete(snippet.id);
 
     buildFieldEditor(snippet);
     renderHtmlParts(snippet);

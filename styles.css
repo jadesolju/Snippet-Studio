@@ -1398,6 +1398,166 @@ body {
   flex: 0 0 auto;
 }
 
+/* Variable Granular Styling Bar (Text Color & Background Highlight) */
+.field-text-style-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.32);
+  border: 1px dashed rgba(255, 255, 255, 0.09);
+  margin-top: 3px;
+}
+
+.style-bar-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.style-bar-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.var-color-wrap {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1.5px solid rgba(255, 255, 255, 0.28);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.var-color-wrap:hover {
+  transform: scale(1.15);
+  border-color: #38bdf8;
+}
+
+.var-color-picker,
+.var-bg-picker {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+.var-swatch-list {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.var-swatch-btn,
+.var-bg-swatch-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  background: var(--swatch-color, transparent);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.15s ease;
+}
+
+.var-swatch-btn:hover,
+.var-bg-swatch-btn:hover {
+  transform: scale(1.22);
+  border-color: #ffffff;
+}
+
+.var-swatch-btn.active,
+.var-bg-swatch-btn.active {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.75) !important;
+  transform: scale(1.22);
+}
+
+.var-swatch-btn[data-color=""],
+.var-bg-swatch-btn[data-bg=""] {
+  width: auto;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.var-swatch-btn[data-color=""].active,
+.var-bg-swatch-btn[data-bg=""].active {
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.6);
+  background: rgba(56, 189, 248, 0.14);
+}
+
+.style-bar-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+}
+
+.var-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.var-action-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.var-bold-btn.active {
+  background: rgba(56, 189, 248, 0.22);
+  border-color: rgba(56, 189, 248, 0.6);
+  color: #38bdf8;
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.4);
+}
+
+.var-reset-btn {
+  font-size: 10.5px;
+}
+
+.var-reset-btn:hover {
+  background: rgba(248, 113, 113, 0.18);
+  border-color: rgba(248, 113, 113, 0.45);
+  color: #fca5a5;
+}
+
 /* Code Tabs & Code Editor Typography */
 .code-tab {
   font-size: 13px !important;
