@@ -41,9 +41,83 @@ function formatCss(css) {
     .trim();
 }
 
+function splitGradientArgs(content) {
+  const args = [];
+  let depth = 0;
+  let current = "";
+  for (let i = 0; i < content.length; i++) {
+    const char = content[i];
+    if (char === "(") depth++;
+    else if (char === ")") depth = Math.max(0, depth - 1);
+    
+    if (char === "," && depth === 0) {
+      args.push(current.trim());
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+  if (current.trim()) {
+    args.push(current.trim());
+  }
+  return args;
+}
+
+function parseGradientInfo(value) {
+  if (!value || typeof value !== "string") return null;
+  const trimmed = value.trim();
+  const hasImportant = /!important\s*$/i.test(trimmed);
+  const cleanVal = trimmed.replace(/!important/gi, "").trim();
+
+  const match = cleanVal.match(/^linear-gradient\(\s*([\s\S]+)\s*\)$/i);
+  if (!match) return null;
+
+  const rawArgs = splitGradientArgs(match[1]);
+  if (rawArgs.length < 2) return null;
+
+  let angle = "135deg";
+  let stop1Raw = "";
+  let stop2Raw = "";
+
+  const isAngle = /^(to\s+|\d+(\.\d+)?(deg|grad|rad|turn)$)/i.test(rawArgs[0]);
+  if (isAngle) {
+    angle = rawArgs[0];
+    stop1Raw = rawArgs[1] || "";
+    stop2Raw = rawArgs[2] || rawArgs[1] || "";
+  } else {
+    stop1Raw = rawArgs[0] || "";
+    stop2Raw = rawArgs[1] || rawArgs[0] || "";
+  }
+
+  const cleanStop1 = stop1Raw.replace(/\s+\d+(\.\d+)?(%|px|em|rem)$/i, "").trim();
+  const cleanStop2 = stop2Raw.replace(/\s+\d+(\.\d+)?(%|px|em|rem)$/i, "").trim();
+
+  const info1 = parseColorInfo(cleanStop1) || { hex: "#ffffff", alphaPercent: 20, alpha: 0.2 };
+  const info2 = parseColorInfo(cleanStop2) || { hex: "#ffffff", alphaPercent: 5, alpha: 0.05 };
+
+  return {
+    type: "linear-gradient",
+    hasImportant,
+    angle,
+    stop1: info1,
+    stop2: info2,
+    format: (angleVal, hex1, alphaPercent1, hex2, alphaPercent2) => {
+      const a1 = (Math.max(0, Math.min(100, Number(alphaPercent1))) / 100).toFixed(2);
+      const a2 = (Math.max(0, Math.min(100, Number(alphaPercent2))) / 100).toFixed(2);
+      const rgba1 = hexToRgbaString(hex1, a1);
+      const rgba2 = hexToRgbaString(hex2, a2);
+      const core = `linear-gradient(${angleVal}, ${rgba1}, ${rgba2})`;
+      return hasImportant ? `${core}!important` : core;
+    }
+  };
+}
+
 function parseColorInfo(value) {
   if (!value || typeof value !== "string") return null;
   const trimmed = value.trim();
+  if (trimmed.toLowerCase().startsWith("linear-gradient(")) {
+    return parseGradientInfo(trimmed);
+  }
   const hasImportant = /!important\s*$/i.test(trimmed);
   const cleanVal = trimmed.replace(/!important/gi, "").trim();
   
@@ -877,58 +951,23 @@ function buildFieldEditor(snippet) {
       row.classList.add("field-row-color");
       const badge = document.createElement("span");
       badge.className = "field-color-badge";
-      badge.textContent = `RGBA ${colorInfo.alphaPercent}%`;
       labelRow.append(badge);
 
-      const picker = document.createElement("input");
-      picker.type = "color";
-      picker.className = "field-color-picker";
-      picker.value = colorInfo.hex;
-      picker.title = "คลิกเพื่อเลือกสี (มี EyeDropper ดูดสีได้)";
-      picker.setAttribute("aria-label", `เลือกสีสำหรับ ${field.label}`);
+      const gradToggleBtn = document.createElement("button");
+      gradToggleBtn.type = "button";
+      gradToggleBtn.className = "field-gradient-toggle-btn";
+      gradToggleBtn.title = "สลับระหว่างสีพื้นและสีไล่ระดับ (Linear Gradient)";
+      gradToggleBtn.setAttribute("aria-label", "สลับโหมดสีไล่ระดับ");
+      gradToggleBtn.innerHTML = `<svg class="ui-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span>Gradient</span>`;
+      labelRow.append(gradToggleBtn);
 
-      // Opacity row
-      const opacityRow = document.createElement("div");
-      opacityRow.className = "field-opacity-row";
-      
-      const opacityLabel = document.createElement("label");
-      opacityLabel.className = "field-opacity-label";
-      opacityLabel.innerHTML = `<svg class="ui-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/></svg><span>ความโปร่งใส (Opacity)</span>`;
-      
-      const opacitySlider = document.createElement("input");
-      opacitySlider.type = "range";
-      opacitySlider.className = "field-opacity-slider";
-      opacitySlider.min = "0";
-      opacitySlider.max = "100";
-      opacitySlider.step = "1";
-      opacitySlider.value = String(colorInfo.alphaPercent);
-      opacitySlider.setAttribute("aria-label", `ปรับความโปร่งใส ${field.label}`);
-
-      const opacityNumber = document.createElement("input");
-      opacityNumber.type = "number";
-      opacityNumber.className = "field-opacity-number";
-      opacityNumber.min = "0";
-      opacityNumber.max = "100";
-      opacityNumber.step = "1";
-      opacityNumber.value = String(colorInfo.alphaPercent);
-      opacityNumber.setAttribute("aria-label", `เปอร์เซ็นต์ความโปร่งใส ${field.label}`);
-
-      const percentUnit = document.createElement("span");
-      percentUnit.className = "field-opacity-unit";
-      percentUnit.textContent = "%";
+      let currentControlsContainer = null;
+      let solidPicker = null;
 
       const updateColorValue = (formattedValue) => {
         const prevVal = values[field.id];
         input.value = formattedValue;
         values[field.id] = formattedValue;
-        
-        const latestInfo = parseColorInfo(formattedValue);
-        if (latestInfo) {
-          badge.textContent = `RGBA ${latestInfo.alphaPercent}%`;
-          opacitySlider.value = String(latestInfo.alphaPercent);
-          opacityNumber.value = String(latestInfo.alphaPercent);
-          picker.value = latestInfo.hex;
-        }
 
         if (customCodeBySnippet.has(snippet.id) && customCodeBySnippet.get(snippet.id)["html"]) {
           let customHtml = customCodeBySnippet.get(snippet.id)["html"];
@@ -942,39 +981,285 @@ function buildFieldEditor(snippet) {
         renderPreview(snippet);
       };
 
-      picker.addEventListener("input", () => {
-        const currentVal = input.value;
-        const currentInfo = parseColorInfo(currentVal) || colorInfo;
-        const currentAlpha = (Number(opacitySlider.value) / 100).toFixed(2);
-        const formatted = currentInfo.format(picker.value, currentAlpha);
-        updateColorValue(formatted);
-      });
+      const renderColorControls = () => {
+        const currentVal = input.value || values[field.id] || field.value;
+        const curInfo = parseColorInfo(currentVal);
+        const isGrad = curInfo && curInfo.type === "linear-gradient";
 
-      const onOpacityChange = (val) => {
-        if (val === "") return;
-        const percent = Math.max(0, Math.min(100, Number(val)));
-        const currentVal = input.value;
-        const currentInfo = parseColorInfo(currentVal) || colorInfo;
-        const formatted = currentInfo.withAlphaPercent(percent);
-        updateColorValue(formatted);
+        if (currentControlsContainer) {
+          currentControlsContainer.remove();
+          currentControlsContainer = null;
+        }
+        if (solidPicker) {
+          solidPicker.remove();
+          solidPicker = null;
+        }
+
+        if (isGrad) {
+          gradToggleBtn.classList.add("active");
+          gradToggleBtn.setAttribute("aria-pressed", "true");
+          badge.textContent = "Gradient";
+
+          const gradPanel = document.createElement("div");
+          gradPanel.className = "field-gradient-panel";
+
+          const stopsGrid = document.createElement("div");
+          stopsGrid.className = "field-gradient-stops";
+
+          // Stop 1
+          const stop1El = document.createElement("div");
+          stop1El.className = "field-gradient-stop";
+          const h1 = document.createElement("div");
+          h1.className = "field-gradient-stop-header";
+          const l1 = document.createElement("span");
+          l1.className = "field-gradient-stop-label";
+          l1.textContent = "จุดเริ่ม (Stop 1)";
+          const b1 = document.createElement("span");
+          b1.className = "field-gradient-stop-badge";
+          b1.textContent = `${curInfo.stop1.alphaPercent}%`;
+          h1.append(l1, b1);
+
+          const main1 = document.createElement("div");
+          main1.className = "field-gradient-stop-main";
+          const p1 = document.createElement("input");
+          p1.type = "color";
+          p1.className = "field-gradient-stop-picker";
+          p1.value = curInfo.stop1.hex;
+          p1.title = "เลือกสีจุดเริ่ม (Stop 1)";
+          p1.setAttribute("aria-label", "เลือกสีจุดเริ่ม");
+
+          const s1 = document.createElement("input");
+          s1.type = "range";
+          s1.className = "field-gradient-stop-slider";
+          s1.min = "0";
+          s1.max = "100";
+          s1.step = "1";
+          s1.value = String(curInfo.stop1.alphaPercent);
+          s1.setAttribute("aria-label", "ปรับความโปร่งใสจุดเริ่ม");
+
+          main1.append(p1, s1);
+          stop1El.append(h1, main1);
+
+          // Stop 2
+          const stop2El = document.createElement("div");
+          stop2El.className = "field-gradient-stop";
+          const h2 = document.createElement("div");
+          h2.className = "field-gradient-stop-header";
+          const l2 = document.createElement("span");
+          l2.className = "field-gradient-stop-label";
+          l2.textContent = "จุดจบ (Stop 2)";
+          const b2 = document.createElement("span");
+          b2.className = "field-gradient-stop-badge";
+          b2.textContent = `${curInfo.stop2.alphaPercent}%`;
+          h2.append(l2, b2);
+
+          const main2 = document.createElement("div");
+          main2.className = "field-gradient-stop-main";
+          const p2 = document.createElement("input");
+          p2.type = "color";
+          p2.className = "field-gradient-stop-picker";
+          p2.value = curInfo.stop2.hex;
+          p2.title = "เลือกสีจุดจบ (Stop 2)";
+          p2.setAttribute("aria-label", "เลือกสีจุดจบ");
+
+          const s2 = document.createElement("input");
+          s2.type = "range";
+          s2.className = "field-gradient-stop-slider";
+          s2.min = "0";
+          s2.max = "100";
+          s2.step = "1";
+          s2.value = String(curInfo.stop2.alphaPercent);
+          s2.setAttribute("aria-label", "ปรับความโปร่งใสจุดจบ");
+
+          main2.append(p2, s2);
+          stop2El.append(h2, main2);
+
+          stopsGrid.append(stop1El, stop2El);
+
+          // Angle row
+          const angleRow = document.createElement("div");
+          angleRow.className = "field-gradient-angle-row";
+          const angleLabel = document.createElement("label");
+          angleLabel.className = "field-gradient-angle-label";
+          angleLabel.innerHTML = `<svg class="ui-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>ทิศทางการไล่สี (Angle)</span>`;
+
+          const angleSelect = document.createElement("select");
+          angleSelect.className = "field-gradient-angle-select";
+          angleSelect.setAttribute("aria-label", "เลือกทิศทางการไล่สี");
+
+          const angleOptions = [
+            { val: "135deg", label: "135deg ทแยงลงขวา" },
+            { val: "90deg", label: "90deg แนวนอน (ซ้าย-ขวา)" },
+            { val: "180deg", label: "180deg แนวตั้ง (บน-ล่าง)" },
+            { val: "45deg", label: "45deg ทแยงขึ้นขวา" },
+            { val: "0deg", label: "0deg แนวตั้ง (ล่าง-บน)" },
+            { val: "225deg", label: "225deg ทแยงลงซ้าย" },
+            { val: "270deg", label: "270deg แนวนอน (ขวา-ซ้าย)" },
+            { val: "315deg", label: "315deg ทแยงขึ้นซ้าย" },
+            { val: "to right", label: "to right (ไปขวา)" },
+            { val: "to bottom", label: "to bottom (ลงล่าง)" },
+            { val: "to bottom right", label: "to bottom right (ทแยงลงขวา)" }
+          ];
+
+          let matchedAngle = false;
+          angleOptions.forEach((opt) => {
+            const opEl = document.createElement("option");
+            opEl.value = opt.val;
+            opEl.textContent = opt.label;
+            if (curInfo.angle && curInfo.angle.toLowerCase() === opt.val.toLowerCase()) {
+              opEl.selected = true;
+              matchedAngle = true;
+            }
+            angleSelect.append(opEl);
+          });
+          if (!matchedAngle && curInfo.angle) {
+            const customOp = document.createElement("option");
+            customOp.value = curInfo.angle;
+            customOp.textContent = curInfo.angle;
+            customOp.selected = true;
+            angleSelect.prepend(customOp);
+          }
+
+          angleRow.append(angleLabel, angleSelect);
+          gradPanel.append(stopsGrid, angleRow);
+
+          const syncGrad = () => {
+            b1.textContent = `${s1.value}%`;
+            b2.textContent = `${s2.value}%`;
+            const formatted = curInfo.format(angleSelect.value, p1.value, s1.value, p2.value, s2.value);
+            updateColorValue(formatted);
+          };
+
+          p1.addEventListener("input", syncGrad);
+          s1.addEventListener("input", syncGrad);
+          p2.addEventListener("input", syncGrad);
+          s2.addEventListener("input", syncGrad);
+          angleSelect.addEventListener("change", syncGrad);
+
+          currentControlsContainer = gradPanel;
+          row.append(gradPanel);
+
+        } else {
+          gradToggleBtn.classList.remove("active");
+          gradToggleBtn.setAttribute("aria-pressed", "false");
+          const solidInfo = curInfo || { hex: "#ffffff", alphaPercent: 100, hasImportant: false, format: (h, a) => h, withAlphaPercent: (p) => `#ffffff` };
+          badge.textContent = `RGBA ${solidInfo.alphaPercent}%`;
+
+          solidPicker = document.createElement("input");
+          solidPicker.type = "color";
+          solidPicker.className = "field-color-picker";
+          solidPicker.value = solidInfo.hex;
+          solidPicker.title = "คลิกเพื่อเลือกสี (มี EyeDropper ดูดสีได้)";
+          solidPicker.setAttribute("aria-label", `เลือกสีสำหรับ ${field.label}`);
+          inputGroup.prepend(solidPicker);
+
+          // Opacity row
+          const opacityRow = document.createElement("div");
+          opacityRow.className = "field-opacity-row";
+          
+          const opacityLabel = document.createElement("label");
+          opacityLabel.className = "field-opacity-label";
+          opacityLabel.innerHTML = `<svg class="ui-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/></svg><span>ความโปร่งใส (Opacity)</span>`;
+          
+          const opacitySlider = document.createElement("input");
+          opacitySlider.type = "range";
+          opacitySlider.className = "field-opacity-slider";
+          opacitySlider.min = "0";
+          opacitySlider.max = "100";
+          opacitySlider.step = "1";
+          opacitySlider.value = String(solidInfo.alphaPercent);
+          opacitySlider.setAttribute("aria-label", `ปรับความโปร่งใส ${field.label}`);
+
+          const opacityNumber = document.createElement("input");
+          opacityNumber.type = "number";
+          opacityNumber.className = "field-opacity-number";
+          opacityNumber.min = "0";
+          opacityNumber.max = "100";
+          opacityNumber.step = "1";
+          opacityNumber.value = String(solidInfo.alphaPercent);
+          opacityNumber.setAttribute("aria-label", `เปอร์เซ็นต์ความโปร่งใส ${field.label}`);
+
+          const percentUnit = document.createElement("span");
+          percentUnit.className = "field-opacity-unit";
+          percentUnit.textContent = "%";
+
+          solidPicker.addEventListener("input", () => {
+            const curVal = input.value;
+            const info = parseColorInfo(curVal) || solidInfo;
+            const curAlpha = (Number(opacitySlider.value) / 100).toFixed(2);
+            const formatted = info.format(solidPicker.value, curAlpha);
+            badge.textContent = `RGBA ${opacitySlider.value}%`;
+            updateColorValue(formatted);
+          });
+
+          const onOpacityChange = (val) => {
+            if (val === "") return;
+            const percent = Math.max(0, Math.min(100, Number(val)));
+            opacitySlider.value = String(percent);
+            opacityNumber.value = String(percent);
+            badge.textContent = `RGBA ${percent}%`;
+            const curVal = input.value;
+            const info = parseColorInfo(curVal) || solidInfo;
+            const formatted = info.withAlphaPercent(percent);
+            updateColorValue(formatted);
+          };
+
+          opacitySlider.addEventListener("input", () => onOpacityChange(opacitySlider.value));
+          opacityNumber.addEventListener("input", () => onOpacityChange(opacityNumber.value));
+
+          opacityRow.append(opacityLabel, opacitySlider, opacityNumber, percentUnit);
+          currentControlsContainer = opacityRow;
+          row.append(opacityRow);
+        }
       };
 
-      opacitySlider.addEventListener("input", () => onOpacityChange(opacitySlider.value));
-      opacityNumber.addEventListener("input", () => onOpacityChange(opacityNumber.value));
+      gradToggleBtn.addEventListener("click", () => {
+        const currentVal = input.value || values[field.id] || field.value;
+        const curInfo = parseColorInfo(currentVal);
+        const isGrad = curInfo && curInfo.type === "linear-gradient";
 
-      input.addEventListener("input", () => {
-        const newInfo = parseColorInfo(input.value);
-        if (newInfo) {
-          picker.value = newInfo.hex;
-          badge.textContent = `RGBA ${newInfo.alphaPercent}%`;
-          opacitySlider.value = String(newInfo.alphaPercent);
-          opacityNumber.value = String(newInfo.alphaPercent);
+        if (isGrad) {
+          // Switch Gradient -> Solid
+          const hex = curInfo.stop1.hex;
+          const alphaPercent = curInfo.stop1.alphaPercent;
+          const hasImp = curInfo.hasImportant;
+          const nr = parseInt(hex.slice(1, 3), 16);
+          const ng = parseInt(hex.slice(3, 5), 16);
+          const nb = parseInt(hex.slice(5, 7), 16);
+          const a = (alphaPercent / 100).toFixed(2);
+          const solidVal = alphaPercent < 100 ? `rgba(${nr}, ${ng}, ${nb}, ${a})` : hex;
+          const formatted = hasImp ? `${solidVal}!important` : solidVal;
+          updateColorValue(formatted);
+          renderColorControls();
+        } else {
+          // Switch Solid -> Gradient
+          const solid = curInfo || { hex: "#ffffff", alphaPercent: 100, hasImportant: false };
+          const hex1 = solid.hex || "#ffffff";
+          const a1Percent = solid.alphaPercent !== undefined ? solid.alphaPercent : 100;
+          const a2Percent = Math.max(2, Math.round(a1Percent * 0.25));
+          const hasImp = solid.hasImportant;
+          const a1 = (a1Percent / 100).toFixed(2);
+          const a2 = (a2Percent / 100).toFixed(2);
+          const rgba1 = hexToRgbaString(hex1, a1);
+          const rgba2 = hexToRgbaString(hex1, a2);
+          const gradCore = `linear-gradient(135deg, ${rgba1}, ${rgba2})`;
+          const formatted = hasImp ? `${gradCore}!important` : gradCore;
+          updateColorValue(formatted);
+          renderColorControls();
         }
       });
 
-      inputGroup.append(picker, input);
-      opacityRow.append(opacityLabel, opacitySlider, opacityNumber, percentUnit);
-      row.append(labelRow, inputGroup, opacityRow);
+      input.addEventListener("input", () => {
+        const latest = parseColorInfo(input.value);
+        if (latest) {
+          values[field.id] = input.value;
+          renderColorControls();
+        }
+      });
+
+      inputGroup.append(input);
+      row.append(labelRow, inputGroup);
+      renderColorControls();
     } else {
       inputGroup.append(input);
       row.append(labelRow, inputGroup);

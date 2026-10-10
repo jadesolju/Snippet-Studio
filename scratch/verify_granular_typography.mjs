@@ -85,6 +85,22 @@ assert(cssContent.includes('.var-opacity-badge'), 'styles.css contains .var-opac
 assert(cssContent.includes('.var-bold-btn'), 'styles.css contains .var-bold-btn');
 assert(cssContent.includes('.var-reset-btn'), 'styles.css contains .var-reset-btn');
 
+// Gradient Toggle and Dual-Stop Controls Suite
+assert(appJsContent.includes('parseGradientInfo'), 'app.js contains parseGradientInfo parser');
+assert(appJsContent.includes('field-gradient-toggle-btn'), 'app.js renders .field-gradient-toggle-btn');
+assert(appJsContent.includes('field-gradient-panel'), 'app.js renders .field-gradient-panel');
+assert(appJsContent.includes('field-gradient-stops'), 'app.js renders .field-gradient-stops');
+assert(appJsContent.includes('field-gradient-stop-picker'), 'app.js renders .field-gradient-stop-picker');
+assert(appJsContent.includes('field-gradient-stop-slider'), 'app.js renders .field-gradient-stop-slider');
+assert(appJsContent.includes('field-gradient-angle-select'), 'app.js renders .field-gradient-angle-select');
+
+assert(cssContent.includes('.field-gradient-toggle-btn'), 'styles.css contains .field-gradient-toggle-btn');
+assert(cssContent.includes('.field-gradient-panel'), 'styles.css contains .field-gradient-panel');
+assert(cssContent.includes('.field-gradient-stops'), 'styles.css contains .field-gradient-stops');
+assert(cssContent.includes('.field-gradient-stop-picker'), 'styles.css contains .field-gradient-stop-picker');
+assert(cssContent.includes('.field-gradient-stop-slider'), 'styles.css contains .field-gradient-stop-slider');
+assert(cssContent.includes('.field-gradient-angle-select'), 'styles.css contains .field-gradient-angle-select');
+
 // Verify neon swatches have been removed
 assert(!appJsContent.includes('textColorPresets'), 'app.js neon text color swatches removed');
 assert(!appJsContent.includes('textBgPresets'), 'app.js neon background swatches removed');
