@@ -41,6 +41,96 @@ function formatCss(css) {
     .trim();
 }
 
+function escapeHtml(str) {
+  if (!str || typeof str !== "string") return "";
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function highlightSnippetCode(code, activeTab = "template") {
+  if (!code || typeof code !== "string") return "";
+
+  const TOKEN_REGEX = /(<!--[\s\S]*?-->|\/\*[\s\S]*?\*\/|\/\/[^\n]*)|(\{\{(?:user|char)\}\})|(\$\d+)|(\|\|)|(!important\b)|(https?:\/\/[^\s"'<>]+)|(<\/?[a-zA-Z0-9:-]+|\/?>)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(\b[a-zA-Z0-9_-]+(?=\s*=))|(\b[a-zA-Z-]+(?=\s*:))|(#(?:[0-9a-fA-F]{3,8})\b|rgba?\([^)]*\))|(\b\d+(?:\.\d+)?(?:px|%|em|rem|deg|s|ms)\b)/gi;
+
+  let lastIndex = 0;
+  let result = "";
+  let match;
+
+  while ((match = TOKEN_REGEX.exec(code)) !== null) {
+    const textBefore = code.slice(lastIndex, match.index);
+    if (textBefore) {
+      result += escapeHtml(textBefore);
+    }
+    lastIndex = TOKEN_REGEX.lastIndex;
+
+    const [
+      fullMatch,
+      comment,
+      macro,
+      variable,
+      delimiter,
+      important,
+      url,
+      tag,
+      str,
+      attr,
+      cssProp,
+      color,
+      numberUnit
+    ] = match;
+
+    if (comment) {
+      result += `<span class="tok-comment">${escapeHtml(comment)}</span>`;
+    } else if (macro) {
+      const isUser = /user/i.test(macro);
+      result += `<span class="tok-macro ${isUser ? "tok-macro-user" : "tok-macro-char"}">${escapeHtml(macro)}</span>`;
+    } else if (variable) {
+      const num = parseInt(variable.slice(1), 10);
+      const idx = ((num - 1) % 8) + 1;
+      result += `<span class="tok-var tok-var-${idx}">${escapeHtml(variable)}</span>`;
+    } else if (delimiter) {
+      result += `<span class="tok-delimiter">||</span>`;
+    } else if (important) {
+      result += `<span class="tok-important">!important</span>`;
+    } else if (url) {
+      result += `<span class="tok-url">${escapeHtml(url)}</span>`;
+    } else if (tag) {
+      result += `<span class="tok-tag">${escapeHtml(tag)}</span>`;
+    } else if (str) {
+      const innerContent = str.slice(1, -1);
+      const quote = str[0];
+      const innerHighlighted = highlightSnippetCode(innerContent, activeTab);
+      result += `<span class="tok-string-quote">${quote}</span><span class="tok-string">${innerHighlighted}</span><span class="tok-string-quote">${quote}</span>`;
+    } else if (attr) {
+      result += `<span class="tok-attr">${escapeHtml(attr)}</span>`;
+    } else if (cssProp) {
+      result += `<span class="tok-property">${escapeHtml(cssProp)}</span>`;
+    } else if (color) {
+      result += `<span class="tok-color">${escapeHtml(color)}</span>`;
+    } else if (numberUnit) {
+      result += `<span class="tok-number">${escapeHtml(numberUnit)}</span>`;
+    } else {
+      result += escapeHtml(fullMatch);
+    }
+  }
+
+  const remaining = code.slice(lastIndex);
+  if (remaining) {
+    result += escapeHtml(remaining);
+  }
+
+  return result;
+}
+
+function renderHighlightedCode(code, activeTab) {
+  if (codeHighlightLayer) {
+    codeHighlightLayer.innerHTML = highlightSnippetCode(code, activeTab);
+  }
+}
+
 function splitGradientArgs(content) {
   const args = [];
   let depth = 0;
@@ -267,6 +357,7 @@ const detailSummary = document.querySelector("#detail-summary");
 const detailPosition = document.querySelector("#detail-position");
 const codeTabs = document.querySelector("#code-tabs");
 const codeOutput = document.querySelector("#code-output");
+const codeHighlightLayer = document.querySelector("#code-highlight-layer");
 const codeEditorInput = document.querySelector("#code-editor-input");
 const resetCodeButton = document.querySelector("#reset-code-button");
 const customCodeBySnippet = new Map();
@@ -2280,15 +2371,23 @@ function renderRubiiSlotControls(snippet) {
     checkbox.dataset.regexSlotId = slot.id;
     checkbox.checked = selectedIds.has(slot.id);
     checkbox.disabled = !checkbox.checked && selectedIds.size >= maxRegexCaptures;
-    const number = checkbox.checked ? `${state.regexSlotIds.indexOf(slot.id) + 1}. ` : "";
+    const varIndex = checkbox.checked ? state.regexSlotIds.indexOf(slot.id) + 1 : 0;
     const marker = document.createElement("span");
     marker.className = `rubii-regex-capture-kind${slot.suggested ? " is-suggestion" : ""}`;
     marker.textContent = slot.explicit ? "marker" : slot.suggested ? "ตรวจดู" : "ตัวอย่าง";
     if (slot.suggested) marker.title = "ระบบเดาว่าอาจเปลี่ยน แนะนำให้ตรวจสอบก่อนเลือก";
     const text = document.createElement("span");
     text.className = "rubii-regex-capture-text";
-    text.textContent = `${number}${slot.label}${count > 1 ? ` · ใช้ร่วมกัน ${count} จุด` : ""}`;
-    label.append(checkbox, text, marker);
+    text.textContent = `${slot.label}${count > 1 ? ` · ใช้ร่วมกัน ${count} จุด` : ""}`;
+    if (varIndex > 0) {
+      const colorIdx = ((varIndex - 1) % 8) + 1;
+      const varBadge = document.createElement("span");
+      varBadge.className = `tok-var tok-var-${colorIdx} rubii-slot-badge`;
+      varBadge.textContent = `$${varIndex}`;
+      label.append(checkbox, varBadge, text, marker);
+    } else {
+      label.append(checkbox, text, marker);
+    }
     rubiiRegexCaptureList.append(label);
   }
   rubiiRegexCaptureCount.textContent = `${state.regexSlotIds.length} / ${maxRegexCaptures}`;
@@ -3120,6 +3219,7 @@ function updateCodePanel(snippet) {
   if (codeEditorInput && document.activeElement !== codeEditorInput) {
     codeEditorInput.value = output;
   }
+  renderHighlightedCode(output, activeCodeKey);
   const background = backgroundState(snippet);
   if (background.enabled && !background.url.trim()) {
     codeNote.textContent = "เปิดพื้นหลังการ์ดแล้ว วาง URL รูปภาพเพื่อให้พรีวิวและ HTML ที่คัดลอกมีพื้นหลัง";
@@ -3631,6 +3731,7 @@ if (codeEditorInput) {
     if (!snippet) return;
     const newCode = codeEditorInput.value;
     codeOutput.textContent = newCode;
+    renderHighlightedCode(newCode, activeCodeKey);
     if (!customCodeBySnippet.has(snippet.id)) customCodeBySnippet.set(snippet.id, {});
     customCodeBySnippet.get(snippet.id)[activeCodeKey] = newCode;
 
@@ -3642,6 +3743,20 @@ if (codeEditorInput) {
       renderPreview(snippet);
     }
   });
+
+  codeEditorInput.addEventListener("scroll", () => {
+    if (codeHighlightLayer) {
+      codeHighlightLayer.scrollTop = codeEditorInput.scrollTop;
+      codeHighlightLayer.scrollLeft = codeEditorInput.scrollLeft;
+    }
+  });
+
+  if (window.ResizeObserver && codeHighlightLayer) {
+    const ro = new ResizeObserver(() => {
+      codeHighlightLayer.style.height = `${codeEditorInput.offsetHeight}px`;
+    });
+    ro.observe(codeEditorInput);
+  }
 }
 
 if (resetCodeButton) {

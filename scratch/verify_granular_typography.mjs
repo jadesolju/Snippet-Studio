@@ -101,6 +101,20 @@ assert(cssContent.includes('.field-gradient-stop-picker'), 'styles.css contains 
 assert(cssContent.includes('.field-gradient-stop-slider'), 'styles.css contains .field-gradient-stop-slider');
 assert(cssContent.includes('.field-gradient-angle-select'), 'styles.css contains .field-gradient-angle-select');
 
+// Syntax Highlighting & Token Color Coding Suite
+assert(htmlContent.includes('id="code-highlight-layer"'), 'index.html contains #code-highlight-layer');
+assert(appJsContent.includes('highlightSnippetCode'), 'app.js contains highlightSnippetCode tokenizer');
+assert(appJsContent.includes('renderHighlightedCode'), 'app.js contains renderHighlightedCode helper');
+assert(appJsContent.includes('codeHighlightLayer'), 'app.js binds codeHighlightLayer');
+assert(cssContent.includes('.code-highlight-layer'), 'styles.css contains .code-highlight-layer styles');
+assert(cssContent.includes('.tok-var-1'), 'styles.css contains .tok-var-1 styles (Cyan)');
+assert(cssContent.includes('.tok-var-2'), 'styles.css contains .tok-var-2 styles (Lavender)');
+assert(cssContent.includes('.tok-var-3'), 'styles.css contains .tok-var-3 styles (Emerald)');
+assert(cssContent.includes('.tok-macro-user'), 'styles.css contains .tok-macro-user styles');
+assert(cssContent.includes('.tok-macro-char'), 'styles.css contains .tok-macro-char styles');
+assert(cssContent.includes('.tok-delimiter'), 'styles.css contains .tok-delimiter styles');
+assert(cssContent.includes('.rubii-slot-badge'), 'styles.css contains .rubii-slot-badge styles');
+
 // Verify neon swatches have been removed
 assert(!appJsContent.includes('textColorPresets'), 'app.js neon text color swatches removed');
 assert(!appJsContent.includes('textBgPresets'), 'app.js neon background swatches removed');
