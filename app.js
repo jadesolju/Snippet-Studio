@@ -1809,6 +1809,10 @@ function htmlWithBackground(snippet, html) {
   return finalHtml;
 }
 
+function isBuiltInRubiiMacro(target) {
+  return /^\{\{\s*(?:char|user)\s*\}\}%?$/i.test(String(target ?? "").trim());
+}
+
 function rubiiTextSlots(source) {
   const doc = new DOMParser().parseFromString(source, "text/html");
   const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT);
@@ -1825,7 +1829,9 @@ function rubiiTextSlots(source) {
   const staticSlotBlacklist = new Set(["(THB)", "(TH)", "(USD)", "(GBP)", "(EUR)", "(ผู้โอน)", "(ผู้รับ)", "(Wallet)", "(PromptPay)"]);
   for (const [nodeIndex, textNode] of nodes.entries()) {
     const text = textNode.nodeValue;
-    const matches = [...text.matchAll(dynamicPattern)].filter((m) => !staticSlotBlacklist.has(m[0].trim()));
+    const matches = [...text.matchAll(dynamicPattern)].filter((m) => (
+      !staticSlotBlacklist.has(m[0].trim()) && !isBuiltInRubiiMacro(m[0])
+    ));
     const candidates = matches.map((match) => ({
       target: match[0],
       start: match.index,
@@ -1845,12 +1851,13 @@ function rubiiTextSlots(source) {
       };
     }));
     candidates.sort((a, b) => a.start - b.start || a.end - b.end);
-    if (!candidates.length && text.trim().length >= 3) {
+    const containsBuiltInMacro = /\{\{\s*(?:char|user)\s*\}\}/i.test(text);
+    if (!candidates.length && text.trim().length >= 3 && !containsBuiltInMacro) {
       const start = text.indexOf(text.trim());
       candidates.push({ target: text.trim(), start, end: start + text.trim().length, example: true });
     }
 
-    for (const [matchIndex, candidate] of candidates.entries()) {
+    for (const candidate of candidates) {
       const target = candidate.target.trim();
       if (!target) continue;
       const words = `${target} ${text}`.toLocaleLowerCase("th");
@@ -1866,7 +1873,7 @@ function rubiiTextSlots(source) {
         ? `${suggestedVariableLabel(candidate.suggestionType)} · ${target}`
         : `${target} · ${context === target ? "ข้อความ" : context}`;
       slots.push({
-        id: `${nodeIndex}:${matchIndex}`,
+        id: `target:${target}`,
         nodeIndex,
         start: candidate.start,
         end: candidate.end,
@@ -1882,28 +1889,59 @@ function rubiiTextSlots(source) {
   return { doc, nodes, slots };
 }
 
+function uniqueRubiiSlots(slots) {
+  const seenTargets = new Set();
+  return slots.filter((slot) => {
+    if (seenTargets.has(slot.target)) return false;
+    seenTargets.add(slot.target);
+    return true;
+  });
+}
+
+function groupRubiiSlotsByTarget(slots) {
+  const groups = new Map();
+  for (const slot of slots) {
+    const group = groups.get(slot.target);
+    if (group) group.count += 1;
+    else groups.set(slot.target, { slot, count: 1 });
+  }
+  return [...groups.values()];
+}
+
 function renderRubiiSlotControls(snippet) {
   rubiiSlotControls.hidden = !isRubiiHtmlSnippet(snippet);
   rubiiSlotSelect.replaceChildren();
   if (!isRubiiHtmlSnippet(snippet)) return;
 
   const { slots } = rubiiTextSlots(assembleRawHtml(snippet));
+  const slotGroups = groupRubiiSlotsByTarget(slots);
+  const uniqueSlots = slotGroups.map(({ slot }) => slot);
   const state = rubiiSettingsBySnippet.get(snippet.id) ?? {};
+  if (Array.isArray(state.regexSlotIds)) {
+    const selectedTargets = new Set(state.regexSlotIds
+      .map((id) => slots.find((slot) => slot.id === id)?.target)
+      .filter(Boolean));
+    state.regexSlotIds = uniqueRubiiSlots(slots.filter((slot) => selectedTargets.has(slot.target)))
+      .slice(0, maxRegexCaptures)
+      .map((slot) => slot.id);
+  }
   const preferred = typeof state.slotId === "string" && state.slotId
-    ? (slots.some((slot) => slot.id === state.slotId) ? state.slotId : "")
+    ? (slots.some((slot) => slot.id === state.slotId)
+        ? uniqueSlots.find((slot) => slot.target === slots.find((candidate) => candidate.id === state.slotId)?.target)?.id ?? ""
+        : "")
     : (
-        [...slots]
+        [...uniqueSlots]
           .filter((slot) => !/^\{\{.*\}\}$/.test(slot.target))
           .sort((a, b) => b.score - a.score)[0]?.id
-        ?? slots.find((slot) => slot.explicit)?.id
+        ?? uniqueSlots.find((slot) => slot.explicit)?.id
         ?? ""
       );
   state.slotId = preferred ?? "";
   if (!Array.isArray(state.regexSlotIds)) {
     const explicitSlots = [];
     const seenTargets = new Set();
-    const validCandidateSlots = slots.filter((slot) => !/^\{\{.*\}\}$/.test(slot.target));
-    const pool = validCandidateSlots.length ? validCandidateSlots : slots;
+    const validCandidateSlots = uniqueSlots.filter((slot) => !/^\{\{.*\}\}$/.test(slot.target));
+    const pool = validCandidateSlots.length ? validCandidateSlots : uniqueSlots;
     for (const slot of pool) {
       if (slot.explicit && slot.score > 0 && !seenTargets.has(slot.target)) {
         seenTargets.add(slot.target);
@@ -1938,17 +1976,18 @@ function renderRubiiSlotControls(snippet) {
   placeholder.value = "";
   placeholder.textContent = "เลือกข้อความเพื่อกำหนดเป็น $1";
   rubiiSlotSelect.append(placeholder);
-  for (const slot of slots) {
+  for (const { slot, count } of slotGroups) {
     const option = document.createElement("option");
     option.value = slot.id;
-    option.textContent = slot.label.length > 110 ? `${slot.label.slice(0, 107)}…` : slot.label;
+    const label = count > 1 ? `${slot.label} · ใช้ร่วมกัน ${count} จุด` : slot.label;
+    option.textContent = label.length > 110 ? `${label.slice(0, 107)}…` : label;
     rubiiSlotSelect.append(option);
   }
   rubiiSlotSelect.value = preferred;
 
   const selectedIds = new Set(state.regexSlotIds);
   rubiiRegexCaptureList.replaceChildren();
-  for (const slot of slots) {
+  for (const { slot, count } of slotGroups) {
     const label = document.createElement("label");
     label.className = "rubii-regex-capture-option";
     const checkbox = document.createElement("input");
@@ -1963,7 +2002,7 @@ function renderRubiiSlotControls(snippet) {
     if (slot.suggested) marker.title = "ระบบเดาว่าอาจเปลี่ยน แนะนำให้ตรวจสอบก่อนเลือก";
     const text = document.createElement("span");
     text.className = "rubii-regex-capture-text";
-    text.textContent = `${number}${slot.label}`;
+    text.textContent = `${number}${slot.label}${count > 1 ? ` · ใช้ร่วมกัน ${count} จุด` : ""}`;
     label.append(checkbox, text, marker);
     rubiiRegexCaptureList.append(label);
   }
@@ -2084,19 +2123,19 @@ function isRubiiPercentageSlot(slot) {
 function buildRubiiTemplate(snippet, chosenSlots) {
   const source = htmlWithBackground(snippet, assembleRawHtml(snippet));
   const { doc, nodes, slots } = rubiiTextSlots(source);
-  const selectedSlots = chosenSlots.map((selected) => slots.find((slot) => slot.id === selected.id)).filter(Boolean);
+  const selectedSlots = uniqueRubiiSlots(chosenSlots.map((selected) => slots.find((slot) => slot.id === selected.id)).filter(Boolean));
   const replacementsByNode = new Map();
   const progressBarMap = new Map();
 
-  const slotById = new Map();
+  const selectedByTarget = new Map();
   selectedSlots.forEach((slot, index) => {
     const varName = isRubiiPercentageSlot(slot) ? "$" + (index + 1) + "%" : "$" + (index + 1);
-    slotById.set(slot.id, { varName, slotIndex: index, slot });
+    selectedByTarget.set(slot.target, { varName, slotIndex: index, slot });
   });
 
   slots.forEach((slot) => {
-    if (slotById.has(slot.id)) {
-      const { varName, slotIndex } = slotById.get(slot.id);
+    if (selectedByTarget.has(slot.target)) {
+      const { varName, slotIndex } = selectedByTarget.get(slot.target);
       if (!replacementsByNode.has(slot.nodeIndex)) replacementsByNode.set(slot.nodeIndex, []);
       replacementsByNode.get(slot.nodeIndex).push({ slot, replacement: varName });
 
@@ -2241,6 +2280,98 @@ function rubiiSlotLabel(slot, index, snippet) {
 function rubiiSampleValue(slot) {
   const raw = String(slot?.target ?? "").trim();
   const clean = raw.replace(/^\((.*)\)$/s, "$1").trim();
+  const semanticSamples = {
+    "เครือข่ายมือถือ": "5G",
+    "เวลาที่ผ่านมา": "5 นาทีที่แล้ว",
+    "จำนวนผู้ถูกใจเพิ่มเติม": "18",
+    "จำนวนโพสต์": "24",
+    "จำนวนผู้ติดตาม": "12.8K",
+    "จำนวนกำลังติดตาม": "380",
+    "จำนวนภาพพิเศษ": "1",
+    "ราคาปลดล็อก": "15.00",
+    "ยอดไลก์": "1,428",
+    "ยอดไลก์โพสต์": "1,428",
+    "ยอดความคิดเห็น": "89",
+    "ยอดความคิดเห็นโพสต์": "89",
+    "จำนวนความคิดเห็น": "3",
+    "เวลาที่โพสต์แบบนาฬิกา": "21:45",
+    "จำนวนเครดิต": "350",
+    "เดือนและปีของชุด": "Oct 2026",
+    "ยอดผู้ติดตามเป้าหมาย": "10K",
+    "ราคาระดับสมาชิก": "25",
+    "ความละเอียดภาพ": "4K",
+    "ระดับสมาชิก": "3",
+    "เป้าหมายยอดรี": "500",
+    "ยอดรีโพสต์": "512",
+    "ยอดบันทึก": "640",
+    "เวลาเปิดอัลบั้ม": "21:49",
+    "จำนวนรายการ": "1",
+    "วันและเวลาถ่ายภาพ": "วันนี้ 21:30",
+    "จำนวนเงินที่โอน": "75,000.00",
+    "ยอดเงินที่โอน": "15,500.00",
+    "จำนวนเงินสุทธิ": "50,000.00",
+    "ยอดเงินคงเหลือ": "35,000.00",
+    "ค่าธรรมเนียม": "0.00",
+    "เลขอ้างอิงธุรกรรม": "SCB202610068821",
+    "บัญชีต้นทางที่ปิดบัง": "xxx-x-x8841-x",
+    "บัญชีปลายทางที่ปิดบัง": "xxx-xxx-8821",
+    "เบอร์โทรศัพท์ผู้ส่ง": "081-xxx-5678",
+    "ข้อความบันทึกช่วยจำ": "ค่าอาหารและค่าเดินทาง",
+    "รายละเอียดบันทึกช่วยจำ": "ไว้ใช้จ่าย",
+    "เวลาทำรายการ": "20:34 น.",
+    "วันที่ทำรายการ": "06 ต.ค. 2569",
+    "วันที่และเวลาทำรายการ": "06 ต.ค. 2569 • 20:19 น.",
+    "ยอดปฏิกิริยา": "128",
+    "ยอดถูกใจความคิดเห็น 1": "14",
+    "ยอดถูกใจความคิดเห็น 2": "6",
+    "ยอดถูกใจความคิดเห็น 3": "2",
+    "ยอดแชร์": "7",
+    "เวลาโพสต์": "15 นาทีที่แล้ว",
+    "เวลาคอมเมนต์ 1": "10 นาที",
+    "เวลาคอมเมนต์ 2": "5 นาที",
+    "เวลาคอมเมนต์": "2 นาที",
+    "ยอดรับชมหลักพัน": "2.4",
+    "ยอดค้นหาอันดับ 1": "500",
+    "ยอดค้นหาอันดับ 2": "200",
+    "ยอดค้นหาอันดับ 3": "100",
+    "หมายเลขโต๊ะ": "04",
+    "วันที่ใช้บริการ": "วันนี้",
+    "เวลาใช้บริการ": "20:30 น.",
+    "จำนวนลาเต้": "1",
+    "ราคาลาเต้": "180.00",
+    "จำนวนพาสต้า": "2",
+    "ราคาพาสต้า": "780.00",
+    "จำนวนชุดไวน์": "2",
+    "ราคาชุดไวน์": "1,600.00",
+    "อัตราค่าบริการ": "10",
+    "ค่าบริการ": "256.00",
+    "ยอดรวม": "2,816.00",
+    "คะแนนความสบายใจ": "95",
+    "อุณหภูมิ": "24",
+    "วันที่บันทึก": "08 ต.ค. 2569",
+    "เวลาอ่าน": "3 min",
+    "เวลานัดหมาย": "10:00 น.",
+    "เวลากิจกรรม": "14:30 น.",
+    "เวลามื้อค่ำ": "19:00 น.",
+    "โบนัสผู้ชนะ": "15",
+    "เวลาเข้าเส้นชัยของตัวละคร": "01'38\"24",
+    "เวลาเข้าเส้นชัยของผู้ใช้": "01'39\"88",
+    "เวลาเข้าเส้นชัย": "01'44\"20",
+    "รอบการแข่งขัน": "2/3",
+    "อันดับปัจจุบัน": "1ST",
+    "เวลาที่เล่นแล้ว": "1:42",
+    "เวลาที่เหลือ": "-2:18",
+    "ความยาวเพลง": "3:45",
+    "เวลาท่อนเพลง": "01:24",
+    "วันที่ของฉาก": "8 ต.ค. 2569",
+    "วันที่ของฉากแบบอังกฤษ": "THURSDAY, 08 OCT 2026",
+    "เวลาของฉาก": "01:11 น.",
+    "วันที่บันทึกแบบตัวเลข": "08.10.2026",
+    "เวลาบันทึก": "01:11",
+    "วันที่ระบบ": "08.10.2026",
+    "เวลาระบบ": "01:17",
+  };
+  if (Object.hasOwn(semanticSamples, clean)) return semanticSamples[clean];
   if (isRubiiPercentageSlot(slot)) return raw || "88%";
   if (!slot?.explicit) return raw || "ตัวอย่างทดสอบ";
   const text = `${raw} ${slot?.label ?? ""}`.toLocaleLowerCase("th");

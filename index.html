@@ -355,9 +355,10 @@
                       <details class="rubii-regex-settings">
                         <summary><span>ตั้งค่าช่อง Regex</span><span id="rubii-regex-capture-count" class="part-count">0 / 33</span></summary>
                         <div class="rubii-regex-settings-body">
-                          <p class="rubii-regex-help">Marker ที่ระบุชัดจะถูกเลือกให้อัตโนมัติ ส่วนค่าที่อาจเปลี่ยน เช่น วันที่ เวลา จำนวนเงิน สถิติ รหัสอ้างอิง หรือข้อความบอกใบ้ จะแสดงเป็น “ตรวจดู” ให้เลือกเองเมื่อยืนยันว่าเป็นค่าที่ต้องเปลี่ยน ข้อความอื่นจะแสดงเป็น “ตัวอย่าง” แล้วระบบจะจับค่าตามลำดับเป็น <code>$1</code> ถึง <code>$33</code></p>
+                          <p class="rubii-regex-help">Marker ที่ระบุชัดจะถูกเลือกให้อัตโนมัติ ส่วนค่าที่อาจเปลี่ยน เช่น วันที่ เวลา จำนวนเงิน สถิติ รหัสอ้างอิง หรือข้อความบอกใบ้ จะแสดงเป็น “ตรวจดู” ให้เลือกเองเมื่อยืนยันว่าเป็นค่าที่ต้องเปลี่ยน ข้อความอื่นจะแสดงเป็น “ตัวอย่าง” แล้วระบบจะจับค่าตามลำดับเป็น <code>$1</code> ถึง <code>$33</code> Macro <code>{{user}}</code> และ <code>{{char}}</code> คงเป็นของ Rubii และไม่นับเป็น capture</p>
+                          <p class="rubii-regex-help">วงเล็บเป็นขอบเขตที่จะแทน: <code>(สถานที่)</code> เปลี่ยนเฉพาะสถานที่ แต่ <code>(ร้านอาหารบรรยากาศดี แถว 📍 สถานที่)</code> เปลี่ยนทั้งวลี วงเล็บต้องครอบช่วงที่ต้องการแทนทั้งหมด</p>
                           <div id="rubii-regex-capture-list" class="rubii-regex-capture-list"></div>
-                          <p class="rubii-regex-help">เมื่อเลือกหลายช่อง ให้คั่นค่าตอนใช้แท็กด้วย <code>||</code> เช่น <code>&lt;tag&gt;ชื่อโพสต์||ยอดไลก์&lt;/tag&gt;</code> ช่องเปอร์เซ็นต์จับเฉพาะตัวเลขและยอมรับเครื่องหมาย <code>%</code> ที่ตามหลังได้</p>
+                          <p class="rubii-regex-help">เมื่อเลือกหลายช่อง ให้คั่นค่าตอนใช้แท็กด้วย <code>||</code> เช่น <code>&lt;tag&gt;ชื่อโพสต์||ยอดไลก์&lt;/tag&gt;</code> ช่องเปอร์เซ็นต์จับเฉพาะตัวเลขและยอมรับเครื่องหมาย <code>%</code> ที่ตามหลังได้ Marker ข้อความเดียวกัน เช่น <code>(HH:MM)</code> จะใช้ <code>$</code> ตัวเดียวแทนทุกตำแหน่งที่พบ; ถ้าต้องการค่าแยกกัน ให้ใช้ Marker คนละชื่อ</p>
                           <div class="rubii-extra-regex-heading">
                             <strong>กฎ Regex เพิ่มเติม</strong>
                             <div class="rubii-extra-regex-actions">
