@@ -144,7 +144,7 @@ assert(appJsEmojiCount === 0, `app.js UI labels contain 0 emojis (found ${appJsE
 const snippets = JSON.parse(fs.readFileSync(path.join(projectRoot, 'data', 'snippets.json'), 'utf8'));
 const categories = JSON.parse(fs.readFileSync(path.join(projectRoot, 'data', 'snippet-categories.json'), 'utf8'));
 
-assert(snippets.length === 75, `snippets.json has exactly 75 snippets (found ${snippets.length})`);
+assert(snippets.length === 87, `snippets.json has exactly 87 snippets (found ${snippets.length})`);
 assert(categories.length >= 8, `snippet-categories.json has valid categories (found ${categories.length})`);
 
 console.log('\n========================================');
