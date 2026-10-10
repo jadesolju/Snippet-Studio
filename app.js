@@ -53,7 +53,7 @@ function escapeHtml(str) {
 function highlightSnippetCode(code, activeTab = "template") {
   if (!code || typeof code !== "string") return "";
 
-  const TOKEN_REGEX = /(<!--[\s\S]*?-->|\/\*[\s\S]*?\*\/|\/\/[^\n]*)|(\{\{(?:user|char)\}\})|(\$\d+)|(\|\|)|(!important\b)|(https?:\/\/[^\s"'<>]+)|(<\/?[a-zA-Z0-9:-]+|\/?>)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(\b[a-zA-Z0-9_-]+(?=\s*=))|(\b[a-zA-Z-]+(?=\s*:))|(#(?:[0-9a-fA-F]{3,8})\b|rgba?\([^)]*\))|(\b\d+(?:\.\d+)?(?:px|%|em|rem|deg|s|ms)\b)/gi;
+  const TOKEN_REGEX = /(<!--[\s\S]*?-->|\/\*[\s\S]*?\*\/)|(\{\{(?:user|char)\}\})|(\$\d+)|(\|\|)|(!important\b)|(https?:\/\/[^\s"'<>]+)|(<\/?[a-zA-Z0-9:-]+|\/?>)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(\b[a-zA-Z0-9_-]+(?=\s*=))|(\b[a-zA-Z-]+(?=\s*:))|(#(?:[0-9a-fA-F]{3,8})\b|rgba?\([^)]*\))|(\b\d+(?:\.\d+)?(?:px|%|em|rem|deg|s|ms)\b)/gi;
 
   let lastIndex = 0;
   let result = "";
