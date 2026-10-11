@@ -14,3 +14,12 @@
 - The Regex builder supports at most 33 capture slots per rule. If a card needs more, split captures into supplementary Regex rules by semantic group and keep each replacement's `$n` mapping aligned with its rule.
 - When repeated independent items need dynamic values, give each marker a unique target instead of reusing a generic marker such as `(อีโมจิ)`; identical targets are deduplicated into one slot. For example, use `(อีโมจิ 1)` / `(ชื่อเว็บไซต์ 1)` and `(อีโมจิ 2)` / `(ชื่อเว็บไซต์ 2)` for separate favorite-site tiles.
 - Before finishing a Library change, review the source HTML and generated Regex/Replacement together. A candidate shown by the scanner is not automatically a confirmed variable; use context and the user's explicit instructions to decide.
+
+## Rubii chat layout compatibility
+
+- Treat the Rubii chat renderer as a React Native HTML renderer, not as a desktop browser. A layout that looks correct in the browser Preview is not proof that it will match in chat.
+- Prefer a single-column, top-to-bottom content order for phone cards. Put images in their own block and place metric/status rows below them at full width; do not place an image beside a metric grid.
+- Do not use CSS Grid or `grid-template-columns` for card content. Use normal block flow for the main layout.
+- Keep horizontal layout limited to compact rows such as a heading/status pair or metric label/value pair, and only when that row has been checked in the Rubii phone chat. If renderer behavior is uncertain, stack the parts vertically.
+- Avoid relying on CSS `gap`, wrapping, or implicit shrink behavior to control spacing. Use simple block flow, explicit widths, and margins that remain readable when rendered sequentially.
+- Review the rendered card in the phone chat. Use the user's supplied phone screenshot as the layout reference; desktop iframe Preview alone does not validate React Native rendering.

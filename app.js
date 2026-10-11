@@ -2873,7 +2873,7 @@ function rubiiSampleValue(slot) {
     "ชื่อเว็บไซต์ 4": "LINE",
   };
   if (Object.hasOwn(semanticSamples, clean)) return semanticSamples[clean];
-  if (isRubiiPercentageSlot(slot)) return raw || "88%";
+  if (isRubiiPercentageSlot(slot)) return clean || "88%";
   if (!slot?.explicit) return raw || "ตัวอย่างทดสอบ";
   const text = `${raw} ${slot?.label ?? ""}`.toLocaleLowerCase("th");
 
