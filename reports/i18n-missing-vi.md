@@ -9,7 +9,7 @@
 - Brand keys intentionally unchanged: meta.title, meta.ogTitle
 - Thai template strings still untranslated: 0/201
 - JavaScript UI text values still untranslated: 0/257
-- JavaScript source lines containing Thai (includes Thai-source detection rules): 525
+- JavaScript source lines containing Thai (includes Thai-source detection rules): 563
 - Guide translated with no Thai text remaining: yes
 - Approval file: present
 

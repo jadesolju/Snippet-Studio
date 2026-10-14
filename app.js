@@ -114,6 +114,25 @@ function translateAppValue(value) {
       [/^เลื่อนกฎลง: (.+)$/u, (_match, label) => `Chuyển quy tắc xuống: ${translateAppValue(label)}`],
       [/^ช่องที่ (\d+)$/u, (_match, number) => `Trường ${number}`],
       [/^URL รูปไอคอน\/รูปภาพ (\d+)$/u, (_match, number) => `URL biểu tượng/hình ảnh ${number}`],
+      [/^คัดลอก HTML ส่วนที่ (\d+) แล้ว$/u, (_match, number) => `Đã sao chép HTML phần ${number}`],
+      [/^โค้ด HTML ส่วนที่ (\d+)$/u, (_match, number) => `Mã HTML phần ${number}`],
+      [/^แก้ไขข้อความ (.+)$/u, (_match, label) => `Chỉnh sửa văn bản: ${translateAppValue(label)}`],
+      [/^เลือกสีสำหรับ (.+)$/u, (_match, label) => `Chọn màu cho ${translateAppValue(label)}`],
+      [/^เลือกสีข้อความสำหรับ (.+)$/u, (_match, label) => `Chọn màu chữ cho ${translateAppValue(label)}`],
+      [/^เลือกสีไฮไลต์สำหรับ (.+)$/u, (_match, label) => `Chọn màu đánh dấu cho ${translateAppValue(label)}`],
+      [/^ปรับความเข้มสีไฮไลต์ (.+)$/u, (_match, label) => `Điều chỉnh độ đậm màu đánh dấu cho ${translateAppValue(label)}`],
+      [/^ปรับความโปร่งใสจุดเริ่ม$/u, () => "Điều chỉnh độ trong suốt của điểm bắt đầu"],
+      [/^ปรับความโปร่งใสจุดจบ$/u, () => "Điều chỉnh độ trong suốt của điểm kết thúc"],
+      [/^เลือก(.+)$/u, (_match, label) => `Chọn ${translateAppValue(label)}`],
+      [/^สลับระหว่าง(.+)$/u, (_match, label) => `Chuyển đổi giữa ${translateAppValue(label)}`],
+      [/^สลับโหมด(.+)$/u, (_match, label) => `Bật/tắt chế độ ${translateAppValue(label)}`],
+      [/^ปรับความโปร่งใส(.+)$/u, (_match, label) => `Điều chỉnh độ trong suốt ${translateAppValue(label)}`],
+      [/^ปรับความเข้ม\/ความโปร่งใสของ(.+)$/u, (_match, label) => `Điều chỉnh cường độ/độ trong suốt của ${translateAppValue(label)}`],
+      [/^เปอร์เซ็นต์ความโปร่งใส (.+)$/u, (_match, label) => `Phần trăm độ trong suốt của ${translateAppValue(label)}`],
+      [/^ทิศทางการไล่สี (.+)$/u, (_match, label) => `Hướng chuyển màu (${translateAppValue(label)})`],
+      [/^โค้ด(.+)$/u, (_match, label) => `Mã ${translateAppValue(label)}`],
+      [/^ปรับความทึบของ(.+)$/u, (_match, label) => `Điều chỉnh độ mờ của ${translateAppValue(label)}`],
+      [/^เปอร์เซ็นต์ความทึบของ(.+)$/u, (_match, label) => `Phần trăm độ mờ của ${translateAppValue(label)}`],
       [/^โครงสร้าง <([a-z\d-]+)>$/iu, (_match, tag) => `Cấu trúc <${tag}>`],
       [/^ส่วนที่ (\d+)$/u, (_match, number) => `Phần ${number}`],
       [/^ค่า (\d+)$/u, (_match, number) => `Giá trị ${number}`]
@@ -131,6 +150,25 @@ function translateAppValue(value) {
       [/^เลื่อนกฎลง: (.+)$/u, (_match, label) => `Move rule down: ${translateAppValue(label)}`],
       [/^ช่องที่ (\d+)$/u, (_match, number) => `Field ${number}`],
       [/^URL รูปไอคอน\/รูปภาพ (\d+)$/u, (_match, number) => `Icon/image URL ${number}`],
+      [/^คัดลอก HTML ส่วนที่ (\d+) แล้ว$/u, (_match, number) => `HTML section ${number} copied`],
+      [/^โค้ด HTML ส่วนที่ (\d+)$/u, (_match, number) => `HTML section ${number}`],
+      [/^แก้ไขข้อความ (.+)$/u, (_match, label) => `Edit text: ${translateAppValue(label)}`],
+      [/^เลือกสีสำหรับ (.+)$/u, (_match, label) => `Choose color for ${translateAppValue(label)}`],
+      [/^เลือกสีข้อความสำหรับ (.+)$/u, (_match, label) => `Choose text color for ${translateAppValue(label)}`],
+      [/^เลือกสีไฮไลต์สำหรับ (.+)$/u, (_match, label) => `Choose highlight color for ${translateAppValue(label)}`],
+      [/^ปรับความเข้มสีไฮไลต์ (.+)$/u, (_match, label) => `Adjust highlight intensity for ${translateAppValue(label)}`],
+      [/^ปรับความโปร่งใสจุดเริ่ม$/u, () => "Adjust start point opacity"],
+      [/^ปรับความโปร่งใสจุดจบ$/u, () => "Adjust end point opacity"],
+      [/^เลือก(.+)$/u, (_match, label) => `Choose ${translateAppValue(label)}`],
+      [/^สลับระหว่าง(.+)$/u, (_match, label) => `Switch between ${translateAppValue(label)}`],
+      [/^สลับโหมด(.+)$/u, (_match, label) => `Toggle ${translateAppValue(label)} mode`],
+      [/^ปรับความโปร่งใส(.+)$/u, (_match, label) => `Adjust ${translateAppValue(label)} opacity`],
+      [/^ปรับความเข้ม\/ความโปร่งใสของ(.+)$/u, (_match, label) => `Adjust ${translateAppValue(label)} intensity/opacity`],
+      [/^เปอร์เซ็นต์ความโปร่งใส (.+)$/u, (_match, label) => `${translateAppValue(label)} opacity percentage`],
+      [/^ทิศทางการไล่สี (.+)$/u, (_match, label) => `Gradient direction (${translateAppValue(label)})`],
+      [/^โค้ด(.+)$/u, (_match, label) => `${translateAppValue(label)} code`],
+      [/^ปรับความทึบของ(.+)$/u, (_match, label) => `Adjust ${translateAppValue(label)} opacity`],
+      [/^เปอร์เซ็นต์ความทึบของ(.+)$/u, (_match, label) => `${translateAppValue(label)} opacity percentage`],
       [/^โครงสร้าง <([a-z\d-]+)>$/iu, (_match, tag) => `<${tag}> structure`],
       [/^ส่วนที่ (\d+)$/u, (_match, number) => `Section ${number}`],
       [/^ค่า (\d+)$/u, (_match, number) => `Value ${number}`]
@@ -1107,9 +1145,9 @@ function applyQuickEditFilter(tabKey) {
   const isSpecialVisible = (tabKey === "all" || tabKey === "typography");
   noFields.hidden = visibleCount > 0 || isSpecialVisible;
   if (visibleCount === 0 && !isSpecialVisible && currentFields.length > 0) {
-    noFields.textContent = "ไม่มีรายการในหมวดหมู่นี้";
+    noFields.textContent = translateAppValue("ไม่มีรายการในหมวดหมู่นี้");
   } else if (currentFields.length === 0 && !isSpecialVisible) {
-    noFields.textContent = "ตัวอย่างนี้ไม่มีค่าที่แก้ไขได้แยกไว้";
+    noFields.textContent = translateAppValue("ตัวอย่างนี้ไม่มีค่าที่แก้ไขได้แยกไว้");
   }
 }
 
@@ -1118,7 +1156,7 @@ function buildFieldEditor(snippet) {
   const values = fieldValues(snippet);
   fieldList.replaceChildren();
   noFields.hidden = currentFields.length > 0;
-  if (quickEditCount) quickEditCount.textContent = currentFields.length ? `${currentFields.length} ค่า` : "—";
+  if (quickEditCount) quickEditCount.textContent = currentFields.length ? `${currentFields.length} ${translateAppValue("ค่า")}` : "—";
 
   let countText = 0;
   let countTypography = 0;
@@ -1141,14 +1179,14 @@ function buildFieldEditor(snippet) {
 
     const label = document.createElement("label");
     label.htmlFor = `field-${field.id}`;
-    label.textContent = field.label;
+    label.textContent = translateAppValue(field.label);
 
     labelWrap.append(icon, label);
     labelRow.append(labelWrap);
     if (field.suggested) {
       const badge = document.createElement("span");
       badge.className = "field-suggestion-badge";
-      badge.textContent = "ตรวจเอง";
+      badge.textContent = translateAppValue("ตรวจเอง");
       labelRow.append(badge);
     }
 
@@ -1191,9 +1229,9 @@ function buildFieldEditor(snippet) {
       const gradToggleBtn = document.createElement("button");
       gradToggleBtn.type = "button";
       gradToggleBtn.className = "field-gradient-toggle-btn";
-      gradToggleBtn.title = "สลับระหว่างสีพื้นและสีไล่ระดับ (Linear Gradient)";
-      gradToggleBtn.setAttribute("aria-label", "สลับโหมดสีไล่ระดับ");
-      gradToggleBtn.innerHTML = `<svg class="ui-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span>Gradient</span>`;
+      gradToggleBtn.title = translateAppValue("สลับระหว่างสีพื้นและสีไล่ระดับ (Linear Gradient)");
+      gradToggleBtn.setAttribute("aria-label", translateAppValue("สลับโหมดสีไล่ระดับ"));
+      gradToggleBtn.innerHTML = `<svg class="ui-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span>${translateAppValue("Gradient")}</span>`;
       labelRow.append(gradToggleBtn);
 
       let currentControlsContainer = null;
@@ -1239,7 +1277,7 @@ function buildFieldEditor(snippet) {
         if (isGrad) {
           gradToggleBtn.classList.add("active");
           gradToggleBtn.setAttribute("aria-pressed", "true");
-          badge.textContent = "Gradient";
+          badge.textContent = translateAppValue("Gradient");
 
           const gradPanel = document.createElement("div");
           gradPanel.className = "field-gradient-panel";
@@ -1254,7 +1292,7 @@ function buildFieldEditor(snippet) {
           h1.className = "field-gradient-stop-header";
           const l1 = document.createElement("span");
           l1.className = "field-gradient-stop-label";
-          l1.textContent = "จุดเริ่ม (Stop 1)";
+          l1.textContent = translateAppValue("จุดเริ่ม (Stop 1)");
           const b1 = document.createElement("span");
           b1.className = "field-gradient-stop-badge";
           b1.textContent = `${curInfo.stop1.alphaPercent}%`;
@@ -1266,8 +1304,8 @@ function buildFieldEditor(snippet) {
           p1.type = "color";
           p1.className = "field-gradient-stop-picker";
           p1.value = curInfo.stop1.hex;
-          p1.title = "เลือกสีจุดเริ่ม (Stop 1)";
-          p1.setAttribute("aria-label", "เลือกสีจุดเริ่ม");
+          p1.title = translateAppValue("เลือกสีจุดเริ่ม (Stop 1)");
+          p1.setAttribute("aria-label", translateAppValue("เลือกสีจุดเริ่ม"));
 
           const s1 = document.createElement("input");
           s1.type = "range";
@@ -1276,7 +1314,7 @@ function buildFieldEditor(snippet) {
           s1.max = "100";
           s1.step = "1";
           s1.value = String(curInfo.stop1.alphaPercent);
-          s1.setAttribute("aria-label", "ปรับความโปร่งใสจุดเริ่ม");
+          s1.setAttribute("aria-label", translateAppValue("ปรับความโปร่งใสจุดเริ่ม"));
 
           main1.append(p1, s1);
           stop1El.append(h1, main1);
@@ -1288,7 +1326,7 @@ function buildFieldEditor(snippet) {
           h2.className = "field-gradient-stop-header";
           const l2 = document.createElement("span");
           l2.className = "field-gradient-stop-label";
-          l2.textContent = "จุดจบ (Stop 2)";
+          l2.textContent = translateAppValue("จุดจบ (Stop 2)");
           const b2 = document.createElement("span");
           b2.className = "field-gradient-stop-badge";
           b2.textContent = `${curInfo.stop2.alphaPercent}%`;
@@ -1300,8 +1338,8 @@ function buildFieldEditor(snippet) {
           p2.type = "color";
           p2.className = "field-gradient-stop-picker";
           p2.value = curInfo.stop2.hex;
-          p2.title = "เลือกสีจุดจบ (Stop 2)";
-          p2.setAttribute("aria-label", "เลือกสีจุดจบ");
+          p2.title = translateAppValue("เลือกสีจุดจบ (Stop 2)");
+          p2.setAttribute("aria-label", translateAppValue("เลือกสีจุดจบ"));
 
           const s2 = document.createElement("input");
           s2.type = "range";
@@ -1310,7 +1348,7 @@ function buildFieldEditor(snippet) {
           s2.max = "100";
           s2.step = "1";
           s2.value = String(curInfo.stop2.alphaPercent);
-          s2.setAttribute("aria-label", "ปรับความโปร่งใสจุดจบ");
+          s2.setAttribute("aria-label", translateAppValue("ปรับความโปร่งใสจุดจบ"));
 
           main2.append(p2, s2);
           stop2El.append(h2, main2);
@@ -1322,24 +1360,24 @@ function buildFieldEditor(snippet) {
           angleRow.className = "field-gradient-angle-row";
           const angleLabel = document.createElement("label");
           angleLabel.className = "field-gradient-angle-label";
-          angleLabel.innerHTML = `<svg class="ui-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>ทิศทางการไล่สี (Angle)</span>`;
+          angleLabel.innerHTML = `<svg class="ui-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>${translateAppValue("ทิศทางการไล่สี (Angle)")}</span>`;
 
           const angleSelect = document.createElement("select");
           angleSelect.className = "field-gradient-angle-select";
-          angleSelect.setAttribute("aria-label", "เลือกทิศทางการไล่สี");
+          angleSelect.setAttribute("aria-label", translateAppValue("เลือกทิศทางการไล่สี"));
 
           const angleOptions = [
-            { val: "135deg", label: "135deg ทแยงลงขวา" },
-            { val: "90deg", label: "90deg แนวนอน (ซ้าย-ขวา)" },
-            { val: "180deg", label: "180deg แนวตั้ง (บน-ล่าง)" },
-            { val: "45deg", label: "45deg ทแยงขึ้นขวา" },
-            { val: "0deg", label: "0deg แนวตั้ง (ล่าง-บน)" },
-            { val: "225deg", label: "225deg ทแยงลงซ้าย" },
-            { val: "270deg", label: "270deg แนวนอน (ขวา-ซ้าย)" },
-            { val: "315deg", label: "315deg ทแยงขึ้นซ้าย" },
-            { val: "to right", label: "to right (ไปขวา)" },
-            { val: "to bottom", label: "to bottom (ลงล่าง)" },
-            { val: "to bottom right", label: "to bottom right (ทแยงลงขวา)" }
+            { val: "135deg", label: translateAppValue("135deg ทแยงลงขวา") },
+            { val: "90deg", label: translateAppValue("90deg แนวนอน (ซ้าย-ขวา)") },
+            { val: "180deg", label: translateAppValue("180deg แนวตั้ง (บน-ล่าง)") },
+            { val: "45deg", label: translateAppValue("45deg ทแยงขึ้นขวา") },
+            { val: "0deg", label: translateAppValue("0deg แนวตั้ง (ล่าง-บน)") },
+            { val: "225deg", label: translateAppValue("225deg ทแยงลงซ้าย") },
+            { val: "270deg", label: translateAppValue("270deg แนวนอน (ขวา-ซ้าย)") },
+            { val: "315deg", label: translateAppValue("315deg ทแยงขึ้นซ้าย") },
+            { val: "to right", label: translateAppValue("to right (ไปขวา)") },
+            { val: "to bottom", label: translateAppValue("to bottom (ลงล่าง)") },
+            { val: "to bottom right", label: translateAppValue("to bottom right (ทแยงลงขวา)") }
           ];
 
           let matchedAngle = false;
@@ -1390,8 +1428,8 @@ function buildFieldEditor(snippet) {
           solidPicker.type = "color";
           solidPicker.className = "field-color-picker";
           solidPicker.value = solidInfo.hex;
-          solidPicker.title = "คลิกเพื่อเลือกสี (มี EyeDropper ดูดสีได้)";
-          solidPicker.setAttribute("aria-label", `เลือกสีสำหรับ ${field.label}`);
+          solidPicker.title = translateAppValue("คลิกเพื่อเลือกสี (มี EyeDropper ดูดสีได้)");
+          solidPicker.setAttribute("aria-label", translateAppValue(`เลือกสีสำหรับ ${field.label}`));
           inputGroup.prepend(solidPicker);
 
           // Opacity row
@@ -1400,7 +1438,7 @@ function buildFieldEditor(snippet) {
           
           const opacityLabel = document.createElement("label");
           opacityLabel.className = "field-opacity-label";
-          opacityLabel.innerHTML = `<svg class="ui-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/></svg><span>ความโปร่งใส (Opacity)</span>`;
+          opacityLabel.innerHTML = `<svg class="ui-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/></svg><span>${translateAppValue("ความโปร่งใส (Opacity)")}</span>`;
           
           const opacitySlider = document.createElement("input");
           opacitySlider.type = "range";
@@ -1409,7 +1447,7 @@ function buildFieldEditor(snippet) {
           opacitySlider.max = "100";
           opacitySlider.step = "1";
           opacitySlider.value = String(solidInfo.alphaPercent);
-          opacitySlider.setAttribute("aria-label", `ปรับความโปร่งใส ${field.label}`);
+          opacitySlider.setAttribute("aria-label", translateAppValue(`ปรับความโปร่งใส ${field.label}`));
 
           const opacityNumber = document.createElement("input");
           opacityNumber.type = "number";
@@ -1418,7 +1456,7 @@ function buildFieldEditor(snippet) {
           opacityNumber.max = "100";
           opacityNumber.step = "1";
           opacityNumber.value = String(solidInfo.alphaPercent);
-          opacityNumber.setAttribute("aria-label", `เปอร์เซ็นต์ความโปร่งใส ${field.label}`);
+          opacityNumber.setAttribute("aria-label", translateAppValue(`เปอร์เซ็นต์ความโปร่งใส ${field.label}`));
 
           const percentUnit = document.createElement("span");
           percentUnit.className = "field-opacity-unit";
@@ -1518,11 +1556,11 @@ function buildFieldEditor(snippet) {
         // Text Color Item
         const colorItem = document.createElement("label");
         colorItem.className = "style-bar-item";
-        colorItem.title = "เลือกสีข้อความตัวแปร (มี EyeDropper)";
+        colorItem.title = translateAppValue("เลือกสีข้อความตัวแปร (มี EyeDropper)");
 
         const colorLabel = document.createElement("span");
         colorLabel.className = "style-bar-label";
-        colorLabel.innerHTML = `<svg class="ui-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg><span>สีอักษร</span>`;
+        colorLabel.innerHTML = `<svg class="ui-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg><span>${translateAppValue("สีอักษร")}</span>`;
 
         const colorWrap = document.createElement("div");
         colorWrap.className = "var-color-wrap";
@@ -1532,7 +1570,7 @@ function buildFieldEditor(snippet) {
         colorPicker.type = "color";
         colorPicker.className = "var-color-picker";
         colorPicker.value = currentStyle.color && currentStyle.color.startsWith("#") ? currentStyle.color : "#ffffff";
-        colorPicker.setAttribute("aria-label", `เลือกสีข้อความสำหรับ ${field.label}`);
+        colorPicker.setAttribute("aria-label", translateAppValue(`เลือกสีข้อความสำหรับ ${field.label}`));
         colorWrap.append(colorPicker);
         colorItem.append(colorLabel, colorWrap);
 
@@ -1542,11 +1580,11 @@ function buildFieldEditor(snippet) {
 
         const bgLabelWrap = document.createElement("label");
         bgLabelWrap.className = "style-bar-label-wrap";
-        bgLabelWrap.title = "เลือกสีไฮไลต์พื้นหลังตัวแปร (มี EyeDropper)";
+        bgLabelWrap.title = translateAppValue("เลือกสีไฮไลต์พื้นหลังตัวแปร (มี EyeDropper)");
 
         const bgLabel = document.createElement("span");
         bgLabel.className = "style-bar-label";
-        bgLabel.innerHTML = `<svg class="ui-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/></svg><span>ไฮไลต์</span>`;
+        bgLabel.innerHTML = `<svg class="ui-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/></svg><span>${translateAppValue("ไฮไลต์")}</span>`;
 
         const bgWrap = document.createElement("div");
         bgWrap.className = "var-color-wrap var-bg-wrap";
@@ -1566,14 +1604,14 @@ function buildFieldEditor(snippet) {
           }
         }
         bgPicker.value = initialBgHex;
-        bgPicker.setAttribute("aria-label", `เลือกสีไฮไลต์สำหรับ ${field.label}`);
+        bgPicker.setAttribute("aria-label", translateAppValue(`เลือกสีไฮไลต์สำหรับ ${field.label}`));
         bgWrap.append(bgPicker);
         bgLabelWrap.append(bgLabel, bgWrap);
 
         // Opacity Slider & Badge
         const opacityWrap = document.createElement("div");
         opacityWrap.className = "var-opacity-wrap";
-        opacityWrap.title = "ปรับความเข้ม/ความโปร่งใสของสีไฮไลต์ (5% - 100%)";
+        opacityWrap.title = translateAppValue("ปรับความเข้ม/ความโปร่งใสของสีไฮไลต์ (5% - 100%)");
 
         const opacitySlider = document.createElement("input");
         opacitySlider.type = "range";
@@ -1582,7 +1620,7 @@ function buildFieldEditor(snippet) {
         opacitySlider.max = "100";
         opacitySlider.step = "5";
         opacitySlider.value = String(initialBgAlpha);
-        opacitySlider.setAttribute("aria-label", `ปรับความเข้มสีไฮไลต์ ${field.label}`);
+        opacitySlider.setAttribute("aria-label", translateAppValue(`ปรับความเข้มสีไฮไลต์ ${field.label}`));
 
         const opacityBadge = document.createElement("span");
         opacityBadge.className = "var-opacity-badge";
@@ -1598,14 +1636,14 @@ function buildFieldEditor(snippet) {
         const boldBtn = document.createElement("button");
         boldBtn.type = "button";
         boldBtn.className = `var-action-btn var-bold-btn ${currentStyle.bold ? "active" : ""}`;
-        boldBtn.title = "ตัวหนา (Bold)";
+        boldBtn.title = translateAppValue("ตัวหนา (Bold)");
         boldBtn.innerHTML = "<strong>B</strong>";
 
         const resetBtn = document.createElement("button");
         resetBtn.type = "button";
         resetBtn.className = "var-action-btn var-reset-btn";
-        resetBtn.title = "ล้างการตกแต่งตัวแปรนี้กลับเป็นค่าเริ่มต้น";
-        resetBtn.textContent = "รีเซ็ต";
+        resetBtn.title = translateAppValue("ล้างการตกแต่งตัวแปรนี้กลับเป็นค่าเริ่มต้น");
+        resetBtn.textContent = translateAppValue("รีเซ็ต");
 
         actionsGroup.append(boldBtn, resetBtn);
 
@@ -1857,7 +1895,7 @@ function buildPartTextEditor(part, textarea, snippet) {
   group.className = "part-text-controls";
   const heading = document.createElement("span");
   heading.className = "part-text-heading";
-  heading.innerHTML = `<span class="heading-with-icon"><svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><strong>ปรับแต่งข้อความในส่วนนี้</strong> (พิมพ์แก้ได้ทันที)</span>`;
+  heading.innerHTML = `<span class="heading-with-icon"><svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><strong>${translateAppValue("ปรับแต่งข้อความในส่วนนี้")}</strong> (${translateAppValue("พิมพ์แก้ได้ทันที")})</span>`;
   group.append(heading);
 
   for (const originalText of texts) {
@@ -1876,7 +1914,7 @@ function buildPartTextEditor(part, textarea, snippet) {
     input.value = currentText;
     input.spellcheck = false;
     input.placeholder = originalText;
-    input.setAttribute("aria-label", `แก้ไขข้อความ ${originalText}`);
+    input.setAttribute("aria-label", translateAppValue(`แก้ไขข้อความ ${originalText}`));
 
     input.addEventListener("input", () => {
       const nextText = input.value;
@@ -1903,7 +1941,7 @@ function buildPartColorEditor(part, textarea, snippet) {
   group.className = "part-color-controls";
   const heading = document.createElement("span");
   heading.className = "part-color-heading";
-  heading.innerHTML = `<span class="heading-with-icon"><svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/></svg><strong>ตั้งค่าสี & Opacity ของส่วนนี้</strong></span>`;
+  heading.innerHTML = `<span class="heading-with-icon"><svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/></svg><strong>${translateAppValue("ตั้งค่าสี & Opacity ของส่วนนี้")}</strong></span>`;
   group.append(heading);
 
   for (const color of colors) {
@@ -1911,34 +1949,34 @@ function buildPartColorEditor(part, textarea, snippet) {
     const row = document.createElement("div");
     row.className = "part-color-row";
     const name = document.createElement("span");
-    name.textContent = `${labelForColorProperty(color.property)} · ${color.original}`;
+    name.textContent = `${translateAppValue(labelForColorProperty(color.property))} · ${color.original}`;
     const picker = document.createElement("input");
     picker.type = "color";
     picker.value = colorToHex(currentValue);
-    picker.setAttribute("aria-label", `เลือก${labelForColorProperty(color.property)}`);
+    picker.setAttribute("aria-label", translateAppValue(`เลือก${labelForColorProperty(color.property)}`));
     const code = document.createElement("input");
     code.type = "text";
     code.value = currentValue;
     code.spellcheck = false;
-    code.setAttribute("aria-label", `โค้ด${labelForColorProperty(color.property)}`);
+    code.setAttribute("aria-label", translateAppValue(`โค้ด${labelForColorProperty(color.property)}`));
     const opacityRow = document.createElement("div");
     opacityRow.className = "part-opacity-row";
     const opacityLabel = document.createElement("label");
-    opacityLabel.textContent = "ความทึบ";
+    opacityLabel.append(document.createTextNode(translateAppValue("ความทึบ")));
     const opacity = document.createElement("input");
     opacity.type = "range";
     opacity.min = "0";
     opacity.max = "100";
     opacity.step = "1";
     opacity.value = String(colorAlphaPercent(currentValue));
-    opacity.setAttribute("aria-label", `ปรับความทึบของ${labelForColorProperty(color.property)}`);
+    opacity.setAttribute("aria-label", translateAppValue(`ปรับความทึบของ${labelForColorProperty(color.property)}`));
     const opacityNumber = document.createElement("input");
     opacityNumber.type = "number";
     opacityNumber.min = "0";
     opacityNumber.max = "100";
     opacityNumber.step = "1";
     opacityNumber.value = opacity.value;
-    opacityNumber.setAttribute("aria-label", `เปอร์เซ็นต์ความทึบของ${labelForColorProperty(color.property)}`);
+    opacityNumber.setAttribute("aria-label", translateAppValue(`เปอร์เซ็นต์ความทึบของ${labelForColorProperty(color.property)}`));
     const percent = document.createElement("span");
     percent.textContent = "%";
 
@@ -1948,7 +1986,7 @@ function buildPartColorEditor(part, textarea, snippet) {
         part.source = part.source.split(currentValue).join(nextValue);
         currentValue = nextValue;
         code.value = nextValue;
-        name.textContent = `${labelForColorProperty(color.property)} · ${nextValue}`;
+        name.textContent = `${translateAppValue(labelForColorProperty(color.property))} · ${nextValue}`;
         picker.value = colorToHex(nextValue);
         textarea.value = part.source;
         renderRubiiSlotControls(snippet);
@@ -1987,7 +2025,7 @@ function splitHtmlIntoParts(source) {
   const tags = scanHtmlTags(source);
   const rootOpen = tags.find((tag) => tag.kind === "open");
   if (!rootOpen) {
-    return { prefix: "", suffix: "", parts: [{ label: "เนื้อหา HTML", source }] };
+    return { prefix: "", suffix: "", parts: [{ label: translateAppValue("เนื้อหา HTML"), source }] };
   }
 
   const stack = [rootOpen.name];
@@ -2014,7 +2052,7 @@ function splitHtmlIntoParts(source) {
     }
   }
 
-  if (!rootClose) return { prefix: "", suffix: "", parts: [{ label: "เนื้อหา HTML", source }] };
+  if (!rootClose) return { prefix: "", suffix: "", parts: [{ label: translateAppValue("เนื้อหา HTML"), source }] };
   const innerStart = rootOpen.end;
   const innerEnd = rootClose.start;
   if (!ranges.length) {
@@ -2022,7 +2060,7 @@ function splitHtmlIntoParts(source) {
     return {
       prefix: source.slice(0, innerStart),
       suffix: source.slice(innerEnd),
-      parts: [{ label: textLabelFor(sourcePart, "เนื้อหาในการ์ด"), source: sourcePart }],
+      parts: [{ label: textLabelFor(sourcePart, translateAppValue("เนื้อหาในการ์ด")), source: sourcePart }],
     };
   }
 
@@ -2031,7 +2069,7 @@ function splitHtmlIntoParts(source) {
     const end = index + 1 < ranges.length ? ranges[index + 1].start : innerEnd;
     const partSource = source.slice(start, end);
     const elementSource = source.slice(range.start, range.end);
-    return { label: textLabelFor(elementSource, `ส่วนที่ ${index + 1}`), source: partSource };
+    return { label: textLabelFor(elementSource, translateAppValue(`ส่วนที่ ${index + 1}`)), source: partSource };
   });
   return {
     prefix: source.slice(0, innerStart),
@@ -2052,12 +2090,12 @@ function renderHtmlParts(snippet) {
   htmlPartsPanel.hidden = !source;
   htmlPartsList.replaceChildren();
   if (!source) {
-    htmlPartCount.textContent = "0 ส่วน";
+    htmlPartCount.textContent = `0 ${translateAppValue("ส่วน")}`;
     return;
   }
 
   const state = htmlPartState(snippet);
-  htmlPartCount.textContent = `${state.parts.length} ส่วน`;
+  htmlPartCount.textContent = `${state.parts.length} ${translateAppValue("ส่วน")}`;
   state.parts.forEach((part, index) => {
     const card = document.createElement("details");
     card.className = "html-part-card";
@@ -2065,24 +2103,24 @@ function renderHtmlParts(snippet) {
     const label = document.createElement("span");
     label.className = "html-part-label";
     const title = document.createElement("strong");
-    title.textContent = `ส่วนที่ ${String(index + 1).padStart(2, "0")}`;
+    title.textContent = translateAppValue(`ส่วนที่ ${String(index + 1).padStart(2, "0")}`);
     const preview = document.createElement("small");
     preview.textContent = part.label;
     label.append(title, preview);
     const copy = document.createElement("button");
     copy.type = "button";
     copy.className = "part-copy-button";
-    copy.innerHTML = `<svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>คัดลอกชิ้นนี้</span>`;
+    copy.innerHTML = `<svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>${translateAppValue("คัดลอกชิ้นนี้")}</span>`;
     copy.addEventListener("click", async (event) => {
       event.preventDefault();
       event.stopPropagation();
-      await copyText(part.source, `คัดลอก HTML ส่วนที่ ${index + 1} แล้ว`);
+      await copyText(part.source, translateAppValue(`คัดลอก HTML ส่วนที่ ${index + 1} แล้ว`));
     });
     summary.append(label, copy);
     const textarea = document.createElement("textarea");
     textarea.className = "html-part-source";
     textarea.spellcheck = false;
-    textarea.setAttribute("aria-label", `โค้ด HTML ส่วนที่ ${index + 1}`);
+    textarea.setAttribute("aria-label", translateAppValue(`โค้ด HTML ส่วนที่ ${index + 1}`));
     textarea.value = part.source;
     textarea.addEventListener("input", () => {
       part.source = textarea.value;
