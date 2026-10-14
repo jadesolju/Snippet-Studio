@@ -1,0 +1,52 @@
+{
+  "defaultLocale": "th",
+  "fallbackLocale": "th",
+  "unsupportedFallbackLocale": "en",
+  "languages": [
+    {
+      "slug": "th",
+      "htmlLang": "th",
+      "locale": "th-TH",
+      "name": "ไทย",
+      "enabled": true,
+      "translationComplete": true,
+      "aliases": []
+    },
+    {
+      "slug": "en",
+      "htmlLang": "en",
+      "locale": "en-US",
+      "name": "English",
+      "enabled": true,
+      "translationComplete": true,
+      "aliases": []
+    },
+    {
+      "slug": "vi",
+      "htmlLang": "vi",
+      "locale": "vi-VN",
+      "name": "Tiếng Việt",
+      "enabled": true,
+      "translationComplete": true,
+      "aliases": ["vn"]
+    },
+    {
+      "slug": "zh",
+      "htmlLang": "zh-Hans",
+      "locale": "zh-CN",
+      "name": "简体中文",
+      "enabled": false,
+      "translationComplete": false,
+      "aliases": ["zn"]
+    },
+    {
+      "slug": "zh-hant",
+      "htmlLang": "zh-Hant",
+      "locale": "zh-TW",
+      "name": "繁體中文",
+      "enabled": false,
+      "translationComplete": false,
+      "aliases": []
+    }
+  ]
+}

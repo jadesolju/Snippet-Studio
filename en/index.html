@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0d1120">
+        <title>Snippet Studio — HTML &amp; CSS Style Tag Studio</title>
+    <meta name="description" content="A library and editor for customizing HTML/CSS snippets, Style tags, and Regex with live previews for Rubii and chatbots.">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/jellyfish-logo.png">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:url" content="https://snippet-studio-swart.vercel.app/en">
+    <meta property="og:title" content="Snippet Studio — HTML &amp; CSS Style Tag Studio">
+    <meta property="og:description" content="A library and editor for customizing HTML/CSS snippets, Style tags, and Regex with live previews for Rubii and chatbots.">
+    <meta property="og:image" content="https://snippet-studio-swart.vercel.app/og-image.png">
+    <meta property="og:image:width" content="1672">
+    <meta property="og:image:height" content="941">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://snippet-studio-swart.vercel.app/en">
+    <meta name="twitter:title" content="Snippet Studio — HTML &amp; CSS Style Tag Studio">
+    <meta name="twitter:description" content="A library and editor for customizing HTML/CSS snippets, Style tags, and Regex with live previews for Rubii and chatbots.">
+    <meta name="twitter:image" content="https://snippet-studio-swart.vercel.app/og-image.png">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="module" src="/app.js"></script>
+    <script src="/language-switcher.js" defer></script>
+      <link rel="canonical" href="https://snippet-studio-swart.vercel.app/en">
+    <link rel="alternate" hreflang="th" href="https://snippet-studio-swart.vercel.app/th">
+    <link rel="alternate" hreflang="en" href="https://snippet-studio-swart.vercel.app/en">
+    <link rel="alternate" hreflang="vi" href="https://snippet-studio-swart.vercel.app/vi">
+    <link rel="alternate" hreflang="x-default" href="https://snippet-studio-swart.vercel.app/th">
+    </head>
+  <body data-language-enabled="true" data-local-preview="false">
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/en" aria-label="Snippet Studio home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 40 40" role="presentation" focusable="false">
+              <defs>
+                <linearGradient id="jelly-bell" x1="9" y1="7" x2="31" y2="27" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#e4d7ff" />
+                  <stop offset=".55" stop-color="#b9a5ff" />
+                  <stop offset="1" stop-color="#87e6e4" />
+                </linearGradient>
+              </defs>
+              <path d="M10 19c0-7.2 4.5-12 10-12s10 4.8 10 12c0 2.7-4.5 4.6-10 4.6S10 21.7 10 19Z" fill="url(#jelly-bell)" />
+              <path d="M11.5 20.3c2.2 1.4 5.1 2.1 8.5 2.1s6.3-.7 8.5-2.1" fill="none" stroke="#f7efff" stroke-linecap="round" stroke-width="1.4" />
+              <path d="M14 24c-.2 3.3 1.5 3.5 1.3 6.2M20 24.1c0 2.7-.9 3.7-.4 6.1M26 24c.2 3.3-1.5 3.5-1.3 6.2" fill="none" stroke="#b9a5ff" stroke-linecap="round" stroke-width="1.7" />
+              <path d="m7.5 12 .6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6.6-1.4ZM32.5 9l.5 1.2 1.2.5-1.2.5-.5 1.2-.5-1.2-1.2-.5 1.2-.5.5-1.2Z" fill="#f4b8df" />
+              <circle cx="31.5" cy="27" r="1.2" fill="#8de8e4" />
+            </svg>
+          </span>
+          <span class="brand-copy">
+            <span class="eyebrow">JELLYFISH COSMIC</span>
+            <span class="brand-name">Snippet Studio</span>
+          </span>
+        </a>
+        <div class="topbar-note">
+          <span class="live-dot" aria-hidden="true"></span>
+          <span>Private snippet library</span>
+        </div>
+        <nav class="topbar-links" aria-label="Main navigation">
+          <a href="/en" aria-current="page">Code library</a>
+          <a href="/en/guide">Setup guide</a>
+        </nav>
+        <label class="locale-switcher">
+          <span>Language</span>
+          <select id="language-select" aria-label="Language" data-confirm-switch="Switch language? Changes you have not copied will be lost.">
+            <option value="/th">Thai</option><option value="/en" selected>English</option><option value="/vi">Vietnamese</option>
+          </select>
+        </label>
+      </header>
+
+      <p id="language-fallback-notice" class="language-notice" role="status" hidden></p>
+
+      <main>
+        <section class="intro-row" aria-labelledby="page-title">
+          <div>
+            <p class="eyebrow intro-eyebrow">BROWSE · PREVIEW · COPY</p>
+            <h1 id="page-title">Every kind of code, all in one place.</h1>
+            <p class="intro-copy">Choose a category, preview a snippet, then copy or customize the code.</p>
+          </div>
+          <div class="library-count" aria-live="polite">
+            <strong id="total-count">—</strong>
+            <span>snippets in library</span>
+          </div>
+        </section>
+
+        <section class="studio-layout" aria-label="Code library and preview">
+          <aside class="library-panel" aria-label="Choose a category and snippet">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">LIBRARY</p>
+                <h2>Code library</h2>
+              </div>
+              <span class="library-count-small" id="visible-count">—</span>
+            </div>
+
+            <label class="search-box">
+              <span class="search-icon" aria-hidden="true">⌕</span>
+              <span class="sr-only">Search snippets</span>
+              <input id="search-input" type="search" placeholder="Search by name or category..." autocomplete="off">
+              <kbd>/</kbd>
+            </label>
+
+            <label class="category-dropdown">
+              <span class="category-heading">Category</span>
+              <span class="category-select-wrap">
+                <select id="category-select" aria-label="Choose a category"></select>
+                <span class="category-chevron" aria-hidden="true">⌄</span>
+              </span>
+            </label>
+
+            <div class="snippet-heading-row">
+              <span>Snippets</span>
+              <span id="list-count">—</span>
+            </div>
+            <div id="snippet-list" class="snippet-list" aria-label="Snippet list"></div>
+          </aside>
+
+          <section class="detail-panel" aria-live="polite">
+            <div id="loading-state" class="empty-state">
+              <span class="loading-orbit" aria-hidden="true"></span>
+              <p>Loading snippet library…</p>
+            </div>
+
+            <div id="error-state" class="empty-state error-state" hidden>
+              <span class="empty-icon" aria-hidden="true">!</span>
+              <h2>Could not load the snippet library</h2>
+              <p>Refresh this page or check that the server is running.</p>
+            </div>
+
+            <div id="no-results-state" class="empty-state" hidden>
+              <span class="empty-icon" aria-hidden="true">⌕</span>
+              <h2>No snippets found</h2>
+              <p>Try a different search or choose another category.</p>
+            </div>
+
+            <div id="detail-content" hidden>
+              <div class="detail-heading">
+                <div class="detail-title-group">
+                  <p id="detail-category" class="eyebrow">Category</p>
+                  <h2 id="detail-title">Example title</h2>
+                  <p id="detail-summary" class="detail-summary"></p>
+                </div>
+                <div class="detail-nav" aria-label="Change example">
+                  <span id="detail-position" class="position-label">—</span>
+                  <button id="previous-button" class="icon-button" type="button" aria-label="Previous item">←</button>
+                  <button id="next-button" class="icon-button" type="button" aria-label="Next item">→</button>
+                </div>
+              </div>
+
+              <div class="workbench-grid">
+                <section class="preview-panel card-panel" aria-labelledby="preview-heading">
+                  <div class="card-heading">
+                    <div>
+                      <p class="eyebrow">LIVE PREVIEW</p>
+                      <h3 id="preview-heading">Snippet preview</h3>
+                    </div>
+                    <span class="device-label"><span class="device-dot" aria-hidden="true"></span> MOBILE</span>
+                    </div>
+                    <div class="preview-controls">
+                      <div class="preview-toggles">
+                        <label class="toggle-control visual-edit-toggle">
+                          <input id="visual-edit-enabled" type="checkbox">
+                          <span class="toggle-track" aria-hidden="true"></span>
+                          <span>
+                            <span class="toggle-title">
+                              <svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                              <strong>Direct Visual Edit</strong>
+                            </span>
+                            <small>Turn this on to click and edit card text directly.</small>
+                          </span>
+                        </label>
+                        <label class="toggle-control background-toggle">
+                          <input id="background-enabled" type="checkbox">
+                          <span class="toggle-track" aria-hidden="true"></span>
+                          <span>
+                            <span class="toggle-title">
+                              <svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                              <strong>Add a card background image</strong>
+                            </span>
+                            <small>The image will automatically fill the card.</small>
+                          </span>
+                        </label>
+                      </div>
+                      <div class="background-options-row" hidden>
+                        <label class="background-url-field">
+                          <span>Card background image URL</span>
+                          <input id="background-url" type="url" placeholder="Paste an image URL, such as https://…" autocomplete="url">
+                        </label>
+                      </div>
+                    </div>
+                    <div class="device-frame">
+                    <div class="device-island" aria-hidden="true"></div>
+                    <iframe id="preview-frame" title="Sample code preview" sandbox="allow-scripts allow-same-origin"></iframe>
+                  </div>
+                  <div class="field-area">
+                    <details id="quick-edit-panel" class="quick-edit-panel html-parts-panel">
+                      <summary>
+                        <span>
+                          <strong>QUICK EDIT · Edit sample values</strong>
+                          <small>Edit markers and parenthesized text directly. Dates, times, amounts, stats, and other values that may change are labeled “Review.”</small>
+                        </span>
+                        <span id="quick-edit-count" class="part-count">—</span>
+                      </summary>
+                      <div class="quick-edit-body">
+                        <div class="quick-edit-tabs" id="quick-edit-tabs" role="tablist" aria-label="Customization category">
+                          <button type="button" class="quick-edit-tab active" data-quick-tab="all">
+                            <span>All</span>
+                            <span id="tab-count-all" class="tab-badge">0</span>
+                          </button>
+                          <button type="button" class="quick-edit-tab" data-quick-tab="text">
+                            <svg class="ui-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+                            <span>Text &amp; variables</span>
+                            <span id="tab-count-text" class="tab-badge">0</span>
+                          </button>
+                          <button type="button" class="quick-edit-tab" data-quick-tab="typography">
+                            <svg class="ui-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+                            <span>Text color &amp; shadow</span>
+                            <span id="tab-count-typography" class="tab-badge">0</span>
+                          </button>
+                          <button type="button" class="quick-edit-tab" data-quick-tab="style">
+                            <svg class="ui-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/></svg>
+                            <span>Color &amp; elements</span>
+                            <span id="tab-count-style" class="tab-badge">0</span>
+                          </button>
+                          <button type="button" class="quick-edit-tab" data-quick-tab="media" id="quick-tab-media" hidden>
+                            <svg class="ui-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                            <span>Images</span>
+                            <span id="tab-count-media" class="tab-badge">0</span>
+                          </button>
+                        </div>
+                        <div id="quick-typography-controls" class="quick-typography-controls">
+                          <div class="quick-typography-header">
+                            <svg class="ui-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+                            <span>Overall card typography, color, and shadow (Card Typography &amp; Glow)</span>
+                          </div>
+                          <div class="quick-typography-grid">
+                            <label class="quick-typography-field">
+                              <span>Main card text color (Card Text Color)</span>
+                              <div class="background-color-wrap">
+                                <input type="color" id="quick-text-color-picker" value="#ffffff" title="Click to choose a text color (EyeDropper supported)" aria-label="Choose text color">
+                                <select id="quick-text-color" aria-label="Main text color in Quick Edit">
+                                  <option value="auto" selected>Template default</option>
+                                  <option value="#ffffff">Bright white (White)</option>
+                                  <option value="#1d1d1f">Deep black (Dark)</option>
+                                  <option value="#fef08a">Light gold (Light Gold)</option>
+                                  <option value="#38bdf8">Neon cyan (Neon Cyan)</option>
+                                  <option value="#c084fc">Neon purple (Neon Purple)</option>
+                                  <option value="#4ade80">Mint green (Mint Green)</option>
+                                  <option value="#f87171">Coral red (Coral Red)</option>
+                                  <option value="custom">Custom</option>
+                                </select>
+                              </div>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span>Font weight</span>
+                              <select id="quick-font-weight" aria-label="Font weight">
+                                <option value="auto" selected>Template default</option>
+                                <option value="300">Light (300)</option>
+                                <option value="400">Regular (400)</option>
+                                <option value="500">Medium (500)</option>
+                                <option value="600">Semi-bold (600)</option>
+                                <option value="700">Bold (700)</option>
+                                <option value="800">Extra bold (800)</option>
+                              </select>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span>Style &amp; decoration</span>
+                              <select id="quick-font-style" aria-label="Font style">
+                                <option value="auto" selected>Template default</option>
+                                <option value="normal">Normal</option>
+                                <option value="italic">Italic</option>
+                                <option value="underline">Underline</option>
+                                <option value="italic-underline">Italic + underline</option>
+                              </select>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span>Text transform</span>
+                              <select id="quick-text-transform" aria-label="Text transform">
+                                <option value="auto" selected>Template default</option>
+                                <option value="none">None</option>
+                                <option value="uppercase">Uppercase</option>
+                                <option value="lowercase">Lowercase</option>
+                                <option value="capitalize">Capitalize</option>
+                              </select>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span>Letter spacing</span>
+                              <select id="quick-letter-spacing" aria-label="Letter spacing">
+                                <option value="auto" selected>Template default</option>
+                                <option value="-0.5px">Tight (-0.5px)</option>
+                                <option value="0px">Normal (0px)</option>
+                                <option value="0.5px">Slightly spaced (+0.5px)</option>
+                                <option value="1px">Wide (+1px)</option>
+                                <option value="2px">Extra wide (+2px)</option>
+                                <option value="3px">Ultra wide (+3px)</option>
+                              </select>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span>Card font</span>
+                              <select id="quick-font-family" aria-label="Card font">
+                                <option value="auto" selected>Template default</option>
+                                <option value='Arial, "Noto Sans Thai", sans-serif'>Universal sans-serif (Modern Clean)</option>
+                                <option value='"DM Mono", Consolas, "Courier New", monospace'>Monospace (code / stats)</option>
+                                <option value='"Noto Serif Thai", Georgia, serif'>Serif (elegant, classic)</option>
+                                <option value='"Prompt", "Kanit", sans-serif'>Prompt / Display (modern)</option>
+                              </select>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span>Text shadow</span>
+                              <select id="quick-text-shadow" aria-label="Text shadow style in Quick Edit">
+                                <option value="none">None</option>
+                                <option value="soft" selected>Soft dark shadow (recommended)</option>
+                                <option value="heavy">Heavy multi-layer shadow</option>
+                                <option value="outline">Sharp outline / stroke</option>
+                                <option value="neon">Neon glow (matches the selected color)</option>
+                                <option value="custom">Custom shadow / glow</option>
+                              </select>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span>Shadow &amp; glow color</span>
+                              <div class="background-color-wrap">
+                                <input type="color" id="quick-shadow-color-picker" value="#000000" title="Click to choose a shadow or neon-glow color" aria-label="Choose shadow color">
+                                <select id="quick-shadow-color" aria-label="Text shadow color in Quick Edit">
+                                  <option value="#000000" selected>Deep black (Dark)</option>
+                                  <option value="#38bdf8">Neon cyan (Neon Cyan)</option>
+                                  <option value="#c084fc">Neon purple (Neon Purple)</option>
+                                  <option value="#fef08a">Neon gold</option>
+                                  <option value="#4ade80">Mint glow</option>
+                                  <option value="#f87171">Coral red (Coral Red)</option>
+                                  <option value="#ffffff">Soft white</option>
+                                  <option value="custom">Custom</option>
+                                </select>
+                              </div>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span class="field-title-with-badge">
+                                <span>Shadow blur radius</span>
+                                <strong id="quick-shadow-blur-badge" class="field-blur-badge">4px</strong>
+                              </span>
+                              <div class="field-range-wrap">
+                                <input type="range" id="quick-shadow-blur" min="0" max="30" value="4" step="1" aria-label="Shadow blur">
+                              </div>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span class="field-title-with-badge">
+                                <span>Shadow thickness / offset</span>
+                                <strong id="quick-shadow-offset-badge" class="field-blur-badge">2px</strong>
+                              </span>
+                              <div class="field-range-wrap">
+                                <input type="range" id="quick-shadow-offset" min="0" max="15" value="2" step="1" aria-label="Shadow thickness or offset">
+                              </div>
+                            </label>
+                          </div>
+                        </div>
+                        <div id="field-list" class="field-list"></div>
+                        <p id="no-fields" class="field-empty" hidden>This example has no separately editable values.</p>
+                      </div>
+                    </details>
+                    <div id="rubii-slot-controls" class="rubii-slot-controls" hidden>
+                      <label for="rubii-slot-select">Text to insert as $1 in the Style tag</label>
+                      <select id="rubii-slot-select"></select>
+                      <small>A Style tag has one replacement field. Regex can select multiple separate text values.</small>
+                      <details class="rubii-regex-settings">
+                        <summary><span>Configure Regex fields</span><span id="rubii-regex-capture-count" class="part-count">0 / 33</span></summary>
+                        <div class="rubii-regex-settings-body">
+                          <p class="rubii-regex-help">Explicit markers are selected automatically. Values that may change, such as dates, times, amounts, stats, reference IDs, or prompts, are labeled “Review” so you can select them after confirming they should change. Other text is labeled “Example”, and the system captures values in order as <code>$1</code> through <code>$33</code> Macro <code>{{user}}</code> and <code>{{char}}</code> remain Rubii macros and are not counted as captures</p>
+                          <p class="rubii-regex-help">Parentheses mark the value to replace: <code>(location)</code> replaces only the location, while <code>(a lovely restaurant near a location)</code> replaces the entire phrase. The parentheses must enclose the full value you want to replace.</p>
+                          <div id="rubii-regex-capture-list" class="rubii-regex-capture-list"></div>
+                          <p class="rubii-regex-help">When you select multiple fields, separate their values in the tag with <code>||</code> for example, <code>&lt;tag&gt;post title||like count&lt;/tag&gt;</code> Percentage fields capture only the number and accept a trailing <code>%</code> after it. Repeated markers such as <code>(HH:MM)</code> use <code>$</code> one capture for every occurrence. To capture them separately, use different marker names.</p>
+                          <div class="rubii-extra-regex-heading">
+                            <strong>Additional Regex rules</strong>
+                            <div class="rubii-extra-regex-actions">
+                              <select id="regex-fallback-format" aria-label="Alternate Regex delimiter">
+                                <option value="pipe">Separate with |</option>
+                                <option value="comma">Separate with ,</option>
+                                <option value="newline">New line</option>
+                              </select>
+                              <button id="add-regex-fallback-button" class="part-copy-button" type="button">＋ Add alternate format</button>
+                              <button id="add-regex-rule-button" class="part-copy-button" type="button">＋ Custom Regex</button>
+                            </div>
+                          </div>
+                          <p class="rubii-regex-help">Add an alternate format to reuse the main Regex replacement with another delimiter, or create a custom Regex when the source structure differs. Each rule should produce a complete final output.</p>
+                          <div id="rubii-extra-regex-list" class="rubii-extra-regex-list"></div>
+                        </div>
+                      </details>
+                    </div>
+                    <details id="html-parts-panel" class="html-parts-panel">
+                      <summary>
+                        <span><strong>Modular Parts · Copy individual code sections</strong><small>View and copy individual HTML sections to assemble your own code.</small></span>
+                        <span id="html-part-count" class="part-count">—</span>
+                      </summary>
+                      <div id="html-parts-list" class="html-parts-list"></div>
+                    </details>
+                  </div>
+                </section>
+
+                <section class="code-panel card-panel" aria-labelledby="code-heading">
+                  <div class="card-heading code-heading">
+                    <div>
+                      <p class="eyebrow">READY TO COPY & EDIT</p>
+                      <h3 id="code-heading">Sample code &amp; config</h3>
+                    </div>
+                    <div class="code-header-actions">
+                      <button id="reset-code-button" class="reset-button" type="button" title="Reset this card's code and settings to defaults">
+                        <svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                        <span>Reset to defaults</span>
+                      </button>
+                      <span id="code-format-count" class="format-count">—</span>
+                    </div>
+                  </div>
+                  <div id="code-tabs" class="code-tabs" role="tablist" aria-label="Code type"></div>
+                  <div class="code-toolbar">
+                    <div class="code-toolbar-left">
+                      <span id="active-code-label">HTML</span>
+                      <span class="code-edit-badge">
+                        <svg class="ui-icon" viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        <span>Edit the code and config directly.</span>
+                      </span>
+                    </div>
+                    <button id="copy-button" class="copy-button" type="button">
+                      <svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                      <span>Copy</span>
+                    </button>
+                  </div>
+                  <div class="code-editor-wrapper">
+                    <div id="code-highlight-layer" class="code-highlight-layer" aria-hidden="true"></div>
+                    <textarea id="code-editor-input" class="code-editor-textarea" spellcheck="false" placeholder="Edit the code or config directly here..."></textarea>
+                    <pre class="code-output" hidden><code id="code-output"></code></pre>
+                  </div>
+                  <p id="code-note" class="code-note"></p>
+                </section>
+              </div>
+              <div id="toast" class="toast" role="status" aria-live="polite"></div>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <footer class="page-footer">
+        <span>Snippet Studio</span>
+        <span>Add new items through the code library data file.</span>
+      </footer>
+    </div>
+  </body>
+</html>

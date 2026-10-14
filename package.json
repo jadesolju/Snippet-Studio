@@ -4,7 +4,13 @@
   "description": "Snippet Studio — คลังตัวอย่างและแม่แบบโค้ด HTML/CSS สำหรับ Rubii",
   "type": "module",
   "scripts": {
-    "dev": "npx serve .",
-    "start": "npx serve ."
+    "predev": "node scripts/build-i18n.mjs --preview-all",
+    "dev": "node scripts/preview-server.mjs",
+    "prestart": "node scripts/build-i18n.mjs --preview-all",
+    "start": "node scripts/preview-server.mjs",
+    "preview:i18n": "node scripts/build-i18n.mjs --preview-all",
+    "build": "node scripts/build-i18n.mjs",
+    "build:i18n": "node scripts/build-i18n.mjs",
+    "check:i18n": "node scripts/check-i18n.mjs"
   }
 }

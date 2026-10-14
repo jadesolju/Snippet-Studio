@@ -1,0 +1,11 @@
+[
+  { "id": "date-time", "title": "日常生活與狀態", "summary": "時間、地點、環境、活動與日常紀錄卡片", "order": 1 },
+  { "id": "chat-interfaces", "title": "聊天與訊息", "summary": "私人聊天介面、通知，以及與 AI 助理的對話", "order": 2 },
+  { "id": "social-interfaces", "title": "社群媒體與貼文", "summary": "個人資料、動態、限時動態、通知與社群平台貼文", "order": 3 },
+  { "id": "bank-transfers", "title": "金融與收據", "summary": "轉帳、付款、銀行憑證、電子錢包與收據", "order": 4 },
+  { "id": "search-interfaces", "title": "搜尋與網頁", "summary": "搜尋結果、趨勢、瀏覽器與已儲存的文章清單", "order": 5 },
+  { "id": "emotion-stats", "title": "情緒與關係", "summary": "情緒指數、愛情、慾望、嫉妒與關係狀態", "order": 6 },
+  { "id": "music-players", "title": "音樂與播放器", "summary": "音樂播放器、播放清單、一起聽歌與歌詞", "order": 7 },
+  { "id": "retro-gaming", "title": "遊戲與復古風格", "summary": "像素遊戲、經典遊戲機與復古風格的比賽結果", "order": 8 },
+  { "id": "cyber-y2k", "title": "賽博龐克與 Y2K", "summary": "HUD 介面、賽博世界、夜間駕駛與 Y2K 美學", "order": 9 }
+]

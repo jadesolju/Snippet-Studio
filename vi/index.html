@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0d1120">
+        <title>Snippet Studio — HTML &amp; CSS Style Tag Studio</title>
+    <meta name="description" content="Thư viện và công cụ tùy chỉnh snippet HTML/CSS, Style tag và Regex với bản xem trước trực tiếp cho Rubii và chatbot.">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/jellyfish-logo.png">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="vi_VN">
+    <meta property="og:url" content="https://snippet-studio-swart.vercel.app/vi">
+    <meta property="og:title" content="Snippet Studio — HTML &amp; CSS Style Tag Studio">
+    <meta property="og:description" content="Thư viện và công cụ tùy chỉnh snippet HTML/CSS, Style tag và Regex với bản xem trước trực tiếp cho Rubii và chatbot.">
+    <meta property="og:image" content="https://snippet-studio-swart.vercel.app/og-image.png">
+    <meta property="og:image:width" content="1672">
+    <meta property="og:image:height" content="941">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://snippet-studio-swart.vercel.app/vi">
+    <meta name="twitter:title" content="Snippet Studio — HTML &amp; CSS Style Tag Studio">
+    <meta name="twitter:description" content="Thư viện và công cụ tùy chỉnh snippet HTML/CSS, Style tag và Regex với bản xem trước trực tiếp cho Rubii và chatbot.">
+    <meta name="twitter:image" content="https://snippet-studio-swart.vercel.app/og-image.png">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="module" src="/app.js"></script>
+    <script src="/language-switcher.js" defer></script>
+      <link rel="canonical" href="https://snippet-studio-swart.vercel.app/vi">
+    <link rel="alternate" hreflang="th" href="https://snippet-studio-swart.vercel.app/th">
+    <link rel="alternate" hreflang="en" href="https://snippet-studio-swart.vercel.app/en">
+    <link rel="alternate" hreflang="vi" href="https://snippet-studio-swart.vercel.app/vi">
+    <link rel="alternate" hreflang="x-default" href="https://snippet-studio-swart.vercel.app/th">
+    </head>
+  <body data-language-enabled="true" data-local-preview="false">
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/vi" aria-label="Trang chủ Snippet Studio">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 40 40" role="presentation" focusable="false">
+              <defs>
+                <linearGradient id="jelly-bell" x1="9" y1="7" x2="31" y2="27" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#e4d7ff" />
+                  <stop offset=".55" stop-color="#b9a5ff" />
+                  <stop offset="1" stop-color="#87e6e4" />
+                </linearGradient>
+              </defs>
+              <path d="M10 19c0-7.2 4.5-12 10-12s10 4.8 10 12c0 2.7-4.5 4.6-10 4.6S10 21.7 10 19Z" fill="url(#jelly-bell)" />
+              <path d="M11.5 20.3c2.2 1.4 5.1 2.1 8.5 2.1s6.3-.7 8.5-2.1" fill="none" stroke="#f7efff" stroke-linecap="round" stroke-width="1.4" />
+              <path d="M14 24c-.2 3.3 1.5 3.5 1.3 6.2M20 24.1c0 2.7-.9 3.7-.4 6.1M26 24c.2 3.3-1.5 3.5-1.3 6.2" fill="none" stroke="#b9a5ff" stroke-linecap="round" stroke-width="1.7" />
+              <path d="m7.5 12 .6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6.6-1.4ZM32.5 9l.5 1.2 1.2.5-1.2.5-.5 1.2-.5-1.2-1.2-.5 1.2-.5.5-1.2Z" fill="#f4b8df" />
+              <circle cx="31.5" cy="27" r="1.2" fill="#8de8e4" />
+            </svg>
+          </span>
+          <span class="brand-copy">
+            <span class="eyebrow">JELLYFISH COSMIC</span>
+            <span class="brand-name">Snippet Studio</span>
+          </span>
+        </a>
+        <div class="topbar-note">
+          <span class="live-dot" aria-hidden="true"></span>
+          <span>Thư viện snippet cá nhân</span>
+        </div>
+        <nav class="topbar-links" aria-label="Điều hướng chính">
+          <a href="/vi" aria-current="page">Thư viện mã</a>
+          <a href="/vi/guide">Hướng dẫn thiết lập</a>
+        </nav>
+        <label class="locale-switcher">
+          <span>Ngôn ngữ</span>
+          <select id="language-select" aria-label="Ngôn ngữ" data-confirm-switch="Chuyển ngôn ngữ? Những thay đổi bạn chưa sao chép sẽ bị mất.">
+            <option value="/th">Tiếng Thái</option><option value="/en">Tiếng Anh</option><option value="/vi" selected>Tiếng Việt</option>
+          </select>
+        </label>
+      </header>
+
+      <p id="language-fallback-notice" class="language-notice" role="status" hidden></p>
+
+      <main>
+        <section class="intro-row" aria-labelledby="page-title">
+          <div>
+            <p class="eyebrow intro-eyebrow">BROWSE · PREVIEW · COPY</p>
+            <h1 id="page-title">Mọi loại mã, ở cùng một nơi.</h1>
+            <p class="intro-copy">Chọn danh mục, xem trước snippet rồi sao chép hoặc tùy chỉnh mã.</p>
+          </div>
+          <div class="library-count" aria-live="polite">
+            <strong id="total-count">—</strong>
+            <span>snippet trong thư viện</span>
+          </div>
+        </section>
+
+        <section class="studio-layout" aria-label="Thư viện mã và bản xem trước">
+          <aside class="library-panel" aria-label="Chọn danh mục và snippet">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">LIBRARY</p>
+                <h2>Thư viện mã</h2>
+              </div>
+              <span class="library-count-small" id="visible-count">—</span>
+            </div>
+
+            <label class="search-box">
+              <span class="search-icon" aria-hidden="true">⌕</span>
+              <span class="sr-only">Tìm snippet</span>
+              <input id="search-input" type="search" placeholder="Tìm theo tên hoặc danh mục..." autocomplete="off">
+              <kbd>/</kbd>
+            </label>
+
+            <label class="category-dropdown">
+              <span class="category-heading">Danh mục</span>
+              <span class="category-select-wrap">
+                <select id="category-select" aria-label="Chọn danh mục"></select>
+                <span class="category-chevron" aria-hidden="true">⌄</span>
+              </span>
+            </label>
+
+            <div class="snippet-heading-row">
+              <span>Snippet</span>
+              <span id="list-count">—</span>
+            </div>
+            <div id="snippet-list" class="snippet-list" aria-label="Danh sách snippet"></div>
+          </aside>
+
+          <section class="detail-panel" aria-live="polite">
+            <div id="loading-state" class="empty-state">
+              <span class="loading-orbit" aria-hidden="true"></span>
+              <p>Đang tải thư viện snippet…</p>
+            </div>
+
+            <div id="error-state" class="empty-state error-state" hidden>
+              <span class="empty-icon" aria-hidden="true">!</span>
+              <h2>Không thể tải thư viện snippet</h2>
+              <p>Hãy tải lại trang hoặc kiểm tra máy chủ có đang chạy không.</p>
+            </div>
+
+            <div id="no-results-state" class="empty-state" hidden>
+              <span class="empty-icon" aria-hidden="true">⌕</span>
+              <h2>Không tìm thấy snippet</h2>
+              <p>Hãy thử từ khóa khác hoặc chọn danh mục khác.</p>
+            </div>
+
+            <div id="detail-content" hidden>
+              <div class="detail-heading">
+                <div class="detail-title-group">
+                  <p id="detail-category" class="eyebrow">Danh mục</p>
+                  <h2 id="detail-title">Tiêu đề mẫu</h2>
+                  <p id="detail-summary" class="detail-summary"></p>
+                </div>
+                <div class="detail-nav" aria-label="Đổi ví dụ">
+                  <span id="detail-position" class="position-label">—</span>
+                  <button id="previous-button" class="icon-button" type="button" aria-label="Mục trước">←</button>
+                  <button id="next-button" class="icon-button" type="button" aria-label="Mục tiếp theo">→</button>
+                </div>
+              </div>
+
+              <div class="workbench-grid">
+                <section class="preview-panel card-panel" aria-labelledby="preview-heading">
+                  <div class="card-heading">
+                    <div>
+                      <p class="eyebrow">LIVE PREVIEW</p>
+                      <h3 id="preview-heading">Xem trước snippet</h3>
+                    </div>
+                    <span class="device-label"><span class="device-dot" aria-hidden="true"></span> MOBILE</span>
+                    </div>
+                    <div class="preview-controls">
+                      <div class="preview-toggles">
+                        <label class="toggle-control visual-edit-toggle">
+                          <input id="visual-edit-enabled" type="checkbox">
+                          <span class="toggle-track" aria-hidden="true"></span>
+                          <span>
+                            <span class="toggle-title">
+                              <svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                              <strong>Direct Visual Edit</strong>
+                            </span>
+                            <small>Bật tùy chọn này để nhấp và sửa trực tiếp văn bản trên thẻ.</small>
+                          </span>
+                        </label>
+                        <label class="toggle-control background-toggle">
+                          <input id="background-enabled" type="checkbox">
+                          <span class="toggle-track" aria-hidden="true"></span>
+                          <span>
+                            <span class="toggle-title">
+                              <svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                              <strong>Thêm ảnh nền cho thẻ</strong>
+                            </span>
+                            <small>Ảnh sẽ tự động phủ kín thẻ.</small>
+                          </span>
+                        </label>
+                      </div>
+                      <div class="background-options-row" hidden>
+                        <label class="background-url-field">
+                          <span>URL ảnh nền của thẻ</span>
+                          <input id="background-url" type="url" placeholder="Dán URL ảnh, ví dụ https://…" autocomplete="url">
+                        </label>
+                      </div>
+                    </div>
+                    <div class="device-frame">
+                    <div class="device-island" aria-hidden="true"></div>
+                    <iframe id="preview-frame" title="Xem trước mã mẫu" sandbox="allow-scripts allow-same-origin"></iframe>
+                  </div>
+                  <div class="field-area">
+                    <details id="quick-edit-panel" class="quick-edit-panel html-parts-panel">
+                      <summary>
+                        <span>
+                          <strong>CHỈNH SỬA NHANH · Sửa giá trị mẫu</strong>
+                          <small>Sửa trực tiếp Marker và văn bản trong ngoặc. Ngày, giờ, số tiền, thống kê và các giá trị có thể thay đổi khác sẽ được gắn nhãn “Cần xem lại”.</small>
+                        </span>
+                        <span id="quick-edit-count" class="part-count">—</span>
+                      </summary>
+                      <div class="quick-edit-body">
+                        <div class="quick-edit-tabs" id="quick-edit-tabs" role="tablist" aria-label="Danh mục tùy chỉnh">
+                          <button type="button" class="quick-edit-tab active" data-quick-tab="all">
+                            <span>Tất cả</span>
+                            <span id="tab-count-all" class="tab-badge">0</span>
+                          </button>
+                          <button type="button" class="quick-edit-tab" data-quick-tab="text">
+                            <svg class="ui-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+                            <span>Văn bản &amp; biến</span>
+                            <span id="tab-count-text" class="tab-badge">0</span>
+                          </button>
+                          <button type="button" class="quick-edit-tab" data-quick-tab="typography">
+                            <svg class="ui-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+                            <span>Màu chữ &amp; đổ bóng</span>
+                            <span id="tab-count-typography" class="tab-badge">0</span>
+                          </button>
+                          <button type="button" class="quick-edit-tab" data-quick-tab="style">
+                            <svg class="ui-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/></svg>
+                            <span>Màu sắc &amp; thành phần</span>
+                            <span id="tab-count-style" class="tab-badge">0</span>
+                          </button>
+                          <button type="button" class="quick-edit-tab" data-quick-tab="media" id="quick-tab-media" hidden>
+                            <svg class="ui-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                            <span>Hình ảnh</span>
+                            <span id="tab-count-media" class="tab-badge">0</span>
+                          </button>
+                        </div>
+                        <div id="quick-typography-controls" class="quick-typography-controls">
+                          <div class="quick-typography-header">
+                            <svg class="ui-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+                            <span>Tùy chỉnh kiểu chữ, màu sắc và hiệu ứng đổ bóng của thẻ (Kiểu chữ &amp; ánh sáng)</span>
+                          </div>
+                          <div class="quick-typography-grid">
+                            <label class="quick-typography-field">
+                              <span>Màu chữ chính của thẻ (Màu chữ thẻ)</span>
+                              <div class="background-color-wrap">
+                                <input type="color" id="quick-text-color-picker" value="#ffffff" title="Nhấp để chọn màu chữ (hỗ trợ EyeDropper)" aria-label="Chọn màu chữ">
+                                <select id="quick-text-color" aria-label="Màu chữ chính trong Quick Edit">
+                                  <option value="auto" selected>Mặc định theo mẫu</option>
+                                  <option value="#ffffff">Trắng sáng (Trắng)</option>
+                                  <option value="#1d1d1f">Đen đậm (Tối)</option>
+                                  <option value="#fef08a">Vàng nhạt (Vàng sáng)</option>
+                                  <option value="#38bdf8">Xanh cyan neon (Cyan neon)</option>
+                                  <option value="#c084fc">Tím neon (Tím neon)</option>
+                                  <option value="#4ade80">Xanh bạc hà (Xanh bạc hà)</option>
+                                  <option value="#f87171">Đỏ san hô (Đỏ san hô)</option>
+                                  <option value="custom">Tùy chỉnh</option>
+                                </select>
+                              </div>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span>Độ đậm chữ</span>
+                              <select id="quick-font-weight" aria-label="Độ đậm chữ">
+                                <option value="auto" selected>Mặc định theo mẫu</option>
+                                <option value="300">Mảnh (300)</option>
+                                <option value="400">Thông thường (400)</option>
+                                <option value="500">Vừa (500)</option>
+                                <option value="600">Hơi đậm (600)</option>
+                                <option value="700">Đậm (700)</option>
+                                <option value="800">Rất đậm (800)</option>
+                              </select>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span>Kiểu dáng và trang trí</span>
+                              <select id="quick-font-style" aria-label="Kiểu chữ">
+                                <option value="auto" selected>Mặc định theo mẫu</option>
+                                <option value="normal">Bình thường</option>
+                                <option value="italic">In nghiêng</option>
+                                <option value="underline">Gạch chân</option>
+                                <option value="italic-underline">In nghiêng + gạch chân</option>
+                              </select>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span>Chuyển đổi kiểu chữ</span>
+                              <select id="quick-text-transform" aria-label="Chuyển đổi kiểu chữ">
+                                <option value="auto" selected>Mặc định theo mẫu</option>
+                                <option value="none">Không có</option>
+                                <option value="uppercase">Chữ hoa</option>
+                                <option value="lowercase">Chữ thường</option>
+                                <option value="capitalize">Viết hoa chữ đầu</option>
+                              </select>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span>Khoảng cách chữ</span>
+                              <select id="quick-letter-spacing" aria-label="Khoảng cách ký tự">
+                                <option value="auto" selected>Mặc định theo mẫu</option>
+                                <option value="-0.5px">Sát hơn (-0.5px)</option>
+                                <option value="0px">Bình thường (0px)</option>
+                                <option value="0.5px">Giãn nhẹ (+0.5px)</option>
+                                <option value="1px">Rộng (+1px)</option>
+                                <option value="2px">Rất rộng (+2px)</option>
+                                <option value="3px">Cực rộng (+3px)</option>
+                              </select>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span>Phông chữ của thẻ</span>
+                              <select id="quick-font-family" aria-label="Phông chữ của thẻ">
+                                <option value="auto" selected>Mặc định theo mẫu</option>
+                                <option value='Arial, "Noto Sans Thai", sans-serif'>Sans-serif phổ thông (Hiện đại, gọn gàng)</option>
+                                <option value='"DM Mono", Consolas, "Courier New", monospace'>Monospace (mã / số liệu)</option>
+                                <option value='"Noto Serif Thai", Georgia, serif'>Serif (thanh lịch, cổ điển)</option>
+                                <option value='"Prompt", "Kanit", sans-serif'>Prompt / Display (hiện đại)</option>
+                              </select>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span>Bóng chữ</span>
+                              <select id="quick-text-shadow" aria-label="Kiểu bóng chữ trong Quick Edit">
+                                <option value="none">Không có bóng</option>
+                                <option value="soft" selected>Bóng tối mềm (nên dùng)</option>
+                                <option value="heavy">Bóng nhiều lớp đậm</option>
+                                <option value="outline">Viền nét sắc</option>
+                                <option value="neon">Phát sáng neon (theo màu đã chọn)</option>
+                                <option value="custom">Tùy chỉnh bóng / ánh sáng</option>
+                              </select>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span>Màu bóng và ánh sáng</span>
+                              <div class="background-color-wrap">
+                                <input type="color" id="quick-shadow-color-picker" value="#000000" title="Nhấp để chọn màu bóng hoặc ánh sáng neon" aria-label="Chọn màu bóng">
+                                <select id="quick-shadow-color" aria-label="Màu bóng chữ trong Quick Edit">
+                                  <option value="#000000" selected>Đen đậm (Tối)</option>
+                                  <option value="#38bdf8">Xanh cyan neon (Cyan neon)</option>
+                                  <option value="#c084fc">Tím neon (Tím neon)</option>
+                                  <option value="#fef08a">Vàng neon</option>
+                                  <option value="#4ade80">Ánh sáng xanh bạc hà</option>
+                                  <option value="#f87171">Đỏ san hô (Đỏ san hô)</option>
+                                  <option value="#ffffff">Trắng dịu</option>
+                                  <option value="custom">Tùy chỉnh</option>
+                                </select>
+                              </div>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span class="field-title-with-badge">
+                                <span>Bán kính nhòe của bóng</span>
+                                <strong id="quick-shadow-blur-badge" class="field-blur-badge">4px</strong>
+                              </span>
+                              <div class="field-range-wrap">
+                                <input type="range" id="quick-shadow-blur" min="0" max="30" value="4" step="1" aria-label="Độ nhòe của bóng">
+                              </div>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span class="field-title-with-badge">
+                                <span>Độ dày / độ lệch của bóng</span>
+                                <strong id="quick-shadow-offset-badge" class="field-blur-badge">2px</strong>
+                              </span>
+                              <div class="field-range-wrap">
+                                <input type="range" id="quick-shadow-offset" min="0" max="15" value="2" step="1" aria-label="Độ dày hoặc độ lệch của bóng">
+                              </div>
+                            </label>
+                          </div>
+                        </div>
+                        <div id="field-list" class="field-list"></div>
+                        <p id="no-fields" class="field-empty" hidden>Ví dụ này không có giá trị riêng để chỉnh sửa.</p>
+                      </div>
+                    </details>
+                    <div id="rubii-slot-controls" class="rubii-slot-controls" hidden>
+                      <label for="rubii-slot-select">Văn bản dùng làm $1 trong Style tag</label>
+                      <select id="rubii-slot-select"></select>
+                      <small>Style tag có một trường thay thế. Regex có thể chọn nhiều giá trị văn bản riêng biệt.</small>
+                      <details class="rubii-regex-settings">
+                        <summary><span>Thiết lập các trường Regex</span><span id="rubii-regex-capture-count" class="part-count">0 / 33</span></summary>
+                        <div class="rubii-regex-settings-body">
+                          <p class="rubii-regex-help">Các Marker được chọn tự động. Những giá trị có thể thay đổi như ngày tháng, thời gian, số tiền, số liệu thống kê, mã tham chiếu hoặc nội dung gợi ý sẽ được đánh dấu “Cần xem lại” để bạn chọn sau khi xác nhận đó là giá trị cần thay đổi. Văn bản khác sẽ được đánh dấu “Ví dụ”; hệ thống tạo capture theo thứ tự từ <code>$1</code> đến <code>$33</code> Macro <code>{{user}}</code> và <code>{{char}}</code> là macro của Rubii và không được tính là capture</p>
+                          <p class="rubii-regex-help">Dấu ngoặc đơn đánh dấu giá trị cần thay thế: <code>(địa điểm)</code> chỉ thay thế địa điểm, còn <code>(một nhà hàng đẹp gần một địa điểm)</code> thay thế toàn bộ cụm từ. Dấu ngoặc phải bao quanh toàn bộ giá trị cần thay thế.</p>
+                          <div id="rubii-regex-capture-list" class="rubii-regex-capture-list"></div>
+                          <p class="rubii-regex-help">Khi chọn nhiều trường, hãy phân tách các giá trị trong tag bằng <code>||</code> ví dụ, <code>&lt;tag&gt;tiêu đề bài đăng||số lượt thích&lt;/tag&gt;</code> Trường phần trăm chỉ capture con số và chấp nhận ký hiệu <code>%</code> ở phía sau. Các Marker giống nhau như <code>(HH:MM)</code> sẽ dùng <code>$</code> một capture cho mọi vị trí xuất hiện. Nếu cần giá trị riêng, hãy dùng Marker có tên khác.</p>
+                          <div class="rubii-extra-regex-heading">
+                            <strong>Quy tắc Regex bổ sung</strong>
+                            <div class="rubii-extra-regex-actions">
+                              <select id="regex-fallback-format" aria-label="Dấu phân tách Regex thay thế">
+                                <option value="pipe">Phân tách bằng |</option>
+                                <option value="comma">Phân tách bằng ,</option>
+                                <option value="newline">Dòng mới</option>
+                              </select>
+                              <button id="add-regex-fallback-button" class="part-copy-button" type="button">＋ Thêm định dạng thay thế</button>
+                              <button id="add-regex-rule-button" class="part-copy-button" type="button">＋ Regex tùy chỉnh</button>
+                            </div>
+                          </div>
+                          <p class="rubii-regex-help">Thêm định dạng thay thế để dùng lại phần Replacement của Regex chính với dấu phân tách khác, hoặc tạo Regex tùy chỉnh khi cấu trúc nguồn khác nhau. Mỗi quy tắc cần tạo ra kết quả cuối hoàn chỉnh.</p>
+                          <div id="rubii-extra-regex-list" class="rubii-extra-regex-list"></div>
+                        </div>
+                      </details>
+                    </div>
+                    <details id="html-parts-panel" class="html-parts-panel">
+                      <summary>
+                        <span><strong>Thành phần mô-đun · Sao chép từng phần mã</strong><small>Xem và sao chép từng phần HTML để tự ghép thành mã của bạn.</small></span>
+                        <span id="html-part-count" class="part-count">—</span>
+                      </summary>
+                      <div id="html-parts-list" class="html-parts-list"></div>
+                    </details>
+                  </div>
+                </section>
+
+                <section class="code-panel card-panel" aria-labelledby="code-heading">
+                  <div class="card-heading code-heading">
+                    <div>
+                      <p class="eyebrow">READY TO COPY & EDIT</p>
+                      <h3 id="code-heading">Mã &amp; cấu hình mẫu</h3>
+                    </div>
+                    <div class="code-header-actions">
+                      <button id="reset-code-button" class="reset-button" type="button" title="Đặt lại mã và cài đặt của thẻ này về mặc định">
+                        <svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                        <span>Đặt lại mặc định</span>
+                      </button>
+                      <span id="code-format-count" class="format-count">—</span>
+                    </div>
+                  </div>
+                  <div id="code-tabs" class="code-tabs" role="tablist" aria-label="Loại mã"></div>
+                  <div class="code-toolbar">
+                    <div class="code-toolbar-left">
+                      <span id="active-code-label">HTML</span>
+                      <span class="code-edit-badge">
+                        <svg class="ui-icon" viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        <span>Chỉnh sửa trực tiếp mã và cấu hình.</span>
+                      </span>
+                    </div>
+                    <button id="copy-button" class="copy-button" type="button">
+                      <svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                      <span>Sao chép</span>
+                    </button>
+                  </div>
+                  <div class="code-editor-wrapper">
+                    <div id="code-highlight-layer" class="code-highlight-layer" aria-hidden="true"></div>
+                    <textarea id="code-editor-input" class="code-editor-textarea" spellcheck="false" placeholder="Chỉnh sửa trực tiếp mã hoặc cấu hình tại đây..."></textarea>
+                    <pre class="code-output" hidden><code id="code-output"></code></pre>
+                  </div>
+                  <p id="code-note" class="code-note"></p>
+                </section>
+              </div>
+              <div id="toast" class="toast" role="status" aria-live="polite"></div>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <footer class="page-footer">
+        <span>Snippet Studio</span>
+        <span>Thêm mục mới trong tệp dữ liệu thư viện mã.</span>
+      </footer>
+    </div>
+  </body>
+</html>

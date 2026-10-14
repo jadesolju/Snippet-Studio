@@ -1,0 +1,11 @@
+[
+  { "id": "date-time", "title": "Đời sống hằng ngày và trạng thái", "summary": "Thẻ về thời gian, địa điểm, môi trường, hoạt động và nhật ký hằng ngày", "order": 1 },
+  { "id": "chat-interfaces", "title": "Trò chuyện và tin nhắn", "summary": "Giao diện chat riêng tư, thông báo và hội thoại với trợ lý AI", "order": 2 },
+  { "id": "social-interfaces", "title": "Mạng xã hội và bài đăng", "summary": "Hồ sơ, bảng tin, story, thông báo và bài đăng trên nền tảng xã hội", "order": 3 },
+  { "id": "bank-transfers", "title": "Tài chính và hóa đơn", "summary": "Giao dịch chuyển tiền, thanh toán, biên lai ngân hàng, ví điện tử và hóa đơn", "order": 4 },
+  { "id": "search-interfaces", "title": "Tìm kiếm và web", "summary": "Kết quả tìm kiếm, xu hướng, trình duyệt và danh sách bài viết đã lưu", "order": 5 },
+  { "id": "emotion-stats", "title": "Cảm xúc và mối quan hệ", "summary": "Chỉ số cảm xúc, tình yêu, ham muốn, ghen tuông và mức độ tình cảm", "order": 6 },
+  { "id": "music-players", "title": "Âm nhạc và trình phát", "summary": "Trình phát nhạc, danh sách phát, nghe nhạc cùng nhau và lời bài hát", "order": 7 },
+  { "id": "retro-gaming", "title": "Trò chơi và phong cách retro", "summary": "Game pixel, máy chơi game cổ điển và kết quả thi đấu phong cách retro", "order": 8 },
+  { "id": "cyber-y2k", "title": "Cyberpunk và Y2K", "summary": "Giao diện HUD, thế giới cyber, lái xe ban đêm và thẩm mỹ Y2K", "order": 9 }
+]

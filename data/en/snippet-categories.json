@@ -1,0 +1,11 @@
+[
+  { "id": "date-time", "title": "Daily life and status", "summary": "Cards for time, places, surroundings, activities, and daily notes", "order": 1 },
+  { "id": "chat-interfaces", "title": "Chats and messages", "summary": "Private chat screens, notifications, and conversations with AI assistants", "order": 2 },
+  { "id": "social-interfaces", "title": "Social media and posts", "summary": "Profiles, feeds, stories, notifications, and social platform posts", "order": 3 },
+  { "id": "bank-transfers", "title": "Payments and receipts", "summary": "Transfers, payments, bank slips, wallets, and receipts", "order": 4 },
+  { "id": "search-interfaces", "title": "Search and web", "summary": "Search results, trends, browsers, and saved reading lists", "order": 5 },
+  { "id": "emotion-stats", "title": "Emotions and relationships", "summary": "Emotion indexes, love, desire, jealousy, and relationship meters", "order": 6 },
+  { "id": "music-players", "title": "Music and players", "summary": "Music players, playlists, listening together, and lyrics", "order": 7 },
+  { "id": "retro-gaming", "title": "Gaming and retro", "summary": "Pixel games, classic consoles, and retro-style match results", "order": 8 },
+  { "id": "cyber-y2k", "title": "Cyberpunk and Y2K", "summary": "HUD screens, cyber worlds, night drives, and Y2K aesthetics", "order": 9 }
+]

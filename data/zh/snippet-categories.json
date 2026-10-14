@@ -1,0 +1,11 @@
+[
+  { "id": "date-time", "title": "日常生活与状态", "summary": "时间、地点、环境、活动和日常记录卡片", "order": 1 },
+  { "id": "chat-interfaces", "title": "聊天与消息", "summary": "私人聊天界面、通知，以及与 AI 助手的对话", "order": 2 },
+  { "id": "social-interfaces", "title": "社交媒体与动态", "summary": "个人资料、动态、限时动态、通知和社交平台贴文", "order": 3 },
+  { "id": "bank-transfers", "title": "金融与收据", "summary": "转账、付款、银行凭证、电子钱包和收据", "order": 4 },
+  { "id": "search-interfaces", "title": "搜索与网页", "summary": "搜索结果、趋势、浏览器和已保存的文章列表", "order": 5 },
+  { "id": "emotion-stats", "title": "情绪与关系", "summary": "情绪指数、爱情、欲望、嫉妒和关系状态", "order": 6 },
+  { "id": "music-players", "title": "音乐与播放器", "summary": "音乐播放器、播放列表、一起听歌和歌词", "order": 7 },
+  { "id": "retro-gaming", "title": "游戏与复古风", "summary": "像素游戏、经典游戏机和复古风格的比赛结果", "order": 8 },
+  { "id": "cyber-y2k", "title": "赛博朋克与 Y2K", "summary": "HUD 界面、赛博世界、夜间驾车和 Y2K 美学", "order": 9 }
+]

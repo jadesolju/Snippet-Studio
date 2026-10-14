@@ -1,3 +1,40 @@
 {
-  "cleanUrls": true
+  "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/zn",
+      "destination": "/zh",
+      "statusCode": 308
+    },
+    {
+      "source": "/zn/guide",
+      "destination": "/zh/guide",
+      "statusCode": 308
+    },
+    {
+      "source": "/vn",
+      "destination": "/vi",
+      "statusCode": 308
+    },
+    {
+      "source": "/vn/guide",
+      "destination": "/vi/guide",
+      "statusCode": 308
+    },
+    {
+      "source": "/guide.html",
+      "destination": "/th/guide",
+      "statusCode": 308
+    },
+    {
+      "source": "/guide",
+      "destination": "/th/guide",
+      "statusCode": 308
+    },
+    {
+      "source": "/",
+      "destination": "/th",
+      "statusCode": 307
+    }
+  ]
 }

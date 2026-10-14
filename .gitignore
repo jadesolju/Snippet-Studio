@@ -4,3 +4,8 @@ node_modules
 
 .vercel
 CARD_LIBRARY_PREVIEW.html
+DATE_CARD_LAYOUT_COMPARISON.html
+
+# Locale pages generated only for local previews; enable and review before deployment
+/zh/
+/zh-hant/

@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0d1120">
+        <title data-i18n="meta.title">Snippet Studio — HTML & CSS Style Tag Studio</title>
+    <meta name="description" data-i18n-attr="content:meta.description" content="คลังและเครื่องมือปรับแต่ง HTML/CSS Snippets, Style tags และ Regex พร้อมพรีวิวสดสำหรับ Rubii & Chatbots">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/jellyfish-logo.png">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" data-i18n-attr="content:meta.ogLocale" content="th_TH">
+    <meta property="og:url" content="https://snippet-studio-swart.vercel.app/">
+    <meta property="og:title" data-i18n-attr="content:meta.ogTitle" content="Snippet Studio — HTML & CSS Style Tag Studio">
+    <meta property="og:description" data-i18n-attr="content:meta.ogDescription" content="คลังและเครื่องมือปรับแต่ง HTML/CSS Snippets, Style tags และ Regex พร้อมพรีวิวสดสำหรับ Rubii & Chatbots">
+    <meta property="og:image" content="https://snippet-studio-swart.vercel.app/og-image.png">
+    <meta property="og:image:width" content="1672">
+    <meta property="og:image:height" content="941">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://snippet-studio-swart.vercel.app/">
+    <meta name="twitter:title" data-i18n-attr="content:meta.ogTitle" content="Snippet Studio — HTML & CSS Style Tag Studio">
+    <meta name="twitter:description" data-i18n-attr="content:meta.ogDescription" content="คลังและเครื่องมือปรับแต่ง HTML/CSS Snippets, Style tags และ Regex พร้อมพรีวิวสดสำหรับ Rubii & Chatbots">
+    <meta name="twitter:image" content="https://snippet-studio-swart.vercel.app/og-image.png">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="module" src="/app.js"></script>
+    <script src="/language-switcher.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="/th" aria-label="Snippet Studio หน้าหลัก" data-i18n-attr="aria-label:brand.aria">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 40 40" role="presentation" focusable="false">
+              <defs>
+                <linearGradient id="jelly-bell" x1="9" y1="7" x2="31" y2="27" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#e4d7ff" />
+                  <stop offset=".55" stop-color="#b9a5ff" />
+                  <stop offset="1" stop-color="#87e6e4" />
+                </linearGradient>
+              </defs>
+              <path d="M10 19c0-7.2 4.5-12 10-12s10 4.8 10 12c0 2.7-4.5 4.6-10 4.6S10 21.7 10 19Z" fill="url(#jelly-bell)" />
+              <path d="M11.5 20.3c2.2 1.4 5.1 2.1 8.5 2.1s6.3-.7 8.5-2.1" fill="none" stroke="#f7efff" stroke-linecap="round" stroke-width="1.4" />
+              <path d="M14 24c-.2 3.3 1.5 3.5 1.3 6.2M20 24.1c0 2.7-.9 3.7-.4 6.1M26 24c.2 3.3-1.5 3.5-1.3 6.2" fill="none" stroke="#b9a5ff" stroke-linecap="round" stroke-width="1.7" />
+              <path d="m7.5 12 .6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6.6-1.4ZM32.5 9l.5 1.2 1.2.5-1.2.5-.5 1.2-.5-1.2-1.2-.5 1.2-.5.5-1.2Z" fill="#f4b8df" />
+              <circle cx="31.5" cy="27" r="1.2" fill="#8de8e4" />
+            </svg>
+          </span>
+          <span class="brand-copy">
+            <span class="eyebrow">JELLYFISH COSMIC</span>
+            <span class="brand-name">Snippet Studio</span>
+          </span>
+        </a>
+        <div class="topbar-note">
+          <span class="live-dot" aria-hidden="true"></span>
+          <span data-i18n="topbar.note">คลังตัวอย่างส่วนตัว</span>
+        </div>
+        <nav class="topbar-links" aria-label="เมนูหลัก" data-i18n-attr="aria-label:nav.aria">
+          <a href="/th" aria-current="page" data-i18n="nav.library">คลังโค้ด</a>
+          <a href="/th/guide" data-i18n="nav.guide">คู่มือตั้งค่า</a>
+        </nav>
+        <label class="locale-switcher" data-language-switcher>
+          <span data-i18n="language.selector.label">ภาษา</span>
+          <select id="language-select" aria-label="ภาษา" data-confirm-switch="กำลังเปลี่ยนภาษา การแก้ไขที่ยังไม่ได้คัดลอกจะหายไป ต้องการทำต่อหรือไม่?" data-i18n-attr="aria-label:language.selector.label,data-confirm-switch:language.switch.confirm">
+            <!-- LANGUAGE OPTIONS -->
+          </select>
+        </label>
+      </header>
+
+      <p id="language-fallback-notice" class="language-notice" role="status" hidden></p>
+
+      <main>
+        <section class="intro-row" aria-labelledby="page-title">
+          <div>
+            <p class="eyebrow intro-eyebrow">BROWSE · PREVIEW · COPY</p>
+            <h1 id="page-title" data-i18n="intro.title">โค้ดทุกแบบ อยู่ในที่เดียว</h1>
+            <p class="intro-copy" data-i18n="intro.description">เลือกหมวด เปิดดูตัวอย่าง แล้วคัดลอกโค้ดไปใช้หรือปรับต่อได้ทันที</p>
+          </div>
+          <div class="library-count" aria-live="polite">
+            <strong id="total-count">—</strong>
+            <span data-i18n="library.totalCountLabel">ตัวอย่างในคลัง</span>
+          </div>
+        </section>
+
+        <section class="studio-layout" aria-label="คลังและพรีวิวโค้ด" data-i18n-attr="aria-label:library.panel.aria">
+          <aside class="library-panel" aria-label="เลือกหมวดและตัวอย่าง" data-i18n-attr="aria-label:library.panel.select.aria">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">LIBRARY</p>
+                <h2 data-i18n="library.title">คลังโค้ด</h2>
+              </div>
+              <span class="library-count-small" id="visible-count">—</span>
+            </div>
+
+            <label class="search-box">
+              <span class="search-icon" aria-hidden="true">⌕</span>
+              <span class="sr-only" data-i18n="library.search.label">ค้นหาตัวอย่าง</span>
+              <input id="search-input" type="search" placeholder="ค้นหาชื่อหรือหมวด..." data-i18n-attr="placeholder:library.search.placeholder" autocomplete="off">
+              <kbd>/</kbd>
+            </label>
+
+            <label class="category-dropdown">
+              <span class="category-heading" data-i18n="library.category.label">หมวดหมู่</span>
+              <span class="category-select-wrap">
+                <select id="category-select" aria-label="เลือกหมวดหมู่" data-i18n-attr="aria-label:library.category.select.aria"></select>
+                <span class="category-chevron" aria-hidden="true">⌄</span>
+              </span>
+            </label>
+
+            <div class="snippet-heading-row">
+              <span data-i18n="library.snippets.heading">ตัวอย่าง</span>
+              <span id="list-count">—</span>
+            </div>
+            <div id="snippet-list" class="snippet-list" aria-label="รายการตัวอย่าง" data-i18n-attr="aria-label:library.snippets.aria"></div>
+          </aside>
+
+          <section class="detail-panel" aria-live="polite">
+            <div id="loading-state" class="empty-state">
+              <span class="loading-orbit" aria-hidden="true"></span>
+              <p data-i18n="library.loading">กำลังโหลดคลังโค้ด…</p>
+            </div>
+
+            <div id="error-state" class="empty-state error-state" hidden>
+              <span class="empty-icon" aria-hidden="true">!</span>
+              <h2 data-i18n="library.error.title">โหลดคลังโค้ดไม่สำเร็จ</h2>
+              <p data-i18n="library.error.body">ลองรีเฟรชหน้านี้ หรือตรวจว่าเซิร์ฟเวอร์กำลังทำงานอยู่</p>
+            </div>
+
+            <div id="no-results-state" class="empty-state" hidden>
+              <span class="empty-icon" aria-hidden="true">⌕</span>
+              <h2 data-i18n="library.empty.title">ไม่พบตัวอย่าง</h2>
+              <p data-i18n="library.empty.body">ลองเปลี่ยนคำค้นหาหรือเลือกหมวดอื่น</p>
+            </div>
+
+            <div id="detail-content" hidden>
+              <div class="detail-heading">
+                <div class="detail-title-group">
+                  <p id="detail-category" class="eyebrow">หมวด</p>
+                  <h2 id="detail-title">ชื่อตัวอย่าง</h2>
+                  <p id="detail-summary" class="detail-summary"></p>
+                </div>
+                <div class="detail-nav" aria-label="เปลี่ยนตัวอย่าง">
+                  <span id="detail-position" class="position-label">—</span>
+                  <button id="previous-button" class="icon-button" type="button" aria-label="รายการก่อนหน้า">←</button>
+                  <button id="next-button" class="icon-button" type="button" aria-label="รายการถัดไป">→</button>
+                </div>
+              </div>
+
+              <div class="workbench-grid">
+                <section class="preview-panel card-panel" aria-labelledby="preview-heading">
+                  <div class="card-heading">
+                    <div>
+                      <p class="eyebrow">LIVE PREVIEW</p>
+                      <h3 id="preview-heading" data-i18n="library.preview.heading">พรีวิวตัวอย่าง</h3>
+                    </div>
+                    <span class="device-label"><span class="device-dot" aria-hidden="true"></span> MOBILE</span>
+                    </div>
+                    <div class="preview-controls">
+                      <div class="preview-toggles">
+                        <label class="toggle-control visual-edit-toggle">
+                          <input id="visual-edit-enabled" type="checkbox">
+                          <span class="toggle-track" aria-hidden="true"></span>
+                          <span>
+                            <span class="toggle-title">
+                              <svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                              <strong>Direct Visual Edit</strong>
+                            </span>
+                            <small>สามารถเปิด/ปิดเพื่อคลิกแก้ไขข้อความบนการ์ดได้โดยตรง</small>
+                          </span>
+                        </label>
+                        <label class="toggle-control background-toggle">
+                          <input id="background-enabled" type="checkbox">
+                          <span class="toggle-track" aria-hidden="true"></span>
+                          <span>
+                            <span class="toggle-title">
+                              <svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                              <strong>ใส่รูปพื้นหลังการ์ด</strong>
+                            </span>
+                            <small>ระบบจะปรับภาพให้เต็มการ์ดโดยอัตโนมัติ</small>
+                          </span>
+                        </label>
+                      </div>
+                      <div class="background-options-row" hidden>
+                        <label class="background-url-field">
+                          <span>URL รูปพื้นหลังของการ์ด</span>
+                          <input id="background-url" type="url" placeholder="วางลิงก์รูปภาพ เช่น https://…" autocomplete="url">
+                        </label>
+                      </div>
+                    </div>
+                    <div class="device-frame">
+                    <div class="device-island" aria-hidden="true"></div>
+                    <iframe id="preview-frame" title="พรีวิวโค้ดตัวอย่าง" sandbox="allow-scripts allow-same-origin"></iframe>
+                  </div>
+                  <div class="field-area">
+                    <details id="quick-edit-panel" class="quick-edit-panel html-parts-panel">
+                      <summary>
+                        <span>
+                          <strong>QUICK EDIT · ปรับค่าตัวอย่าง</strong>
+                          <small>แก้ Marker และข้อความในวงเล็บได้ทันที ส่วนวันที่ เวลา เงิน สถิติ หรือค่าอื่นที่อาจเปลี่ยนจะติดป้าย “ตรวจดู”</small>
+                        </span>
+                        <span id="quick-edit-count" class="part-count">—</span>
+                      </summary>
+                      <div class="quick-edit-body">
+                        <div class="quick-edit-tabs" id="quick-edit-tabs" role="tablist" aria-label="หมวดหมู่การปรับแต่ง">
+                          <button type="button" class="quick-edit-tab active" data-quick-tab="all">
+                            <span>ทั้งหมด</span>
+                            <span id="tab-count-all" class="tab-badge">0</span>
+                          </button>
+                          <button type="button" class="quick-edit-tab" data-quick-tab="text">
+                            <svg class="ui-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+                            <span>ข้อความ &amp; ตัวแปร</span>
+                            <span id="tab-count-text" class="tab-badge">0</span>
+                          </button>
+                          <button type="button" class="quick-edit-tab" data-quick-tab="typography">
+                            <svg class="ui-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+                            <span>สีอักษร &amp; เงา</span>
+                            <span id="tab-count-typography" class="tab-badge">0</span>
+                          </button>
+                          <button type="button" class="quick-edit-tab" data-quick-tab="style">
+                            <svg class="ui-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/></svg>
+                            <span>สี &amp; องค์ประกอบ</span>
+                            <span id="tab-count-style" class="tab-badge">0</span>
+                          </button>
+                          <button type="button" class="quick-edit-tab" data-quick-tab="media" id="quick-tab-media" hidden>
+                            <svg class="ui-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                            <span>รูปภาพ</span>
+                            <span id="tab-count-media" class="tab-badge">0</span>
+                          </button>
+                        </div>
+                        <div id="quick-typography-controls" class="quick-typography-controls">
+                          <div class="quick-typography-header">
+                            <svg class="ui-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+                            <span>การปรับแต่งตัวอักษร สี และเงาโดยรวมของการ์ด (Card Typography &amp; Glow)</span>
+                          </div>
+                          <div class="quick-typography-grid">
+                            <label class="quick-typography-field">
+                              <span>สีอักษรหลักของการ์ด (Card Text Color)</span>
+                              <div class="background-color-wrap">
+                                <input type="color" id="quick-text-color-picker" value="#ffffff" title="คลิกเพื่อเลือกสีข้อความ (มี EyeDropper)" aria-label="เลือกสีข้อความ">
+                                <select id="quick-text-color" aria-label="สีข้อความหลักใน Quick Edit">
+                                  <option value="auto" selected>ตามเทมเพลต (Default)</option>
+                                  <option value="#ffffff">ขาวสว่าง (White)</option>
+                                  <option value="#1d1d1f">ดำเข้ม (Dark)</option>
+                                  <option value="#fef08a">ทองอ่อน (Light Gold)</option>
+                                  <option value="#38bdf8">ฟ้านีออน (Neon Cyan)</option>
+                                  <option value="#c084fc">ม่วงนีออน (Neon Purple)</option>
+                                  <option value="#4ade80">เขียวมินต์ (Mint Green)</option>
+                                  <option value="#f87171">แดงคอรัล (Coral Red)</option>
+                                  <option value="custom">กำหนดเอง (Custom)</option>
+                                </select>
+                              </div>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span>ความหนาของตัวอักษร (Font Weight)</span>
+                              <select id="quick-font-weight" aria-label="ความหนาตัวอักษร">
+                                <option value="auto" selected>ตามเทมเพลต (Default)</option>
+                                <option value="300">บางเบา (Light 300)</option>
+                                <option value="400">ปกติ (Regular 400)</option>
+                                <option value="500">กึ่งหนา (Medium 500)</option>
+                                <option value="600">หนาปานกลาง (Semi-Bold 600)</option>
+                                <option value="700">หนาเข้ม (Bold 700)</option>
+                                <option value="800">หนาพิเศษ (Extra Bold 800)</option>
+                              </select>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span>สไตล์และการตกแต่ง (Style &amp; Decoration)</span>
+                              <select id="quick-font-style" aria-label="สไตล์ตัวอักษร">
+                                <option value="auto" selected>ตามเทมเพลต (Default)</option>
+                                <option value="normal">ปกติ (Normal)</option>
+                                <option value="italic">ตัวเอียง (Italic)</option>
+                                <option value="underline">ขีดเส้นใต้ (Underline)</option>
+                                <option value="italic-underline">ตัวเอียง + ขีดเส้นใต้ (Italic &amp; Underline)</option>
+                              </select>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span>การแปลงรูปแบบตัวพิมพ์ (Text Transform)</span>
+                              <select id="quick-text-transform" aria-label="การแปลงตัวพิมพ์">
+                                <option value="auto" selected>ตามเทมเพลต (Default)</option>
+                                <option value="none">ปกติ (None)</option>
+                                <option value="uppercase">พิมพ์ใหญ่ทั้งหมด (UPPERCASE)</option>
+                                <option value="lowercase">พิมพ์เล็กทั้งหมด (lowercase)</option>
+                                <option value="capitalize">ตัวแรกพิมพ์ใหญ่ (Capitalize)</option>
+                              </select>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span>ระยะห่างตัวอักษร (Letter Spacing)</span>
+                              <select id="quick-letter-spacing" aria-label="ระยะห่างตัวอักษร">
+                                <option value="auto" selected>ตามเทมเพลต (Default)</option>
+                                <option value="-0.5px">กระชับแน่น (Tight -0.5px)</option>
+                                <option value="0px">ปกติ (Normal 0px)</option>
+                                <option value="0.5px">โปร่งเล็กน้อย (+0.5px)</option>
+                                <option value="1px">โปร่งสบาย (Wide +1px)</option>
+                                <option value="2px">กว้างพิเศษ (Extra Wide +2px)</option>
+                                <option value="3px">กว้างมาก (Ultra Wide +3px)</option>
+                              </select>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span>แบบอักษรของการ์ด (Font Family)</span>
+                              <select id="quick-font-family" aria-label="แบบอักษรของการ์ด">
+                                <option value="auto" selected>ตามเทมเพลต (Default)</option>
+                                <option value='Arial, "Noto Sans Thai", sans-serif'>Sans-serif สากล (Modern Clean)</option>
+                                <option value='"DM Mono", Consolas, "Courier New", monospace'>Monospace (โค้ด / สถิติ)</option>
+                                <option value='"Noto Serif Thai", Georgia, serif'>Serif (หรูหรา คลาสสิก)</option>
+                                <option value='"Prompt", "Kanit", sans-serif'>Prompt / Display (ทันสมัย)</option>
+                              </select>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span>เงาข้อความ (Text Shadow)</span>
+                              <select id="quick-text-shadow" aria-label="รูปแบบเงาข้อความใน Quick Edit">
+                                <option value="none">ไม่ใส่เงา (None)</option>
+                                <option value="soft" selected>เงามืดนุ่มนวล (Soft Dark - แนะนำ)</option>
+                                <option value="heavy">เงาหนาหลายชั้น (Heavy Multi-Layer Shadow)</option>
+                                <option value="outline">ตัดเส้นขอบคม (Sharp Outline / Stroke)</option>
+                                <option value="neon">แสงเรืองนีออน (Neon Glow - ตามสีที่เลือก)</option>
+                                <option value="custom">กำหนดเอง (Custom Shadow / Glow)</option>
+                              </select>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span>สีของเงาและแสง (Shadow &amp; Glow Tint)</span>
+                              <div class="background-color-wrap">
+                                <input type="color" id="quick-shadow-color-picker" value="#000000" title="คลิกเพื่อเลือกสีเงาหรือแสงนีออน" aria-label="เลือกสีเงา">
+                                <select id="quick-shadow-color" aria-label="สีเงาข้อความใน Quick Edit">
+                                  <option value="#000000" selected>ดำเข้ม (Dark)</option>
+                                  <option value="#38bdf8">ฟ้านีออน (Neon Cyan)</option>
+                                  <option value="#c084fc">ม่วงนีออน (Neon Purple)</option>
+                                  <option value="#fef08a">ทองนีออน (Neon Gold)</option>
+                                  <option value="#4ade80">เขียวมินต์ (Mint Glow)</option>
+                                  <option value="#f87171">แดงคอรัล (Coral Red)</option>
+                                  <option value="#ffffff">ขาวฟุ้ง (Soft White)</option>
+                                  <option value="custom">กำหนดเอง (Custom)</option>
+                                </select>
+                              </div>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span class="field-title-with-badge">
+                                <span>รัศมีความฟุ้งของเงา (Shadow Blur)</span>
+                                <strong id="quick-shadow-blur-badge" class="field-blur-badge">4px</strong>
+                              </span>
+                              <div class="field-range-wrap">
+                                <input type="range" id="quick-shadow-blur" min="0" max="30" value="4" step="1" aria-label="ความฟุ้งของเงา">
+                              </div>
+                            </label>
+                            <label class="quick-typography-field">
+                              <span class="field-title-with-badge">
+                                <span>ความหนา / ระยะเงา (Shadow Thickness &amp; Offset)</span>
+                                <strong id="quick-shadow-offset-badge" class="field-blur-badge">2px</strong>
+                              </span>
+                              <div class="field-range-wrap">
+                                <input type="range" id="quick-shadow-offset" min="0" max="15" value="2" step="1" aria-label="ความหนาหรือระยะของเงา">
+                              </div>
+                            </label>
+                          </div>
+                        </div>
+                        <div id="field-list" class="field-list"></div>
+                        <p id="no-fields" class="field-empty" hidden>ตัวอย่างนี้ไม่มีค่าที่แก้ไขได้แยกไว้</p>
+                      </div>
+                    </details>
+                    <div id="rubii-slot-controls" class="rubii-slot-controls" hidden>
+                      <label for="rubii-slot-select">ข้อความที่จะใส่เป็นช่อง $1 ใน Style tag</label>
+                      <select id="rubii-slot-select"></select>
+                      <small>Style tag มีช่องแทนค่าเดียว ส่วน Regex เลือกข้อความได้หลายจุดแยกกัน</small>
+                      <details class="rubii-regex-settings">
+                        <summary><span>ตั้งค่าช่อง Regex</span><span id="rubii-regex-capture-count" class="part-count">0 / 33</span></summary>
+                        <div class="rubii-regex-settings-body">
+                          <p class="rubii-regex-help">Marker ที่ระบุชัดจะถูกเลือกให้อัตโนมัติ ส่วนค่าที่อาจเปลี่ยน เช่น วันที่ เวลา จำนวนเงิน สถิติ รหัสอ้างอิง หรือข้อความบอกใบ้ จะแสดงเป็น “ตรวจดู” ให้เลือกเองเมื่อยืนยันว่าเป็นค่าที่ต้องเปลี่ยน ข้อความอื่นจะแสดงเป็น “ตัวอย่าง” แล้วระบบจะจับค่าตามลำดับเป็น <code>$1</code> ถึง <code>$33</code> Macro <code>{{user}}</code> และ <code>{{char}}</code> คงเป็นของ Rubii และไม่นับเป็น capture</p>
+                          <p class="rubii-regex-help">วงเล็บเป็นขอบเขตที่จะแทน: <code>(สถานที่)</code> เปลี่ยนเฉพาะสถานที่ แต่ <code>(ร้านอาหารบรรยากาศดี แถว สถานที่)</code> เปลี่ยนทั้งวลี วงเล็บต้องครอบช่วงที่ต้องการแทนทั้งหมด</p>
+                          <div id="rubii-regex-capture-list" class="rubii-regex-capture-list"></div>
+                          <p class="rubii-regex-help">เมื่อเลือกหลายช่อง ให้คั่นค่าตอนใช้แท็กด้วย <code>||</code> เช่น <code>&lt;tag&gt;ชื่อโพสต์||ยอดไลก์&lt;/tag&gt;</code> ช่องเปอร์เซ็นต์จับเฉพาะตัวเลขและยอมรับเครื่องหมาย <code>%</code> ที่ตามหลังได้ Marker ข้อความเดียวกัน เช่น <code>(HH:MM)</code> จะใช้ <code>$</code> ตัวเดียวแทนทุกตำแหน่งที่พบ; ถ้าต้องการค่าแยกกัน ให้ใช้ Marker คนละชื่อ</p>
+                          <div class="rubii-extra-regex-heading">
+                            <strong>กฎ Regex เพิ่มเติม</strong>
+                            <div class="rubii-extra-regex-actions">
+                              <select id="regex-fallback-format" aria-label="ตัวคั่นของ Regex สำรอง">
+                                <option value="pipe">คั่นด้วย |</option>
+                                <option value="comma">คั่นด้วย ,</option>
+                                <option value="newline">ขึ้นบรรทัดใหม่</option>
+                              </select>
+                              <button id="add-regex-fallback-button" class="part-copy-button" type="button">＋ เพิ่มรูปแบบสำรอง</button>
+                              <button id="add-regex-rule-button" class="part-copy-button" type="button">＋ Regex เอง</button>
+                            </div>
+                          </div>
+                          <p class="rubii-regex-help">เพิ่มรูปแบบสำรองเพื่อคัดลอก Replacement ของ Regex หลักไปใช้กับตัวคั่นอีกแบบโดยอัตโนมัติ หรือเพิ่ม Regex เองเมื่อโครงสร้างต้นทางต่างกัน แต่ละกฎจะแปลงข้อมูลเป็นผลลัพธ์ปลายทางได้ครบในตัว</p>
+                          <div id="rubii-extra-regex-list" class="rubii-extra-regex-list"></div>
+                        </div>
+                      </details>
+                    </div>
+                    <details id="html-parts-panel" class="html-parts-panel">
+                      <summary>
+                        <span><strong>โครงสร้างแยกชิ้นส่วน · คัดลอกโค้ดย่อย (Modular Parts)</strong><small>ดูและคัดลอก HTML แต่ละชิ้นส่วนไปประกอบเองได้</small></span>
+                        <span id="html-part-count" class="part-count">—</span>
+                      </summary>
+                      <div id="html-parts-list" class="html-parts-list"></div>
+                    </details>
+                  </div>
+                </section>
+
+                <section class="code-panel card-panel" aria-labelledby="code-heading">
+                  <div class="card-heading code-heading">
+                    <div>
+                      <p class="eyebrow">READY TO COPY & EDIT</p>
+                      <h3 id="code-heading">โค้ด & Config ตัวอย่าง</h3>
+                    </div>
+                    <div class="code-header-actions">
+                      <button id="reset-code-button" class="reset-button" type="button" title="รีเซ็ตโค้ดและการตั้งค่าทั้งหมดของการ์ดนี้กลับเป็นค่าเริ่มต้น">
+                        <svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                        <span data-i18n="common.reset">รีเซ็ตค่าเริ่มต้น</span>
+                      </button>
+                      <span id="code-format-count" class="format-count">—</span>
+                    </div>
+                  </div>
+                  <div id="code-tabs" class="code-tabs" role="tablist" aria-label="ชนิดโค้ด"></div>
+                  <div class="code-toolbar">
+                    <div class="code-toolbar-left">
+                      <span id="active-code-label">HTML</span>
+                      <span class="code-edit-badge">
+                        <svg class="ui-icon" viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        <span>แก้ไขโค้ดและ Config ได้โดยตรง</span>
+                      </span>
+                    </div>
+                    <button id="copy-button" class="copy-button" type="button">
+                      <svg class="ui-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                      <span data-i18n="common.copy">คัดลอก</span>
+                    </button>
+                  </div>
+                  <div class="code-editor-wrapper">
+                    <div id="code-highlight-layer" class="code-highlight-layer" aria-hidden="true"></div>
+                    <textarea id="code-editor-input" class="code-editor-textarea" spellcheck="false" placeholder="สามารถพิมพ์แก้ไขโค้ดหรือ Config ตรงนี้ได้โดยตรง..."></textarea>
+                    <pre class="code-output" hidden><code id="code-output"></code></pre>
+                  </div>
+                  <p id="code-note" class="code-note"></p>
+                </section>
+              </div>
+              <div id="toast" class="toast" role="status" aria-live="polite"></div>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <footer class="page-footer">
+        <span>Snippet Studio</span>
+        <span>เพิ่มรายการใหม่ได้จากไฟล์ข้อมูลคลังโค้ด</span>
+      </footer>
+    </div>
+  </body>
+</html>

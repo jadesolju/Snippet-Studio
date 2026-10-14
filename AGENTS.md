@@ -23,3 +23,13 @@
 - Keep horizontal layout limited to compact rows such as a heading/status pair or metric label/value pair, and only when that row has been checked in the Rubii phone chat. If renderer behavior is uncertain, stack the parts vertically.
 - Avoid relying on CSS `gap`, wrapping, or implicit shrink behavior to control spacing. Use simple block flow, explicit widths, and margins that remain readable when rendered sequentially.
 - Review the rendered card in the phone chat. Use the user's supplied phone screenshot as the layout reference; desktop iframe Preview alone does not validate React Native rendering.
+
+## Chat bubble alignment: outer message vs. HTML mock chat
+
+- Distinguish the outer Rubii message bubble from chat bubbles drawn as `<div>` elements inside a snippet. The outer side belongs to the actual Rubii sender/message; a single HTML card cannot create separate user and character messages or change its sender role.
+- For real user-vs-character message styling, use the Global CSS role selectors documented by Rubii: `.rubii-message-user` and `.rubii-message-character`. Do not use `{{user}}`/`{{char}}`, `text-align`, or a nested card's `align-self` to control the outer Rubii message side.
+- For a mock conversation contained inside one card, wrap each bubble in a full-width row: `display:flex;flex-direction:row;width:100%;box-sizing:border-box;justify-content:flex-start` for the left side or `justify-content:flex-end` for the right side. Put the bubble inside that row and constrain it with `max-width`.
+- Do not rely on `align-self` on the bubble itself to position it horizontally. It controls the cross axis and may be ignored by the app renderer. The full-width row pattern above was confirmed in the user's phone Preview; use it for chat-card bubble alignment.
+- When a message row contains an avatar and a bubble, explicitly set that inner row to `display:flex;flex-direction:row;align-items:flex-end` so React Native's column default does not stack them vertically.
+- Do not confuse `text-align:right` or a right-aligned timestamp row with right-aligning the message bubble itself.
+- Rubii's Styles & Regex require APP 2.4.2 or later. Complex layout may still differ between Web and APP; record the app version when auditing behavior beyond the confirmed row-wrapper pattern.

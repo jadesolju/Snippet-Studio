@@ -1,0 +1,555 @@
+# Translation readiness report: 简体中文 (/zh)
+
+- Locale: `zh-CN` / HTML lang: `zh-Hans`
+- Completion: 7% (47/607 tracked items)
+- Cards translated and structurally valid (drafts included): 0/101
+- Published cards: 0/101
+- Categories translated: 9/9
+- UI keys translated and distinct from Thai: 38/38
+- Brand keys intentionally unchanged: meta.title, meta.ogTitle
+- Thai template strings still untranslated: 201/201
+- JavaScript UI text values still untranslated: 257/257
+- JavaScript source lines containing Thai (includes Thai-source detection rules): 525
+- Guide translated with no Thai text remaining: no
+- Approval file: missing
+
+## Missing or incomplete categories
+
+- None
+
+## Missing cards
+
+- `snippet-01` — Glass Status Card
+- `snippet-02` — Centered Event Card
+- `snippet-03` — Standby Widget
+- `snippet-04` — Editorial Notice Card
+- `snippet-05` — Focus Alert
+- `snippet-06` — Calendar Incident Card
+- `snippet-07` — Control Panel Alert Log
+- `snippet-08` — Compact Date Notice
+- `snippet-09` — LINE Chat
+- `snippet-10` — Instagram Direct Message
+- `snippet-11` — Messenger Chat
+- `snippet-12` — Instagram Feed Post
+- `snippet-13` — Instagram Story
+- `snippet-14` — Facebook Status
+- `snippet-15` — LINE Notification Center
+- `snippet-16` — Instagram Profile
+- `snippet-17` — Social Activity Log
+- `snippet-18` — OnlyFans Creator Post
+- `snippet-19` — Fansly VIP Post
+- `snippet-20` — Patreon Creator Post
+- `snippet-21` — Private X Post
+- `snippet-22` — Hidden Album
+- `snippet-23` — ChatGPT Conversation
+- `snippet-24` — Gemini Conversation
+- `snippet-25` — Grok Conversation
+- `snippet-26` — K PLUS Transfer
+- `snippet-27` — SCB Easy Transfer
+- `snippet-28` — Krungthai NEXT Transfer
+- `snippet-29` — Krungsri KMA Transfer
+- `snippet-30` — UOB TMRW Transfer
+- `snippet-31` — TrueMoney Wallet Transfer
+- `snippet-32` — Transfer Success Receipt
+- `snippet-33` — Money Sent Receipt
+- `snippet-34` — Character Transfer Receipt
+- `snippet-35` — International Payment Dispatch
+- `snippet-36` — Thai Transfer Receipt
+- `snippet-38` — KBANK Vertical E-Slip
+- `snippet-39` — SCB Vertical E-Slip
+- `snippet-40` — Krungthai Vertical E-Slip
+- `snippet-41` — Krungsri Vertical E-Slip
+- `snippet-42` — TrueMoney Vertical Receipt
+- `snippet-43` — Instagram Photo Post
+- `snippet-44` — Facebook Photo Post
+- `snippet-45` — X Photo Post
+- `snippet-46` — Facebook Feed Post
+- `snippet-47` — X Feed Post
+- `snippet-48` — Google Search & History
+- `snippet-49` — Google Trends Realtime
+- `snippet-50` — Safari Start Page
+- `snippet-51` — Maison Glass Cafe Receipt
+- `snippet-52` — Cafe Life & Energy Meter
+- `snippet-53` — Daily Status Terminal
+- `snippet-54` — Cozy Room Shot
+- `snippet-55` — Moment Slice of Life
+- `snippet-77` — 🎀 HELLO KITTY EMOTION
+- `snippet-78` — ✨ ANGEL KITTY
+- `snippet-79` — 🌈 SPONGEBOB IMAGINATION
+- `snippet-80` — 🐾 ORANGE CAT MOOD
+- `snippet-81` — 🍓 STRAWBERRY CAT
+- `snippet-82` — 🫧 OCEAN EMOTION
+- `snippet-83` — 🦆 BUTTER DUCK
+- `snippet-84` — ❄️ ICE PENGUIN DIARY
+- `snippet-85` — 🦖 BABY DINO MEADOW
+- `snippet-86` — 🦈 CUTE SHARK BAY
+- `snippet-87` — 🍊 CAPYBARA ONSEN
+- `snippet-88` — 🐰 SWEET CANDY BUNNY
+- `snippet-89` — 🍓 CHAPTER ENTRY
+- `snippet-90` — 🪼 OCEAN TIME
+- `snippet-91` — 🌼 MORNING SCENE
+- `snippet-92` — 🐧 POLAR LOG
+- `snippet-93` — 🍊 ONSEN RELAX
+- `snippet-94` — 🐰 SWEET POP
+- `snippet-95` — 🦖 DINO PARK
+- `snippet-96` — 🦈 SHARK BAY
+- `snippet-97` — 🐱 COZY CAT
+- `snippet-98` — ✨ SCENE BANNER · GIF
+- `snippet-99` — 🎀 KITTY TIME
+- `snippet-100` — 😇 ANGEL WINGS
+- `snippet-101` — 🧽 IMAGINATION · SPONGEBOB
+- `snippet-102` — 🐈 HEADPAT LOG
+- `snippet-56` — Emotion 4-Grid Index
+- `snippet-57` — Target Monitor Tracker
+- `snippet-58` — Affection Matrix Readout
+- `snippet-59` — Emotional Stats Sync
+- `snippet-60` — Pocket Article Save
+- `snippet-61` — Daily Activity Schedule
+- `snippet-62` — Weekly Sprint Task Plan
+- `snippet-63` — Action Memo Capsule
+- `snippet-64` — Pixel Grand Prix Results
+- `snippet-65` — Pixel Pocket Console
+- `snippet-66` — Classic DMG-01 Game Boy
+- `snippet-67` — Compact Music Player
+- `snippet-68` — Vinyl Record Album Player
+- `snippet-69` — Listening Together Capsule
+- `snippet-70` — Apple Music Lyrics Quote
+- `snippet-71` — Y2K Cyber Scene (Pink Glass)
+- `snippet-72` — Speedway Midnight Drive
+- `snippet-73` — Digital Paradise (Cyan Glass)
+- `snippet-74` — Retro OS Window Explorer
+- `snippet-75` — Cyberpunk Sci-Fi HUD SysLog
+- `snippet-76` — Chrome Incognito Mode
+
+## Translation drafts pending review
+
+- None
+
+## Card validation issues
+
+- `snippet-01` (Glass Status Card): missing entry
+- `snippet-02` (Centered Event Card): missing entry
+- `snippet-03` (Standby Widget): missing entry
+- `snippet-04` (Editorial Notice Card): missing entry
+- `snippet-05` (Focus Alert): missing entry
+- `snippet-06` (Calendar Incident Card): missing entry
+- `snippet-07` (Control Panel Alert Log): missing entry
+- `snippet-08` (Compact Date Notice): missing entry
+- `snippet-09` (LINE Chat): missing entry
+- `snippet-10` (Instagram Direct Message): missing entry
+- `snippet-11` (Messenger Chat): missing entry
+- `snippet-12` (Instagram Feed Post): missing entry
+- `snippet-13` (Instagram Story): missing entry
+- `snippet-14` (Facebook Status): missing entry
+- `snippet-15` (LINE Notification Center): missing entry
+- `snippet-16` (Instagram Profile): missing entry
+- `snippet-17` (Social Activity Log): missing entry
+- `snippet-18` (OnlyFans Creator Post): missing entry
+- `snippet-19` (Fansly VIP Post): missing entry
+- `snippet-20` (Patreon Creator Post): missing entry
+- `snippet-21` (Private X Post): missing entry
+- `snippet-22` (Hidden Album): missing entry
+- `snippet-23` (ChatGPT Conversation): missing entry
+- `snippet-24` (Gemini Conversation): missing entry
+- `snippet-25` (Grok Conversation): missing entry
+- `snippet-26` (K PLUS Transfer): missing entry
+- `snippet-27` (SCB Easy Transfer): missing entry
+- `snippet-28` (Krungthai NEXT Transfer): missing entry
+- `snippet-29` (Krungsri KMA Transfer): missing entry
+- `snippet-30` (UOB TMRW Transfer): missing entry
+- `snippet-31` (TrueMoney Wallet Transfer): missing entry
+- `snippet-32` (Transfer Success Receipt): missing entry
+- `snippet-33` (Money Sent Receipt): missing entry
+- `snippet-34` (Character Transfer Receipt): missing entry
+- `snippet-35` (International Payment Dispatch): missing entry
+- `snippet-36` (Thai Transfer Receipt): missing entry
+- `snippet-38` (KBANK Vertical E-Slip): missing entry
+- `snippet-39` (SCB Vertical E-Slip): missing entry
+- `snippet-40` (Krungthai Vertical E-Slip): missing entry
+- `snippet-41` (Krungsri Vertical E-Slip): missing entry
+- `snippet-42` (TrueMoney Vertical Receipt): missing entry
+- `snippet-43` (Instagram Photo Post): missing entry
+- `snippet-44` (Facebook Photo Post): missing entry
+- `snippet-45` (X Photo Post): missing entry
+- `snippet-46` (Facebook Feed Post): missing entry
+- `snippet-47` (X Feed Post): missing entry
+- `snippet-48` (Google Search & History): missing entry
+- `snippet-49` (Google Trends Realtime): missing entry
+- `snippet-50` (Safari Start Page): missing entry
+- `snippet-51` (Maison Glass Cafe Receipt): missing entry
+- `snippet-52` (Cafe Life & Energy Meter): missing entry
+- `snippet-53` (Daily Status Terminal): missing entry
+- `snippet-54` (Cozy Room Shot): missing entry
+- `snippet-55` (Moment Slice of Life): missing entry
+- `snippet-77` (🎀 HELLO KITTY EMOTION): missing entry
+- `snippet-78` (✨ ANGEL KITTY): missing entry
+- `snippet-79` (🌈 SPONGEBOB IMAGINATION): missing entry
+- `snippet-80` (🐾 ORANGE CAT MOOD): missing entry
+- `snippet-81` (🍓 STRAWBERRY CAT): missing entry
+- `snippet-82` (🫧 OCEAN EMOTION): missing entry
+- `snippet-83` (🦆 BUTTER DUCK): missing entry
+- `snippet-84` (❄️ ICE PENGUIN DIARY): missing entry
+- `snippet-85` (🦖 BABY DINO MEADOW): missing entry
+- `snippet-86` (🦈 CUTE SHARK BAY): missing entry
+- `snippet-87` (🍊 CAPYBARA ONSEN): missing entry
+- `snippet-88` (🐰 SWEET CANDY BUNNY): missing entry
+- `snippet-89` (🍓 CHAPTER ENTRY): missing entry
+- `snippet-90` (🪼 OCEAN TIME): missing entry
+- `snippet-91` (🌼 MORNING SCENE): missing entry
+- `snippet-92` (🐧 POLAR LOG): missing entry
+- `snippet-93` (🍊 ONSEN RELAX): missing entry
+- `snippet-94` (🐰 SWEET POP): missing entry
+- `snippet-95` (🦖 DINO PARK): missing entry
+- `snippet-96` (🦈 SHARK BAY): missing entry
+- `snippet-97` (🐱 COZY CAT): missing entry
+- `snippet-98` (✨ SCENE BANNER · GIF): missing entry
+- `snippet-99` (🎀 KITTY TIME): missing entry
+- `snippet-100` (😇 ANGEL WINGS): missing entry
+- `snippet-101` (🧽 IMAGINATION · SPONGEBOB): missing entry
+- `snippet-102` (🐈 HEADPAT LOG): missing entry
+- `snippet-56` (Emotion 4-Grid Index): missing entry
+- `snippet-57` (Target Monitor Tracker): missing entry
+- `snippet-58` (Affection Matrix Readout): missing entry
+- `snippet-59` (Emotional Stats Sync): missing entry
+- `snippet-60` (Pocket Article Save): missing entry
+- `snippet-61` (Daily Activity Schedule): missing entry
+- `snippet-62` (Weekly Sprint Task Plan): missing entry
+- `snippet-63` (Action Memo Capsule): missing entry
+- `snippet-64` (Pixel Grand Prix Results): missing entry
+- `snippet-65` (Pixel Pocket Console): missing entry
+- `snippet-66` (Classic DMG-01 Game Boy): missing entry
+- `snippet-67` (Compact Music Player): missing entry
+- `snippet-68` (Vinyl Record Album Player): missing entry
+- `snippet-69` (Listening Together Capsule): missing entry
+- `snippet-70` (Apple Music Lyrics Quote): missing entry
+- `snippet-71` (Y2K Cyber Scene (Pink Glass)): missing entry
+- `snippet-72` (Speedway Midnight Drive): missing entry
+- `snippet-73` (Digital Paradise (Cyan Glass)): missing entry
+- `snippet-74` (Retro OS Window Explorer): missing entry
+- `snippet-75` (Cyberpunk Sci-Fi HUD SysLog): missing entry
+- `snippet-76` (Chrome Incognito Mode): missing entry
+
+## Missing UI keys
+
+- None
+
+## UI values still identical to Thai
+
+- None
+
+## Untranslated Thai text in HTML templates
+
+- หมวด
+- ชื่อตัวอย่าง
+- สามารถเปิด/ปิดเพื่อคลิกแก้ไขข้อความบนการ์ดได้โดยตรง
+- ใส่รูปพื้นหลังการ์ด
+- ระบบจะปรับภาพให้เต็มการ์ดโดยอัตโนมัติ
+- URL รูปพื้นหลังของการ์ด
+- QUICK EDIT · ปรับค่าตัวอย่าง
+- แก้ Marker และข้อความในวงเล็บได้ทันที ส่วนวันที่ เวลา เงิน สถิติ หรือค่าอื่นที่อาจเปลี่ยนจะติดป้าย “ตรวจดู”
+- ทั้งหมด
+- ข้อความ &amp; ตัวแปร
+- สีอักษร &amp; เงา
+- สี &amp; องค์ประกอบ
+- รูปภาพ
+- การปรับแต่งตัวอักษร สี และเงาโดยรวมของการ์ด (Card Typography &amp; Glow)
+- สีอักษรหลักของการ์ด (Card Text Color)
+- ตามเทมเพลต (Default)
+- ขาวสว่าง (White)
+- ดำเข้ม (Dark)
+- ทองอ่อน (Light Gold)
+- ฟ้านีออน (Neon Cyan)
+- ม่วงนีออน (Neon Purple)
+- เขียวมินต์ (Mint Green)
+- แดงคอรัล (Coral Red)
+- กำหนดเอง (Custom)
+- ความหนาของตัวอักษร (Font Weight)
+- บางเบา (Light 300)
+- ปกติ (Regular 400)
+- กึ่งหนา (Medium 500)
+- หนาปานกลาง (Semi-Bold 600)
+- หนาเข้ม (Bold 700)
+- หนาพิเศษ (Extra Bold 800)
+- สไตล์และการตกแต่ง (Style &amp; Decoration)
+- ปกติ (Normal)
+- ตัวเอียง (Italic)
+- ขีดเส้นใต้ (Underline)
+- ตัวเอียง + ขีดเส้นใต้ (Italic &amp; Underline)
+- การแปลงรูปแบบตัวพิมพ์ (Text Transform)
+- ปกติ (None)
+- พิมพ์ใหญ่ทั้งหมด (UPPERCASE)
+- พิมพ์เล็กทั้งหมด (lowercase)
+- ตัวแรกพิมพ์ใหญ่ (Capitalize)
+- ระยะห่างตัวอักษร (Letter Spacing)
+- กระชับแน่น (Tight -0.5px)
+- ปกติ (Normal 0px)
+- โปร่งเล็กน้อย (+0.5px)
+- โปร่งสบาย (Wide +1px)
+- กว้างพิเศษ (Extra Wide +2px)
+- กว้างมาก (Ultra Wide +3px)
+- แบบอักษรของการ์ด (Font Family)
+- Sans-serif สากล (Modern Clean)
+- Monospace (โค้ด / สถิติ)
+- Serif (หรูหรา คลาสสิก)
+- Prompt / Display (ทันสมัย)
+- เงาข้อความ (Text Shadow)
+- ไม่ใส่เงา (None)
+- เงามืดนุ่มนวล (Soft Dark - แนะนำ)
+- เงาหนาหลายชั้น (Heavy Multi-Layer Shadow)
+- ตัดเส้นขอบคม (Sharp Outline / Stroke)
+- แสงเรืองนีออน (Neon Glow - ตามสีที่เลือก)
+- กำหนดเอง (Custom Shadow / Glow)
+- สีของเงาและแสง (Shadow &amp; Glow Tint)
+- ทองนีออน (Neon Gold)
+- เขียวมินต์ (Mint Glow)
+- ขาวฟุ้ง (Soft White)
+- รัศมีความฟุ้งของเงา (Shadow Blur)
+- ความหนา / ระยะเงา (Shadow Thickness &amp; Offset)
+- ตัวอย่างนี้ไม่มีค่าที่แก้ไขได้แยกไว้
+- ข้อความที่จะใส่เป็นช่อง $1 ใน Style tag
+- Style tag มีช่องแทนค่าเดียว ส่วน Regex เลือกข้อความได้หลายจุดแยกกัน
+- ตั้งค่าช่อง Regex
+- Marker ที่ระบุชัดจะถูกเลือกให้อัตโนมัติ ส่วนค่าที่อาจเปลี่ยน เช่น วันที่ เวลา จำนวนเงิน สถิติ รหัสอ้างอิง หรือข้อความบอกใบ้ จะแสดงเป็น “ตรวจดู” ให้เลือกเองเมื่อยืนยันว่าเป็นค่าที่ต้องเปลี่ยน ข้อความอื่นจะแสดงเป็น “ตัวอย่าง” แล้วระบบจะจับค่าตามลำดับเป็น
+- ถึง
+- และ
+- คงเป็นของ Rubii และไม่นับเป็น capture
+- วงเล็บเป็นขอบเขตที่จะแทน:
+- (สถานที่)
+- เปลี่ยนเฉพาะสถานที่ แต่
+- (ร้านอาหารบรรยากาศดี แถว สถานที่)
+- เปลี่ยนทั้งวลี วงเล็บต้องครอบช่วงที่ต้องการแทนทั้งหมด
+- เมื่อเลือกหลายช่อง ให้คั่นค่าตอนใช้แท็กด้วย
+- เช่น
+- &lt;tag&gt;ชื่อโพสต์\|\|ยอดไลก์&lt;/tag&gt;
+- ช่องเปอร์เซ็นต์จับเฉพาะตัวเลขและยอมรับเครื่องหมาย
+- ที่ตามหลังได้ Marker ข้อความเดียวกัน เช่น
+- จะใช้
+- ตัวเดียวแทนทุกตำแหน่งที่พบ; ถ้าต้องการค่าแยกกัน ให้ใช้ Marker คนละชื่อ
+- กฎ Regex เพิ่มเติม
+- คั่นด้วย \|
+- คั่นด้วย ,
+- ขึ้นบรรทัดใหม่
+- ＋ เพิ่มรูปแบบสำรอง
+- ＋ Regex เอง
+- เพิ่มรูปแบบสำรองเพื่อคัดลอก Replacement ของ Regex หลักไปใช้กับตัวคั่นอีกแบบโดยอัตโนมัติ หรือเพิ่ม Regex เองเมื่อโครงสร้างต้นทางต่างกัน แต่ละกฎจะแปลงข้อมูลเป็นผลลัพธ์ปลายทางได้ครบในตัว
+- โครงสร้างแยกชิ้นส่วน · คัดลอกโค้ดย่อย (Modular Parts)
+- ดูและคัดลอก HTML แต่ละชิ้นส่วนไปประกอบเองได้
+- โค้ด & Config ตัวอย่าง
+- แก้ไขโค้ดและ Config ได้โดยตรง
+- เพิ่มรายการใหม่ได้จากไฟล์ข้อมูลคลังโค้ด
+- @aria-label=เปลี่ยนตัวอย่าง
+- @aria-label=รายการก่อนหน้า
+- @aria-label=รายการถัดไป
+- @placeholder=วางลิงก์รูปภาพ เช่น https://…
+- @title=พรีวิวโค้ดตัวอย่าง
+- @aria-label=หมวดหมู่การปรับแต่ง
+- @title=คลิกเพื่อเลือกสีข้อความ (มี EyeDropper)
+- @aria-label=เลือกสีข้อความ
+- @aria-label=สีข้อความหลักใน Quick Edit
+- @aria-label=ความหนาตัวอักษร
+- @aria-label=สไตล์ตัวอักษร
+- @aria-label=การแปลงตัวพิมพ์
+- @aria-label=ระยะห่างตัวอักษร
+- @aria-label=แบบอักษรของการ์ด
+- @aria-label=รูปแบบเงาข้อความใน Quick Edit
+- @title=คลิกเพื่อเลือกสีเงาหรือแสงนีออน
+- @aria-label=เลือกสีเงา
+- @aria-label=สีเงาข้อความใน Quick Edit
+- @aria-label=ความฟุ้งของเงา
+- @aria-label=ความหนาหรือระยะของเงา
+- @aria-label=ตัวคั่นของ Regex สำรอง
+- @title=รีเซ็ตโค้ดและการตั้งค่าทั้งหมดของการ์ดนี้กลับเป็นค่าเริ่มต้น
+- @aria-label=ชนิดโค้ด
+- @placeholder=สามารถพิมพ์แก้ไขโค้ดหรือ Config ตรงนี้ได้โดยตรง...
+- เลือกโค้ดจากคลัง แล้ว Studio จะแสดง HTML แม่แบบ, HTML ต้นฉบับ, CSS ส่วนกลาง, Regex, ข้อความทดสอบ และ System Prompt แยกเป็นแท็บ ปรับชื่อแท็กและจุดแทนข้อความได้จากหน้าเดียว
+- 1. เลือกโค้ด
+- 3. CSS ส่วนกลาง
+- 5. ข้อความทดสอบและ System Prompt
+- เลือก Raw HTML แล้วให้ Studio แยกส่วน
+- เลือกตัวอย่างจาก dropdown หมวดและรายการโค้ด ระบบจะแบ่ง HTML ตาม element หลักให้แก้เป็นส่วน ๆ ได้ ส่วน Quick Edit ใช้เปลี่ยนข้อความและ URL รูป ส่วนตัวเลือกสีมีทั้ง color picker, ช่องโค้ดสี และแถบ opacity พร้อมพรีวิวการ์ดทันที
+- ช่อง “ข้อความที่จะใส่เป็นช่อง $1” เลือกเนื้อหาที่เปลี่ยนตามคำตอบ Studio เลือกข้อความที่น่าจะเป็นเนื้อหาหลักให้อัตโนมัติ และสร้าง Style tag template จาก Raw HTML ทั้งก้อน
+- พื้นหลังจากช่องตั้งค่าถูกใส่บน element หลักและย้ายเข้า CSS ส่วนกลางที่สร้างให้ ส่วนพรีวิวเป็น browser iframe จึงยืนยันได้เฉพาะผลใน browser
+- แยก HTML ต้นฉบับกับ HTML แม่แบบ
+- แท็บ
+- HTML แม่แบบ (Style tag)
+- คือโครงสร้างการ์ดที่แยก inline style เป็น class แล้ว แทนข้อความที่เลือกด้วย
+- หนึ่งจุด
+- HTML ต้นฉบับ
+- คือ Raw HTML เดิมที่ยังมี inline style อยู่ ใช้เทียบกับแม่แบบได้ ส่วน CSS ที่ดึงออกมาจะอยู่ในแท็บ
+- CSS ส่วนกลาง
+- ชื่อแท็กแก้ได้ใน Quick Edit เช่น
+- ส่วนแท็บ
+- ข้อความทดสอบ (Output)
+- แสดงค่าทดลองในแท็ก เพื่อเห็นลำดับและรูปแบบข้อมูลที่ต้องส่งเข้า
+- ข้อความทดสอบก่อนแปลง
+- &lt;rubii21&gt;ฝนเพิ่งหยุดตก Mira มองไปยังชานชาลา&lt;/rubii21&gt;
+- CSS ส่วนกลางถูกดึงจาก inline style
+- รวมกฎจาก
+- ของทุก element ให้เป็น class selector พร้อมใส่ class ที่ตรงกันไว้ใน HTML แม่แบบ การแก้สี พื้นหลัง หรือส่วนย่อยจะสร้าง CSS ใหม่ตามการแก้ไข สำหรับภาพหรือ GIF ที่เป็นเนื้อหา ให้ใช้
+- แล้วกำหนดขนาดด้วย CSS
+- ใน Rubii ให้วางกฎที่สร้างในช่อง Global CSS และใช้ selector ที่ตรงกับ class ใน HTML template ไม่ต้องใส่แท็ก
+- ครอบ CSS จากเว็บทั้งหน้า เช่น
+- … 51 more
+
+## Untranslated JavaScript UI strings
+
+- HTML แม่แบบ (Style tag)
+- CSS ส่วนกลาง
+- ข้อความทดสอบ (Output)
+- การตั้งค่า
+- ชื่อตัวละคร
+- ชื่อผู้ใช้
+- เวลา
+- วันที่
+- สถานที่
+- จำนวนเงิน
+- ข้อความตัวอย่าง
+- การ์ดหลัก
+- ป้ายสถานะ
+- สีข้อความหลัก (Text Color)
+- ป้าย
+- โปรไฟล์
+- สีข้อความรอง (Secondary Text Color)
+- สี
+- สีพื้นหลังการ์ดหลัก (Main BG)
+- สีพื้นหลังกล่อง (Box BG)
+- สีเส้นขอบการ์ด (Card Border)
+- สีเส้นขอบกล่อง (Border)
+- สีเงาตกกระทบ (Card Shadow)
+- สีข้อความ (Text Color)
+- เวลาเข้าเส้นชัย
+- รอบการแข่งขัน
+- อันดับปัจจุบัน
+- เวลาที่เล่นแล้ว
+- เวลาที่เหลือ
+- ความยาวเพลง
+- เวลาท่อนเพลง
+- วันที่ของฉาก
+- 8 ต.ค. 2569
+- วันที่ของฉากแบบอังกฤษ
+- เวลาของฉาก
+- 01:11 น.
+- วันที่บันทึกแบบตัวเลข
+- เวลาบันทึก
+- วันที่ระบบ
+- เวลาระบบ
+- เปอร์เซ็นต์แบตเตอรี่
+- สถานะอัปเดต
+- สถานะออนไลน์
+- ขนาดไฟล์
+- จำนวนเงินตัวอักษร
+- เจ็ดหมื่นห้าพันบาทถ้วน
+- ท่อนเนื้อเพลงก่อนหน้า
+- คืนนี้ลมหนาวพัดผ่านหน้าต่าง
+- ท่อนเนื้อเพลงหลัก
+- ฉันยังเลือกเดินข้างเธอ
+- ท่อนเนื้อเพลงถัดไป
+- ปลายทางค่อย ๆ สว่างขึ้น
+- ชื่อเพลงประกอบฉาก
+- เปอร์เซ็นต์พลังงาน
+- เปอร์เซ็นต์ความสุข
+- เวลาบันทึกสถิติ
+- 21:30 น.
+- เปอร์เซ็นต์ความรัก
+- เปอร์เซ็นต์ความใคร่
+- เปอร์เซ็นต์ความหึงหวง
+- เปอร์เซ็นต์ความผูกพัน
+- เปอร์เซ็นต์การซิงก์
+- ข้อความโพสต์
+- คืนนี้มีภาพใหม่มาแชร์ เก็บบรรยากาศดี ๆ ไว้ในช่วงเวลานี้ 🌙
+- ชื่อชุดหรือแคมเปญ
+- เซตพิเศษฉลองยอดผู้ติดตาม
+- ข้อความโปรโมตโพสต์
+- ขอบคุณทุกคนที่คอยสนับสนุนกันนะคะ เซตนี้เก็บภาพช่วงเวลาพิเศษไว้ค่ะ! ❤️
+- ข้อความโพสต์ก่อนตั้งเป้าหมาย
+- ดึกแล้วลงรูปนี้ได้ยัง... ถ้ายอดรีถึง
+- ข้อความโพสต์หลังตั้งเป้าหมาย
+- เดี๋ยวมีคลิปต่อให้อีกนะ 🫣🖤
+- พฤติกรรมหรือคำพูดที่เกิดขึ้น
+- จับมือฉันต่อหน้าทุกคน
+- ทางเลือกที่กำลังลังเล
+- แกล้งทำเป็นไม่สนใจดีไหม หรือควรเป็นฝ่ายรุกก่อนดี
+- คำแนะนำจาก ChatGPT
+- ค่อย ๆ ถามถึงความรู้สึกของเขา แล้วสังเกตคำตอบก่อนตัดสินใจครับ
+- คำตอบหลังรับคำแนะนำจาก ChatGPT
+- เข้าใจแล้ว...คืนนี้จะลองชวนคุยดูก่อนนะ ขอบใจมาก
+- คำตอบหลังรับคำแนะนำจาก Gemini
+- งั้นจะรอจังหวะเหมาะ ๆ แล้วค่อยพูดดีกว่า
+- คำตอบหลังรับคำแนะนำจาก Grok
+- ร้ายกาจมากกก แต่น่าลองดีแฮะ...เดี๋ยวรู้เลย! 😏
+- ระดับความเชื่อใจ
+- ค่อนข้างมั่นคง
+- คำถามเกี่ยวกับการเปิดใจ
+- เปิดเรื่องในอดีตดีไหม
+- แนวทางที่ Gemini แนะนำ
+- เปิดใจทีละนิดโดยไม่เร่งรัด
+- พฤติกรรมหรือคำพูดที่ทำให้สงสัย
+- ทำเป็นไม่สนใจทั้งที่แอบหึง
+- คำถามที่อยากถาม Grok
+- ทำยังไงให้ยอมรับว่าหึง
+- คำแนะนำจาก Grok
+- ชวนคุยตรง ๆ แล้วสังเกตสีหน้าก่อน อย่าเพิ่งเดาไปเอง
+- ข้อความความคิดเห็น 1
+- GIF นี้ตรงกับชีวิตจริงมาก 55555
+- ข้อความแซวในความคิดเห็น 2
+- เห็นหรือยังเนี่ย?!
+- คำค้นหาก่อนชื่อผู้ใช้
+- วิธีทำให้
+- คำค้นหาหลังชื่อผู้ใช้
+- ประทับใจในเดตแรก
+- คำค้นหาไอเดียของขวัญก่อนชื่อผู้ใช้
+- ซื้อของขวัญอะไรให้
+- คำค้นหาส่วนท้ายไอเดียของขวัญ
+- ดี
+- คำค้นหาอาการเขินก่อนชื่อผู้ใช้
+- วิธีแก้เขินเวลาอยู่ใกล้
+- คำค้นหาร้านอาหารทั้งประโยค
+- ร้านอาหารบรรยากาศดีแถวสยาม
+- หัวข้อเทรนด์ก่อนชื่อคู่สนทนา
+- ข่าวลือล่าสุด
+- คำค้นหาวิธีปกปิดร่องรอย
+- วิธีปกปิดร่องรอยบนร่างกาย
+- คำค้นหาสถานที่เที่ยว
+- สถานที่เที่ยวลับ ๆ ในกรุงเทพฯ
+- กิจวัตรประจำวัน
+- เดินเล่นเรื่อยเปื่อย
+- กิจกรรมที่กำลังทำ
+- เปิดเพลงคลอเบา ๆ แล้วพักผ่อน
+- อารมณ์ของฉาก
+- สงบ
+- สถานะความรู้สึกของตัวละคร
+- รู้สึกผ่อนคลายและสบายใจ
+- เรย์กำลังตกอยู่ในภวังค์ความรักของคุณ
+- จินตนาการถึงคืนที่ได้ใช้เวลาส่วนตัวกับคุณ
+- เรย์กำลังรอให้คุณมาลูบหัวและกอด
+- กลิ่นสตรอว์เบอร์รีอ่อน ๆ ลอยมาเมื่อเรย์อยู่ใกล้คุณ
+- หัวใจพองโตเหมือนลอยอยู่ในน้ำทะเลอุ่นๆ
+- ใจเบาสบายเหมือนลอยอยู่ท่ามกลางคลื่นอุ่น ๆ
+- นุ่มฟู ละมุนใจ เหมือนได้ทานขนมอบสดใหม่
+- ละมุนอบอุ่นเหมือนนั่งพักในคาเฟ่
+- ท่ามกลางหิมะ เรย์ขอแบ่งปันไออุ่นกับคุณ
+- เจ้าไดโนตัวจิ๋วพร้อมพุ่งชนด้วยความรักแล้ว
+- เจ้าตัวจิ๋วกำลังวิ่งเข้ามาหาคุณอย่างร่าเริง
+- ใครเข้าใกล้คุณ ฉลามน้อยก็รีบว่ายมาหวงทันที!
+- นั่งแช่น้ำอุ่นคุยกับคุณอย่างสบายใจ
+- อยากวิ่งเข้าไปกอดคุณให้แน่น ๆ
+- เรย์เพิ่มภาพบรรยากาศร้านกาแฟลง Story
+- พักผ่อน
+- พักผ่อนหลังเลิกงาน
+- เดินเล่นในสวนกับคุณ
+- อ่านหนังสือกับคุณ
+- เรย์ ➔ คุณ
+- ดื่มกาแฟกับคุณที่คาเฟ่ริมแม่น้ำ
+- ไปดูหนังกับคุณ
+- เรย์ VS คุณ
+- เรย์ & คุณ
+- … 107 more
+
+## Unexpected IDs
+
+- Extra card IDs: none
+- Extra category IDs: none
+
+## Release gate
+
+Do not enable or deploy this locale. Review translations and this report, then add an approval file only after the owner explicitly approves it.

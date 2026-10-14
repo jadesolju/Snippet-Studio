@@ -50,6 +50,147 @@ function escapeHtml(str) {
     .replace(/"/g, "&quot;");
 }
 
+let uiStrings = {};
+let appStrings = {};
+const pageLanguage = (document.documentElement.lang || "th").toLowerCase();
+const pageLanguageSlug = ({
+  en: "en",
+  vi: "vi",
+  "zh-hans": "zh",
+  "zh-hant": "zh-hant",
+})[pageLanguage] ?? "th";
+// Thai bank-branded examples are only relevant in the Thai-language library.
+// Keep generic transfer receipts and international payment examples available in other locales.
+const THAILAND_ONLY_BANK_SNIPPET_IDS = new Set([
+  "snippet-26", // K PLUS
+  "snippet-27", // SCB Easy
+  "snippet-28", // Krungthai NEXT
+  "snippet-29", // Krungsri KMA
+  "snippet-36", // Thai Transfer Receipt
+  "snippet-38", // KBANK Vertical E-Slip
+  "snippet-39", // SCB Vertical E-Slip
+  "snippet-40", // Krungthai Vertical E-Slip
+  "snippet-41", // Krungsri Vertical E-Slip
+]);
+function pageLanguageSlugLocale() {
+  return ({
+    th: "th-TH",
+    en: "en-US",
+    vi: "vi-VN",
+    zh: "zh-CN",
+    "zh-hant": "zh-TW",
+  })[pageLanguageSlug] ?? "th-TH";
+}
+
+function t(key, params = {}) {
+  const value = uiStrings[key];
+  if (typeof value !== "string") {
+    console.error(`Missing UI translation: ${key} (${pageLanguageSlug})`);
+    return `⟦${key}⟧`;
+  }
+  return value.replace(/\{([a-zA-Z][\w]*)\}/g, (match, name) =>
+    Object.hasOwn(params, name) ? String(params[name]) : match
+  );
+}
+
+function translateAppValue(value) {
+  if ((pageLanguageSlug !== "en" && pageLanguageSlug !== "vi") || typeof value !== "string") return value;
+  const leading = value.match(/^\s*/u)?.[0] ?? "";
+  const trailing = value.match(/\s*$/u)?.[0] ?? "";
+  const content = value.slice(leading.length, value.length - trailing.length || undefined);
+  let translated = appStrings.text?.[content];
+  if (translated === undefined) {
+    const rules = pageLanguageSlug === "vi" ? [
+      [/^ตรวจดู · (.+)$/u, (_match, label) => `Cần xem lại · ${translateAppValue(label)}`],
+      [/^ค่าสถานะ \((.+)\)$/u, (_match, label) => `Trạng thái (${translateAppValue(label)})`],
+      [/^ค่า (.+)$/u, (_match, label) => `Giá trị ${translateAppValue(label)}`],
+      [/^สีพื้นหลัง(.+)$/u, (_match, label) => `Màu nền · ${translateAppValue(label)}`],
+      [/^สีเส้นขอบ(.+)$/u, (_match, label) => `Màu viền · ${translateAppValue(label)}`],
+      [/^Regex เพิ่มเติม (\d+)$/u, (_match, number) => `Regex bổ sung ${number}`],
+      [/^ชื่อ Regex เพิ่มเติม (\d+)$/u, (_match, number) => `Tên Regex bổ sung ${number}`],
+      [/^จุดทำงานของ Regex (\d+)$/u, (_match, number) => `Vị trí chạy Regex ${number}`],
+      [/^ตัวคั่นของ Regex สำรอง (\d+)$/u, (_match, number) => `Dấu phân tách Regex dự phòng ${number}`],
+      [/^เลื่อนกฎขึ้น: (.+)$/u, (_match, label) => `Chuyển quy tắc lên: ${translateAppValue(label)}`],
+      [/^เลื่อนกฎลง: (.+)$/u, (_match, label) => `Chuyển quy tắc xuống: ${translateAppValue(label)}`],
+      [/^ช่องที่ (\d+)$/u, (_match, number) => `Trường ${number}`],
+      [/^URL รูปไอคอน\/รูปภาพ (\d+)$/u, (_match, number) => `URL biểu tượng/hình ảnh ${number}`],
+      [/^โครงสร้าง <([a-z\d-]+)>$/iu, (_match, tag) => `Cấu trúc <${tag}>`],
+      [/^ส่วนที่ (\d+)$/u, (_match, number) => `Phần ${number}`],
+      [/^ค่า (\d+)$/u, (_match, number) => `Giá trị ${number}`]
+    ] : [
+      [/^ตรวจดู · (.+)$/u, (_match, label) => `Review · ${translateAppValue(label)}`],
+      [/^ค่าสถานะ \((.+)\)$/u, (_match, label) => `Status (${translateAppValue(label)})`],
+      [/^ค่า (.+)$/u, (_match, label) => `Value ${translateAppValue(label)}`],
+      [/^สีพื้นหลัง(.+)$/u, (_match, label) => `Background color · ${translateAppValue(label)}`],
+      [/^สีเส้นขอบ(.+)$/u, (_match, label) => `Border color · ${translateAppValue(label)}`],
+      [/^Regex เพิ่มเติม (\d+)$/u, (_match, number) => `Additional Regex ${number}`],
+      [/^ชื่อ Regex เพิ่มเติม (\d+)$/u, (_match, number) => `Additional Regex name ${number}`],
+      [/^จุดทำงานของ Regex (\d+)$/u, (_match, number) => `Regex stage ${number}`],
+      [/^ตัวคั่นของ Regex สำรอง (\d+)$/u, (_match, number) => `Fallback Regex delimiter ${number}`],
+      [/^เลื่อนกฎขึ้น: (.+)$/u, (_match, label) => `Move rule up: ${translateAppValue(label)}`],
+      [/^เลื่อนกฎลง: (.+)$/u, (_match, label) => `Move rule down: ${translateAppValue(label)}`],
+      [/^ช่องที่ (\d+)$/u, (_match, number) => `Field ${number}`],
+      [/^URL รูปไอคอน\/รูปภาพ (\d+)$/u, (_match, number) => `Icon/image URL ${number}`],
+      [/^โครงสร้าง <([a-z\d-]+)>$/iu, (_match, tag) => `<${tag}> structure`],
+      [/^ส่วนที่ (\d+)$/u, (_match, number) => `Section ${number}`],
+      [/^ค่า (\d+)$/u, (_match, number) => `Value ${number}`]
+    ];
+    for (const [pattern, replace] of rules) {
+      const match = content.match(pattern);
+      if (match) {
+        translated = replace(...match);
+        break;
+      }
+    }
+  }
+  return typeof translated === "string" ? `${leading}${translated}${trailing}` : value;
+}
+
+function localizeAppTextNode(node) {
+  const parent = node.parentElement;
+  if (!parent || parent.closest("script,style,textarea,input,[contenteditable='true']")) return;
+  const original = node.nodeValue;
+  const translated = translateAppValue(original);
+  if (translated !== original) node.nodeValue = translated;
+}
+
+function localizeAppElement(element) {
+  if (!(element instanceof Element)) return;
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  let node;
+  while ((node = walker.nextNode())) localizeAppTextNode(node);
+  for (const current of [element, ...element.querySelectorAll("*")]) {
+    for (const attribute of ["title", "aria-label", "placeholder"]) {
+      if (!current.hasAttribute(attribute)) continue;
+      const value = current.getAttribute(attribute);
+      const translated = translateAppValue(value);
+      if (translated !== value) current.setAttribute(attribute, translated);
+    }
+  }
+}
+
+function enableAppLocalization() {
+  if ((pageLanguageSlug !== "en" && pageLanguageSlug !== "vi") || !document.body) return;
+  localizeAppElement(document.body);
+  const observer = new MutationObserver((records) => {
+    for (const record of records) {
+      if (record.type === "characterData") localizeAppTextNode(record.target);
+      else if (record.type === "attributes") localizeAppElement(record.target);
+      else for (const node of record.addedNodes) {
+        if (node.nodeType === Node.TEXT_NODE) localizeAppTextNode(node);
+        else if (node.nodeType === Node.ELEMENT_NODE) localizeAppElement(node);
+      }
+    }
+  });
+  observer.observe(document.body, {
+    subtree: true,
+    childList: true,
+    characterData: true,
+    attributes: true,
+    attributeFilter: ["title", "aria-label", "placeholder"]
+  });
+}
+
 function highlightSnippetCode(code, activeTab = "template") {
   if (!code || typeof code !== "string") return "";
 
@@ -422,6 +563,8 @@ const htmlPartsBySnippet = new Map();
 const rubiiSettingsBySnippet = new Map();
 const fieldStylesBySnippet = new Map();
 let lastCodeSnippetId = "";
+window.snippetStudioHasUnsavedChanges = () =>
+  customCodeBySnippet.size > 0 || editValuesBySnippet.size > 0 || backgroundBySnippet.size > 0 || rubiiSettingsBySnippet.size > 0 || fieldStylesBySnippet.size > 0;
 
 function fieldStyles(snippet) {
   if (!snippet) return {};
@@ -561,7 +704,7 @@ function visibleSnippets() {
 
 function renderCategories() {
   const query = currentQuery();
-  const entries = [{ id: "all", title: "ทุกหมวด", count: snippets.filter((item) => matchesSearch(item, query)).length }];
+  const entries = [{ id: "all", title: t("library.allCategories"), count: snippets.filter((item) => matchesSearch(item, query)).length }];
   for (const category of categories) {
     const count = snippets.filter((item) => item.categoryId === category.id && matchesSearch(item, query)).length;
     if (count > 0 || !query) entries.push({ ...category, count });
@@ -584,7 +727,7 @@ function renderSnippetList(items) {
   if (!items.length) {
     const empty = document.createElement("p");
     empty.className = "no-results";
-    empty.textContent = "ไม่พบตัวอย่าง ลองค้นด้วยคำอื่นหรือเลือกหมวดอื่นดูนะ";
+    empty.textContent = t("library.noResults");
     snippetList.append(empty);
     return;
   }
@@ -603,7 +746,7 @@ function renderSnippetList(items) {
     const title = document.createElement("strong");
     title.textContent = snippet.title;
     const subtitle = document.createElement("small");
-    subtitle.textContent = category?.title ?? "ตัวอย่าง";
+    subtitle.textContent = category?.title ?? t("library.snippet");
     label.append(title, subtitle);
     button.append(number, label);
     button.addEventListener("click", () => {
@@ -2256,9 +2399,10 @@ function rubiiTextSlots(source) {
       if (/สถานที่|วันที่|เดือน|\bวัน\b|เวลา|hh:mm|\{\{char\}\}/i.test(target)) score -= 3;
       score += Math.min(target.length, 60) / 20;
       const context = text.replace(/\s+/g, " ").trim();
+      const contextLabel = context === target ? translateAppValue("ข้อความ") : context;
       const label = candidate.suggested
-        ? `${suggestedVariableLabel(candidate.suggestionType)} · ${target}`
-        : `${target} · ${context === target ? "ข้อความ" : context}`;
+        ? `${translateAppValue(suggestedVariableLabel(candidate.suggestionType))} · ${target}`
+        : `${target} · ${contextLabel}`;
       slots.push({
         id: `target:${target}`,
         nodeIndex,
@@ -2293,6 +2437,13 @@ function groupRubiiSlotsByTarget(slots) {
     else groups.set(slot.target, { slot, count: 1 });
   }
   return [...groups.values()];
+}
+
+function rubiiSharedSlotLabel(label, count) {
+  if (count <= 1) return label;
+  if (pageLanguageSlug === "en") return `${label} · used in ${count} places`;
+  if (pageLanguageSlug === "vi") return `${label} · dùng ở ${count} vị trí`;
+  return `${label} · ใช้ร่วมกัน ${count} จุด`;
 }
 
 function renderRubiiSlotControls(snippet) {
@@ -2349,7 +2500,7 @@ function renderRubiiSlotControls(snippet) {
   if (!slots.length) {
     const option = document.createElement("option");
     option.value = "";
-    option.textContent = "ไม่มีข้อความให้แทน — ใช้โครง HTML ทั้งก้อน";
+    option.textContent = translateAppValue("ไม่มีข้อความให้แทน — ใช้โครง HTML ทั้งก้อน");
     rubiiSlotSelect.append(option);
     rubiiSlotSelect.disabled = true;
     rubiiRegexCaptureList.replaceChildren();
@@ -2361,12 +2512,12 @@ function renderRubiiSlotControls(snippet) {
   rubiiSlotSelect.disabled = false;
   const placeholder = document.createElement("option");
   placeholder.value = "";
-  placeholder.textContent = "เลือกข้อความเพื่อกำหนดเป็น $1";
+  placeholder.textContent = translateAppValue("เลือกข้อความเพื่อกำหนดเป็น $1");
   rubiiSlotSelect.append(placeholder);
   for (const { slot, count } of slotGroups) {
     const option = document.createElement("option");
     option.value = slot.id;
-    const label = count > 1 ? `${slot.label} · ใช้ร่วมกัน ${count} จุด` : slot.label;
+    const label = rubiiSharedSlotLabel(slot.label, count);
     option.textContent = label.length > 110 ? `${label.slice(0, 107)}…` : label;
     rubiiSlotSelect.append(option);
   }
@@ -2385,11 +2536,11 @@ function renderRubiiSlotControls(snippet) {
     const varIndex = checkbox.checked ? state.regexSlotIds.indexOf(slot.id) + 1 : 0;
     const marker = document.createElement("span");
     marker.className = `rubii-regex-capture-kind${slot.suggested ? " is-suggestion" : ""}`;
-    marker.textContent = slot.explicit ? "marker" : slot.suggested ? "ตรวจดู" : "ตัวอย่าง";
-    if (slot.suggested) marker.title = "ระบบเดาว่าอาจเปลี่ยน แนะนำให้ตรวจสอบก่อนเลือก";
+    marker.textContent = slot.explicit ? "marker" : slot.suggested ? translateAppValue("ตรวจดู") : translateAppValue("ตัวอย่าง");
+    if (slot.suggested) marker.title = translateAppValue("ระบบเดาว่าอาจเปลี่ยน แนะนำให้ตรวจสอบก่อนเลือก");
     const text = document.createElement("span");
     text.className = "rubii-regex-capture-text";
-    text.textContent = `${slot.label}${count > 1 ? ` · ใช้ร่วมกัน ${count} จุด` : ""}`;
+    text.textContent = rubiiSharedSlotLabel(slot.label, count);
     if (varIndex > 0) {
       const colorIdx = ((varIndex - 1) % 8) + 1;
       const varBadge = document.createElement("span");
@@ -2423,7 +2574,9 @@ function renderExtraRegexRules(state, snippet) {
     const name = document.createElement("input");
     name.type = "text";
     name.dataset.regexRuleField = "name";
-    name.value = rule.name ?? `Regex เพิ่มเติม ${index + 1}`;
+    name.value = pageLanguageSlug === "en"
+      ? translateAppValue(rule.name ?? `Regex เพิ่มเติม ${index + 1}`)
+      : rule.name ?? `Regex เพิ่มเติม ${index + 1}`;
     name.setAttribute("aria-label", `ชื่อ Regex เพิ่มเติม ${index + 1}`);
     const stage = document.createElement("select");
     stage.dataset.regexRuleField = "stage";
@@ -2675,6 +2828,29 @@ function rubiiSlotLabel(slot, index, snippet) {
 function rubiiSampleValue(slot) {
   const raw = String(slot?.target ?? "").trim();
   const clean = raw.replace(/^\((.*)\)$/s, "$1").trim();
+  if (pageLanguageSlug === "en") {
+    const target = String(translateAppValue(clean) ?? clean).toLowerCase();
+    if (/\b(percent|percentage|love|desire|jealousy|bond|energy|happiness|battery|hp|mp|exp)\b|เปอร์เซ็นต์|ความรัก|ความใคร่|หึง|ผูกพัน|พลังงาน|ความสุข/.test(target)) return "88%";
+    if (/weekday|day of week|วันในสัปดาห์/.test(target)) return "Wednesday";
+    if (/date and time|วันที่และเวลา/.test(target)) return "Oct 6, 2026 · 20:39";
+    if (/\b(date|recorded|scene date)\b|วันที่|วันเดือนปี/.test(target)) return "Oct 6, 2026";
+    if (/\b(month|year)\b|เดือน|ปี/.test(target)) return "October 2026";
+    if (/\b(time|duration|elapsed|remaining|timestamp)\b|เวลา|ระยะเวลา/.test(target)) return "20:39";
+    if (/\b(location|place|venue|address)\b|สถานที่|พิกัด/.test(target)) return "Bangkok";
+    if (/\b(amount|price|fee|total|balance|money|cost|credit)\b|จำนวนเงิน|ยอดเงิน|ราคา|ค่าธรรมเนียม|เครดิต/.test(target)) return "50,000.00";
+    if (/\b(account|wallet|phone|telephone)\b|บัญชี|วอลเล็ท|เบอร์โทร/.test(target)) return "xxx-x-x8841-x";
+    if (/\b(reference|transaction id|ref)\b|อ้างอิง|เลขอ้างอิง|รหัส/.test(target)) return "REF-20261006-8821";
+    if (/\b(weather|temperature)\b|สภาพอากาศ|อุณหภูมิ/.test(target)) return "29°C · Mostly cloudy";
+    if (/\b(network|mobile network)\b|เครือข่าย/.test(target)) return "5G";
+    if (/\b(status|online|update)\b|สถานะ/.test(target)) return "Active now";
+    if (/\b(name|character|user|account name)\b|ชื่อ/.test(target)) return /user|ผู้ใช้/.test(target) ? "Alex" : "Ray";
+    if (/\b(song|track|artist|music|soundtrack|title)\b|เพลง|ศิลปิน/.test(target)) return "Midnight City Lights";
+    if (/\b(website|site|url)\b|เว็บไซต์|เว็บ/.test(target)) return "Example.com";
+    if (/\b(emoji|icon)\b|อีโมจิ|ไอคอน/.test(target)) return "✨";
+    if (/\b(message|reply|caption|comment|content|description|prompt|query|thought|activity|situation|post)\b|ข้อความ|คำบรรยาย|เนื้อหา|กิจกรรม|สถานการณ์|คำถาม|คำแนะนำ/.test(target)) return "A sample message for this card.";
+    if (/\b(count|number|likes|comments|followers|views|rank|level|quantity)\b|จำนวน|ยอด|อันดับ|ระดับ/.test(target)) return "24";
+    return "Example value";
+  }
   const semanticSamples = {
     "เครือข่ายมือถือ": "5G",
     "เวลาที่ผ่านมา": "5 นาทีที่แล้ว",
@@ -2912,6 +3088,9 @@ function rubiiSampleValue(slot) {
 }
 
 function buildRubiiSections(snippet) {
+  const englishMode = pageLanguageSlug === "en";
+  const vietnameseMode = pageLanguageSlug === "vi";
+  const localizedMode = englishMode || vietnameseMode;
   const source = htmlWithBackground(snippet, assembleRawHtml(snippet));
   const { slots } = rubiiTextSlots(source);
   const state = rubiiSettingsBySnippet.get(snippet.id) ?? {};
@@ -2922,30 +3101,67 @@ function buildRubiiSections(snippet) {
   const values = fieldValues(snippet);
   const customName = values.rubiiTagName;
   const tagName = /^[A-Za-z][A-Za-z0-9_-]*$/.test(customName ?? "") ? customName : defaultRubiiTagName(snippet);
-  const styleExample = `<${tagName}>${rubiiSampleValue(styleSlot)}</${tagName}>`;
+  const styleValue = translateAppValue(rubiiSampleValue(styleSlot));
+  const styleExample = `<${tagName}>${styleValue}</${tagName}>`;
   const regexOutput = regexSlots.length
-    ? `<${tagName}>${regexSlots.map((slot) => rubiiSampleValue(slot)).join("||")}</${tagName}>`
-    : styleSlot ? styleExample : "ยังไม่ได้เลือกช่อง — เลือก Marker หรือข้อความที่ตรวจดูแล้วก่อน";
-  const styleDescription = rubiiSlotLabel(styleSlot, 0, snippet) || "เนื้อหาหลัก";
-  const regexDescriptions = regexSlots.map((slot, index) => `\`$${index + 1}\` = ${rubiiSlotLabel(slot, index, snippet)}`).join("; ");
+    ? `<${tagName}>${regexSlots.map((slot) => translateAppValue(rubiiSampleValue(slot))).join("||")}</${tagName}>`
+    : styleSlot ? styleExample : localizedMode
+      ? translateAppValue("ยังไม่ได้เลือกช่อง — เลือก Marker หรือข้อความที่ตรวจดูแล้วก่อน")
+      : "ยังไม่ได้เลือกช่อง — เลือก Marker หรือข้อความที่ตรวจดูแล้วก่อน";
+  const styleDescription = translateAppValue(rubiiSlotLabel(styleSlot, 0, snippet)) || (localizedMode ? translateAppValue("เนื้อหาหลัก") : "เนื้อหาหลัก");
+  const regexDescriptions = regexSlots.map((slot, index) => `\`$${index + 1}\` = ${translateAppValue(rubiiSlotLabel(slot, index, snippet))}`).join("; ");
   const extraRules = state.extraRegexRules ?? [];
   const regexLines = [];
+  const patternLabel = vietnameseMode ? "Mẫu Regex:" : "Pattern:";
+  const replacementLabel = vietnameseMode ? "Chuỗi thay thế:" : "Replacement:";
   if (regexSlots.length) {
     regexLines.push(
-      `Regex 1 · หลายช่อง · เนื้อหาต้นฉบับ`,
-      `Pattern: ${buildRegexPattern(tagName, regexSlots)}`,
-      `Replacement: ${regexTemplate.template}`,
+      localizedMode ? translateAppValue("Regex 1 · หลายช่อง · เนื้อหาต้นฉบับ") : "Regex 1 · หลายช่อง · เนื้อหาต้นฉบับ",
+      `${patternLabel} ${buildRegexPattern(tagName, regexSlots)}`,
+      `${replacementLabel} ${regexTemplate.template}`,
     );
   }
   extraRules.forEach((rule, index) => {
     const generatedFallback = ["pipe", "comma", "newline"].includes(rule.generatedFormat);
     regexLines.push(
-      `Regex ${regexSlots.length ? index + 2 : index + 1} · ${rule.name || `Regex เพิ่มเติม ${index + 1}`} · ${rule.stage === "displayed" ? "ข้อความที่แสดง" : "เนื้อหาต้นฉบับ"}`,
-      `Pattern: ${generatedFallback ? buildRegexPattern(tagName, regexSlots, rule.generatedFormat) : rule.pattern || "(ยังไม่ได้กำหนด)"}`,
-      `Replacement: ${generatedFallback ? regexTemplate.template : rule.replacement || "(ยังไม่ได้กำหนด)"}`,
+      localizedMode
+        ? `Regex ${regexSlots.length ? index + 2 : index + 1} · ${translateAppValue(rule.name || `Regex เพิ่มเติม ${index + 1}`)} · ${translateAppValue(rule.stage === "displayed" ? "ข้อความที่แสดง" : "เนื้อหาต้นฉบับ")}`
+        : `Regex ${regexSlots.length ? index + 2 : index + 1} · ${rule.name || `Regex เพิ่มเติม ${index + 1}`} · ${rule.stage === "displayed" ? "ข้อความที่แสดง" : "เนื้อหาต้นฉบับ"}`,
+      `${patternLabel} ${generatedFallback ? buildRegexPattern(tagName, regexSlots, rule.generatedFormat) : rule.pattern || (localizedMode ? translateAppValue("(ยังไม่ได้กำหนด)") : "(ยังไม่ได้กำหนด)")}`,
+      `${replacementLabel} ${generatedFallback ? regexTemplate.template : rule.replacement || (localizedMode ? translateAppValue("(ยังไม่ได้กำหนด)") : "(ยังไม่ได้กำหนด)")}`,
     );
   });
-  const systemPrompt = [
+  const systemPrompt = englishMode ? [
+    `### ${snippet.title}`,
+    "",
+    `- When there is data for this card, use the tag \`<${tagName}>…</${tagName}>\``,
+    styleSlot ? `- **Style tag:** Put one value for \`${styleDescription}\` in the tag` : null,
+    regexSlots.length > 1
+      ? `- **Regex:** Keep this order: ${regexDescriptions}; separate values with \`||\``
+      : regexSlots.length === 1
+        ? `- **Regex:** Put one value for \`${translateAppValue(rubiiSlotLabel(regexSlots[0], 0, snippet))}\` in the tag`
+        : null,
+    regexSlots.length ? "- Use either a Style tag or Regex for this tag" : null,
+    regexSlots.length > 1 ? "- Do not include `||` in a value or write HTML/CSS" : "- Do not write HTML/CSS",
+    "",
+    "### Example message to send",
+    regexOutput,
+  ].filter((line) => line !== null).join("\n") : vietnameseMode ? [
+    `### ${snippet.title}`,
+    "",
+    `- Khi có dữ liệu cho thẻ này, hãy dùng tag \`<${tagName}>…</${tagName}>\``,
+    styleSlot ? `- **Style tag:** Đưa một giá trị cho \`${styleDescription}\` vào tag` : null,
+    regexSlots.length > 1
+      ? `- **Regex:** Giữ thứ tự này: ${regexDescriptions}; phân tách các giá trị bằng \`||\``
+      : regexSlots.length === 1
+        ? `- **Regex:** Đưa một giá trị cho \`${translateAppValue(rubiiSlotLabel(regexSlots[0], 0, snippet))}\` vào tag`
+        : null,
+    regexSlots.length ? "- Chỉ dùng Style tag hoặc Regex cho tag này" : null,
+    regexSlots.length > 1 ? "- Không đưa `||` vào giá trị và không viết HTML/CSS" : "- Không viết HTML/CSS",
+    "",
+    "### Tin nhắn mẫu cần gửi",
+    regexOutput,
+  ].filter((line) => line !== null).join("\n") : [
     `### ${snippet.title}`,
     "",
     `- เมื่อมีข้อมูลสำหรับการ์ดนี้ ให้ใช้แท็ก \`<${tagName}>…</${tagName}>\``,
@@ -2965,7 +3181,9 @@ function buildRubiiSections(snippet) {
     template: styleTemplate.template,
     html: applyFieldValues(snippet, assembleRawHtml(snippet)),
     css: styleTemplate.css,
-    regex: regexLines.length ? regexLines.join("\n\n") : "ยังไม่ได้เลือกช่องสำหรับ Regex — เลือกข้อความใน Quick Edit หรือเพิ่มกฎ Regex เพิ่มเติม",
+    regex: regexLines.length ? regexLines.join("\n\n") : localizedMode
+      ? translateAppValue("ยังไม่ได้เลือกช่องสำหรับ Regex — เลือกข้อความใน Quick Edit หรือเพิ่มกฎ Regex เพิ่มเติม")
+      : "ยังไม่ได้เลือกช่องสำหรับ Regex — เลือกข้อความใน Quick Edit หรือเพิ่มกฎ Regex เพิ่มเติม",
     output: regexOutput,
     settings: systemPrompt,
   };
@@ -2979,6 +3197,15 @@ function availableCodeKeys(snippet) {
 
 function codeLabelFor(snippet, key) {
   if (isRubiiHtmlSnippet(snippet)) {
+    if (pageLanguageSlug === "en") {
+      return ({
+        template: "HTML template (Style tag)",
+        html: "Raw HTML",
+        css: "Global CSS",
+        output: "Test text (Output)",
+        settings: "Character setup · System Prompt",
+      })[key] ?? "HTML";
+    }
     if (key === "template") return "HTML แม่แบบ (Style tag)";
     if (key === "html") return "HTML ต้นฉบับ";
     if (key === "css") return "CSS ส่วนกลาง";
@@ -2990,7 +3217,9 @@ function codeLabelFor(snippet, key) {
 
 function previewDocument(snippet) {
   let html = editedCode(snippet, "html");
-  const sampleValues = ["ตัวอย่างข้อความ", "ตัวอย่างสถานที่", "21:29", "29°C · มีเมฆมาก"];
+  const sampleValues = pageLanguageSlug === "en"
+    ? ["Sample text", "Bangkok", "21:29", "29°C · Mostly cloudy"]
+    : ["ตัวอย่างข้อความ", "ตัวอย่างสถานที่", "21:29", "29°C · มีเมฆมาก"];
   html = html.replace(/\$(\d+)/g, (_match, index) => sampleValues[Number(index) - 1] ?? "ตัวอย่าง");
   html = htmlWithBackground(snippet, html);
 
@@ -3811,23 +4040,64 @@ document.addEventListener("keydown", (event) => {
 
 async function start() {
   try {
-    const [categoriesRes, snippetsRes] = await Promise.all([
-      fetch("./data/snippet-categories.json"),
-      fetch("./data/snippets.json")
+    const uiResponse = await fetch(`/i18n/ui/${pageLanguageSlug}.json`);
+    if (!uiResponse.ok) throw new Error(`UI dictionary request failed: ${uiResponse.status}`);
+    uiStrings = await uiResponse.json();
+    if (pageLanguageSlug === "en" || pageLanguageSlug === "vi") {
+      const appResponse = await fetch(`/i18n/app/${pageLanguageSlug}.json`);
+      if (!appResponse.ok) throw new Error(`App dictionary request failed: ${appResponse.status}`);
+      appStrings = await appResponse.json();
+      try {
+        enableAppLocalization();
+      } catch (localizationError) {
+        console.error("Live app localization failed; continuing catalog load", localizationError);
+      }
+    }
+
+    const [categoriesResponse, snippetsResponse] = await Promise.all([
+      fetch(`/data/${pageLanguageSlug}/snippet-categories.json`),
+      fetch(`/data/${pageLanguageSlug}/snippets.json`)
     ]);
-    if (categoriesRes.ok && snippetsRes.ok) {
-      const rawCategories = await categoriesRes.json();
-      const rawSnippets = await snippetsRes.json();
-      categories = rawCategories.sort((a, b) => a.order - b.order);
-      const order = new Map(categories.map((category, index) => [category.id, index]));
-      snippets = rawSnippets.sort((a, b) => (order.get(a.categoryId) ?? 99) - (order.get(b.categoryId) ?? 99));
+    let categoriesResponseToRead = categoriesResponse;
+    let rawSnippets = [];
+    let catalogIncomplete = false;
+
+    if (!categoriesResponseToRead.ok && pageLanguageSlug !== "th") {
+      categoriesResponseToRead = await fetch("/data/th/snippet-categories.json");
+      catalogIncomplete = true;
+    }
+    if (!categoriesResponseToRead.ok) throw new Error(`Category catalog request failed: ${categoriesResponseToRead.status}`);
+
+    if (snippetsResponse.ok) {
+      rawSnippets = await snippetsResponse.json();
+    } else if (pageLanguageSlug !== "th") {
+      catalogIncomplete = true;
     } else {
-      const response = await fetch("/v1/snippets");
-      if (!response.ok) throw new Error(`Snippet catalog request failed: ${response.status}`);
-      const result = await response.json();
-      categories = result.data.categories.sort((a, b) => a.order - b.order);
-      const order = new Map(categories.map((category, index) => [category.id, index]));
-      snippets = result.data.snippets.sort((a, b) => (order.get(a.categoryId) ?? 99) - (order.get(b.categoryId) ?? 99));
+      throw new Error(`Snippet catalog request failed: ${snippetsResponse.status}`);
+    }
+
+    const rawCategories = await categoriesResponseToRead.json();
+    if (!Array.isArray(rawCategories) || !Array.isArray(rawSnippets)) {
+      throw new Error(`Invalid catalog format for ${pageLanguageSlug}`);
+    }
+
+    categories = rawCategories.sort((a, b) => a.order - b.order);
+    const order = new Map(categories.map((category, index) => [category.id, index]));
+    const isLocalPreview = document.body.dataset.localPreview === "true";
+    const showDraftPreview = isLocalPreview && new URLSearchParams(window.location.search).get("preview-drafts") === "1";
+    snippets = rawSnippets
+      .filter((item) => item.status === "published" || (showDraftPreview && item.status === "draft" && item.locale === pageLanguageSlugLocale()))
+      .filter((item) => pageLanguageSlug === "th" || !THAILAND_ONLY_BANK_SNIPPET_IDS.has(item.id))
+      .sort((a, b) => (order.get(a.categoryId) ?? 99) - (order.get(b.categoryId) ?? 99));
+    const fallbackNotice = document.getElementById("language-fallback-notice");
+    if (fallbackNotice && showDraftPreview) {
+      const draftCount = snippets.filter((item) => item.status === "draft").length;
+      fallbackNotice.textContent = t("language.draftPreview.notice", { count: draftCount });
+      fallbackNotice.hidden = false;
+    } else if (fallbackNotice && (catalogIncomplete || document.body.dataset.languageEnabled !== "true")) {
+      const previewingDisabledLanguage = isLocalPreview && document.body.dataset.languageEnabled !== "true";
+      fallbackNotice.textContent = t(previewingDisabledLanguage ? "language.preview.notice" : "language.fallback.notice");
+      fallbackNotice.hidden = false;
     }
     totalCount.textContent = snippets.length;
     selectedCategoryId = "all";
@@ -3837,6 +4107,12 @@ async function start() {
     console.error(err);
     loadingState.hidden = true;
     errorState.hidden = false;
+    const fallbackNotice = document.getElementById("language-fallback-notice");
+    if (fallbackNotice && document.body.dataset.localPreview === "true") {
+      const reason = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+      fallbackNotice.textContent = `Preview load error: ${reason}`;
+      fallbackNotice.hidden = false;
+    }
   }
 }
 

@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0d1120">
+        <title>Snippet Studio — HTML &amp; CSS Style Tag Studio</title>
+    <meta name="description" content="Thư viện và công cụ tùy chỉnh snippet HTML/CSS, Style tag và Regex với bản xem trước trực tiếp cho Rubii và chatbot.">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/jellyfish-logo.png">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="vi_VN">
+    <meta property="og:url" content="https://snippet-studio-swart.vercel.app/vi/guide">
+    <meta property="og:title" content="Snippet Studio — HTML &amp; CSS Style Tag Studio">
+    <meta property="og:description" content="Thư viện và công cụ tùy chỉnh snippet HTML/CSS, Style tag và Regex với bản xem trước trực tiếp cho Rubii và chatbot.">
+    <meta property="og:image" content="https://snippet-studio-swart.vercel.app/og-image.png">
+    <meta property="og:image:width" content="1672">
+    <meta property="og:image:height" content="941">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://snippet-studio-swart.vercel.app/vi/guide">
+    <meta name="twitter:title" content="Snippet Studio — HTML &amp; CSS Style Tag Studio">
+    <meta name="twitter:description" content="Thư viện và công cụ tùy chỉnh snippet HTML/CSS, Style tag và Regex với bản xem trước trực tiếp cho Rubii và chatbot.">
+    <meta name="twitter:image" content="https://snippet-studio-swart.vercel.app/og-image.png">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/language-switcher.js" defer></script>
+      <link rel="canonical" href="https://snippet-studio-swart.vercel.app/vi/guide">
+    <link rel="alternate" hreflang="th" href="https://snippet-studio-swart.vercel.app/th/guide">
+    <link rel="alternate" hreflang="en" href="https://snippet-studio-swart.vercel.app/en/guide">
+    <link rel="alternate" hreflang="vi" href="https://snippet-studio-swart.vercel.app/vi/guide">
+    <link rel="alternate" hreflang="x-default" href="https://snippet-studio-swart.vercel.app/th/guide">
+    </head>
+  <body data-language-enabled="true" data-local-preview="false">
+    <div class="app-shell guide-shell">
+      <header class="topbar">
+        <a class="brand" href="/vi" aria-label="Trang chủ Snippet Studio">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 40 40" role="presentation" focusable="false">
+              <defs>
+                <linearGradient id="jelly-bell" x1="9" y1="7" x2="31" y2="27" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#e4d7ff" />
+                  <stop offset=".55" stop-color="#b9a5ff" />
+                  <stop offset="1" stop-color="#87e6e4" />
+                </linearGradient>
+              </defs>
+              <path d="M10 19c0-7.2 4.5-12 10-12s10 4.8 10 12c0 2.7-4.5 4.6-10 4.6S10 21.7 10 19Z" fill="url(#jelly-bell)" />
+              <path d="M11.5 20.3c2.2 1.4 5.1 2.1 8.5 2.1s6.3-.7 8.5-2.1" fill="none" stroke="#f7efff" stroke-linecap="round" stroke-width="1.4" />
+              <path d="M14 24c-.2 3.3 1.5 3.5 1.3 6.2M20 24.1c0 2.7-.9 3.7-.4 6.1M26 24c.2 3.3-1.5 3.5-1.3 6.2" fill="none" stroke="#b9a5ff" stroke-linecap="round" stroke-width="1.7" />
+              <path d="m7.5 12 .6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6.6-1.4ZM32.5 9l.5 1.2 1.2.5-1.2.5-.5 1.2-.5-1.2-1.2-.5 1.2-.5.5-1.2Z" fill="#f4b8df" />
+              <circle cx="31.5" cy="27" r="1.2" fill="#8de8e4" />
+            </svg>
+          </span>
+          <span class="brand-copy">
+            <span class="eyebrow">JELLYFISH COSMIC</span>
+            <span class="brand-name">Snippet Studio</span>
+          </span>
+        </a>
+        <nav class="topbar-links" aria-label="Điều hướng chính">
+          <a href="/vi">Thư viện mã</a>
+          <a href="/vi/guide" aria-current="page">Hướng dẫn thiết lập</a>
+        </nav>
+        <label class="locale-switcher">
+          <span>Ngôn ngữ</span>
+          <select id="language-select" aria-label="Ngôn ngữ" data-confirm-switch="Chuyển ngôn ngữ? Những thay đổi bạn chưa sao chép sẽ bị mất.">
+            <option value="/th">Tiếng Thái</option><option value="/en">Tiếng Anh</option><option value="/vi" selected>Tiếng Việt</option>
+          </select>
+        </label>
+      </header>
+
+      <main class="guide-main">
+        <section class="guide-hero">
+          <p class="eyebrow intro-eyebrow">RAW HTML → RUBII CONFIG</p>
+          <h1>Chuyển mã thành cấu hình Rubii</h1>
+          <p>Chọn snippet trong thư viện, Studio sẽ hiển thị HTML template, Raw HTML, Global CSS, Regex, văn bản thử nghiệm và System Prompt trong các tab riêng. Bạn có thể chỉnh tên tag và các trường thay thế tại cùng một nơi.</p>
+          <a class="guide-return" href="/vi">← Quay lại thư viện mã</a>
+        </section>
+
+        <div class="guide-grid">
+          <nav class="guide-index" aria-label="Các chủ đề trong hướng dẫn">
+            <p class="eyebrow">IN THIS GUIDE</p>
+              <a href="#raw-html">1. Chọn snippet</a>
+              <a href="#style-tag">2. HTML template</a>
+              <a href="#global-css">3. Global CSS</a>
+              <a href="#regex">4. Regex</a>
+              <a href="#workflow">5. Văn bản thử nghiệm và System Prompt</a>
+          </nav>
+
+          <div class="guide-content">
+            <section id="raw-html" class="guide-card">
+              <p class="eyebrow">01 · START FROM YOUR CODE</p>
+              <h2>Chọn Raw HTML để Studio chia mã thành từng phần</h2>
+              <p>Chọn ví dụ từ danh sách danh mục và snippet. Studio chia HTML theo các thành phần chính để bạn chỉnh sửa từng phần. Quick Edit dùng để sửa văn bản và URL ảnh. Công cụ màu có bảng chọn màu, ô nhập mã màu và thanh điều chỉnh độ mờ, kèm bản xem trước thẻ tức thì.</p>
+              <p>Trường “Văn bản chèn vào dưới dạng $1” chọn nội dung sẽ thay đổi theo câu trả lời. Studio tự chọn phần có khả năng là nội dung chính và tạo Style tag template từ toàn bộ Raw HTML.</p>
+              <p class="guide-tip">Nền đã thiết lập được áp dụng cho phần tử chính và chuyển vào Global CSS được tạo ra. Bản xem trước chạy trong iframe của trình duyệt nên chỉ xác nhận cách hiển thị trên trình duyệt.</p>
+            </section>
+
+            <section id="style-tag" class="guide-card">
+              <p class="eyebrow">02 · STYLE TAG</p>
+              <h2>Tách Raw HTML khỏi HTML template</h2>
+              <p>tab. <strong>HTML template (Style tag)</strong> Đây là cấu trúc thẻ đã chuyển inline style thành class. Văn bản được chọn sẽ được thay bằng <code>$1</code> một giá trị.</p>
+              <p>tab. <strong>Raw HTML</strong> Đây là Raw HTML gốc với inline style được giữ nguyên để so sánh với template. CSS được trích xuất sẽ xuất hiện trong <strong>Global CSS</strong></p>
+              <p>Bạn có thể đổi tên tag trong Quick Edit, ví dụ <code>rubii21</code> Tab <strong>Văn bản thử nghiệm (Output)</strong> hiển thị giá trị mẫu bên trong tag để bạn thấy thứ tự và định dạng dữ liệu cần nhập.</p>
+              <div class="guide-example"><span>Văn bản thử nghiệm trước khi chuyển đổi</span><code>&lt;rubii21&gt;Mưa vừa tạnh. Mira nhìn về phía sân ga.&lt;/rubii21&gt;</code></div>
+            </section>
+
+            <section id="global-css" class="guide-card">
+              <p class="eyebrow">03 · GLOBAL CSS</p>
+              <h2>Global CSS được trích xuất từ inline style</h2>
+              <p>tab. <strong>Global CSS</strong> gộp các quy tắc từ <code>style="…"</code> trên từng element thành các class selector và thêm class tương ứng vào HTML template. Khi sửa màu, nền hoặc từng phần, CSS sẽ được tạo lại theo thay đổi. Với ảnh hoặc GIF dùng làm nội dung, hãy dùng <code>&lt;img src="…" alt="…" class="my-gif"&gt;</code> và đặt kích thước bằng CSS.</p>
+              <p class="guide-tip">Trong Rubii, hãy dán các quy tắc được tạo vào Global CSS và dùng selector khớp với class trong HTML template. Không bọc chúng trong <code>&lt;style&gt;</code> để bao bọc CSS toàn trang, chẳng hạn như <code>body</code> hoặc class riêng của website, có thể không tồn tại trong tin nhắn chat. Hãy chỉnh selector để trỏ đến element trong thẻ.</p>
+              <p>Bộ trích xuất CSS chỉ đọc <code>style="…"</code> trong HTML do Studio tạo. Công cụ không trích xuất CSS từ trang web nguồn, <code>&lt;link rel="stylesheet"&gt;</code> hoặc <code>&lt;style&gt;</code> block. Nếu tự sửa CSS trong trường mã, trường đó trở thành tùy chỉnh thủ công: bản xem trước vẫn có thể hiển thị nền từ style trong HTML, nhưng CSS được sao chép có thể thiếu quy tắc này và quy tắc sẽ không tự tạo lại khi đổi nền hoặc dùng Quick Edit.</p>
+            </section>
+
+            <section id="regex" class="guide-card">
+              <p class="eyebrow">04 · REGEX</p>
+              <h2>Regex có thể thay thế nhiều giá trị và bạn có thể thêm các quy tắc riêng</h2>
+              <p>Style tag sử dụng <code>$1</code> trường duy nhất ở vị trí đã chọn. Regex có thể chọn tối đa 33 giá trị văn bản và tự tạo capture group <code>$1</code> đến <code>$33</code> trong HTML replacement, hoặc thêm quy tắc Regex để tự định nghĩa pattern và replacement.</p>
+              <p>Studio tự động nhận diện các Marker như <code>(văn bản thay đổi)</code> hoặc <code>{{field}}</code> một cách tự động. Nếu nguồn là văn bản mẫu thông thường, hãy chọn từng giá trị thủ công vì Studio không thể biết giá trị có thay đổi khi sử dụng thật hay không. Các Marker giống nhau được lặp lại, chẳng hạn <code>(HH:MM)</code> sẽ dùng chung một capture cho mọi vị trí. Hãy đặt tên Marker khác nhau nếu cần các giá trị riêng biệt. Còn <code>{{user}}</code> và <code>{{char}}</code> vẫn là macro của Rubii và không được tính là capture.</p>
+              <p>Dấu ngoặc đơn xác định chính xác đoạn văn bản sẽ được thay thế: <code>nhà hàng đẹp gần 📍 (một địa điểm)</code> chỉ bắt địa điểm, còn <code>(một nhà hàng đẹp gần 📍 một địa điểm)</code> bắt toàn bộ cụm từ thành <code>$1</code> Không hỗ trợ ngoặc đơn lồng nhau. Nếu cụm từ đã có ngoặc đơn bên trong, hãy dùng Marker như <code>{{restaurant_query}}</code> thay vào đó.</p>
+              <div class="guide-example"><span>Khi bạn chọn 3 trường trong Quick Edit</span><code>&lt;tag&gt;tiêu đề bài đăng||số lượt thích||bình luận&lt;/tag&gt;</code></div>
+              <p>Với nhiều trường Regex, hãy dùng <code>||</code> để phân tách các giá trị theo thứ tự đã chọn. Không đưa <code>||</code> vào giá trị thực của trường. Trường phần trăm chỉ bắt con số và chấp nhận thêm <code>%</code> . Sau đó, replacement sẽ thêm <code>%</code> vào văn bản và thanh trạng thái.</p>
+              <p>Bạn có thể thêm và đặt tên cho nhiều quy tắc Regex, chọn từng quy tắc xử lý văn bản nguồn hay văn bản hiển thị, rồi sửa pattern và replacement. Nút định dạng thay thế sẽ sao chép phần replacement của Regex chính và tạo pattern theo dấu phân tách đã chọn. <code>|</code>, dấu phẩy hoặc xuống dòng. Dùng từng quy tắc cho một định dạng nguồn khác nhau; mỗi quy tắc cần tạo ra kết quả hoàn chỉnh.</p>
+              <div class="guide-columns">
+                <div><strong>Nội dung nguồn</strong><p>Xử lý văn bản thô, gồm Markdown, HTML, thuộc tính và CSS. Dùng để thay Marker hoặc cấu trúc lớn. Các quy tắc này chạy trước khi mở rộng Style tag.</p></div>
+                <div><strong>Văn bản hiển thị</strong><p>Chạy sau khi mở rộng Style tag và định dạng Markdown. Quy tắc chỉ thay đổi văn bản đang hiển thị; HTML tag và CSS được giữ nguyên.</p></div>
+              </div>
+              <p>Dùng định dạng biểu thức này <code>/pattern/flags</code> trong đó <code>$1</code> đến <code>$33</code> trong replacement tham chiếu đến capture group theo thứ tự. Rubii chạy các quy tắc Regex theo thứ tự đã thiết lập. Regex và Style tag là hai cách thay thế tag riêng biệt, vì vậy hãy chọn một cách cho mỗi tag.</p>
+            </section>
+
+            <section id="workflow" class="guide-card">
+              <p class="eyebrow">05 · GENERATED OUTPUT</p>
+              <h2>Văn bản thử nghiệm và hướng dẫn cho nhân vật</h2>
+              <p class="guide-tip">Output chỉ hiển thị giá trị mà mô hình đặt vào tag trước khi chuyển đổi, không phải thẻ đã hoàn thiện. Ví dụ, nếu chọn <code>{{user}}</code> bạn có thể chỉ thấy <code>&lt;cozy-room&gt;bạn&lt;/cozy-room&gt;</code></p>
+              <p><strong>Văn bản thử nghiệm (Output)</strong> là văn bản nguồn mà mô hình gửi trong cuộc trò chuyện trước khi Rubii chuyển thành thẻ. Studio điền sẵn các giá trị mẫu dễ đọc: Marker dùng ví dụ phù hợp với loại dữ liệu, còn văn bản cố định dùng nội dung HTML đã chọn. Hãy thay ví dụ bằng dữ liệu thật trước khi sử dụng và phân tách nhiều giá trị bằng <code>||</code></p>
+              <p><strong>Thiết lập nhân vật · System Prompt</strong> là Markdown gồm các tiêu đề và gạch đầu dòng ngắn, mô tả khi nào nên dùng tag, cần đưa dữ liệu nào vào và thứ tự các trường Regex. Phần này không yêu cầu nhân vật viết HTML hoặc CSS.</p>
+              <p>Đây là văn bản thông thường để nối vào System Prompt của nhân vật, không phải JSON hay tệp nhập. Nội dung sẽ cập nhật theo tên tag và các trường dữ liệu đã chọn.</p>
+              <p>Rubii áp dụng Regex cho nội dung nguồn trước khi mở rộng Style tag và Markdown. Sau đó, ứng dụng áp dụng Regex cho văn bản hiển thị và dùng Global CSS. Hãy lưu ý thứ tự này khi kết hợp Regex với Style tag.</p>
+              <p>Rubii cho biết Style Tags và Global CSS được hỗ trợ trên web và ứng dụng từ phiên bản 2.4.2 trở lên, đồng thời khuyến nghị kiểm tra trên cả hai nền tảng. Bản xem trước trong iframe của trình duyệt Studio không xác nhận được thẻ sẽ hiển thị như thế nào trong ứng dụng di động.</p>
+              <p class="guide-source">Tài liệu tham khảo: <a href="https://rubii.ai/blog/styles-and-regex" target="_blank" rel="noreferrer">Rubii · Styles &amp; regex</a></p>
+            </section>
+          </div>
+        </div>
+      </main>
+      <footer class="page-footer"><span>Snippet Studio</span><span>Hướng dẫn sử dụng HTML hiện có của bạn</span></footer>
+    </div>
+  </body>
+</html>
